@@ -31,4 +31,11 @@ HEADERS += \
         mainwindow.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+        metadata.ui
+
+DISTFILES += \
+    dialog_ui.py \
+    dialog_ui_copy.py \
+    main.py \
+    mainwindow_ui.py
