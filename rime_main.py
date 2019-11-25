@@ -3,9 +3,12 @@ import random
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QFileDialog
 
+from rime_editmeta import MetaDataEditWidget
+
 LABEL_WIDTH = 120
 
-class MyWidget(QtWidgets.QWidget):
+
+class MainPanelWidget(QtWidgets.QWidget):
     def __init__(self, MainWindow):
         super().__init__()
         self.MainWindow = MainWindow
@@ -27,7 +30,7 @@ class MyWidget(QtWidgets.QWidget):
         '''INPUT PAGE'''
         '''----------'''
 
-        '''Left part - input selections'''
+        '''---Left part - binary input selection---'''
         '''Components of binary selection group'''
         self.binaryFoldersLabel = QtWidgets.QLabel("Binaries location:")
         self.binaryFoldersLabel.setMinimumWidth(LABEL_WIDTH)
@@ -46,38 +49,63 @@ class MyWidget(QtWidgets.QWidget):
         inputBinariesGroup = QtWidgets.QGroupBox()
         inputBinariesGroup.setLayout(self.inputBinariesLayout)
 
+        '''---Left part - metadata input selection---'''
+        '''Components of metadata selection group'''
         self.metaDataLabel = QtWidgets.QLabel("Metadata file location:")
         self.metaDataLabel.setMinimumWidth(LABEL_WIDTH)
+
         self.metaDataButton = QtWidgets.QPushButton("...")
         self.metaDataButton.setObjectName("metaDataButton")
         self.metaDataButton.setMaximumWidth(30)
+
+        self.metaDataEditButton = QtWidgets.QPushButton("Edit")
+        self.metaDataEditButton.setObjectName("metaDataEditButton")
+        self.metaDataEditButton.setMaximumWidth(30)
+        self.metaDataEditButton.setEnabled(False)
+
         self.metaData = QtWidgets.QLineEdit()
         self.metaData.setObjectName("metaData")
 
-        self.metaDataLayout = QtWidgets.QHBoxLayout()
-        self.metaDataLayout.addWidget(self.metaDataLabel)
-        self.metaDataLayout.addWidget(self.metaData)
-        self.metaDataLayout.addWidget(self.metaDataButton)
+        '''Grid layout for metadata selection group'''
+        self.metaDataLayout = QtWidgets.QGridLayout()
+        self.metaDataLayout.addWidget(self.metaDataLabel, 0, 0)
+        self.metaDataLayout.addWidget(self.metaData, 0, 1)
+        self.metaDataLayout.addWidget(self.metaDataButton, 0, 2)
+        self.metaDataLayout.addWidget(self.metaDataEditButton, 1, 2)
+        '''Need to set the layout into a GroupBox so it can be added'''
         metaDataGroup = QtWidgets.QGroupBox()
         metaDataGroup.setLayout(self.metaDataLayout)
 
+        '''---Left part - catalog input selection---'''
+        '''Components of catalog selection group'''
         self.catalogLabel = QtWidgets.QLabel("Catalog file location:")
         self.catalogLabel.setMinimumWidth(LABEL_WIDTH)
         self.catalogButton = QtWidgets.QPushButton("...")
         self.catalogButton.setObjectName("CatalogButton")
         self.catalogButton.setMaximumWidth(30)
+
+        self.catalogEditButton = QtWidgets.QPushButton("Edit")
+        self.catalogEditButton.setObjectName("catalogEditButton")
+        self.catalogEditButton.setMaximumWidth(30)
+        self.catalogEditButton.setEnabled(False)
+
         self.catalog = QtWidgets.QLineEdit()
         self.catalog.setObjectName("Catalog")
 
-        self.catalogLayout = QtWidgets.QHBoxLayout()
-        self.catalogLayout.addWidget(self.catalogLabel)
-        self.catalogLayout.addWidget(self.catalog)
-        self.catalogLayout.addWidget(self.catalogButton)
+        '''Grid layout for catalog selection group'''
+        self.catalogLayout = QtWidgets.QGridLayout()
+        self.catalogLayout.addWidget(self.catalogLabel, 0, 0)
+        self.catalogLayout.addWidget(self.catalog, 0, 1)
+        self.catalogLayout.addWidget(self.catalogButton, 0, 2)
+        self.catalogLayout.addWidget(self.catalogEditButton, 1, 2)
+        '''Need to set the layout into a GroupBox so it can be added'''
         catalogGroup = QtWidgets.QGroupBox()
         catalogGroup.setLayout(self.catalogLayout)
 
+        '''---Right part - input statistics---'''
         self.sideLayout = QtWidgets.QTextEdit("Statistics...")
 
+        '''---Setup Grid layout of input page---'''
         self.inputPageGrid = QtWidgets.QGridLayout(self.inputPage)
         self.inputPageGrid.setObjectName("inputPageLayout")
         self.inputPageGrid.addWidget(inputBinariesGroup, 0, 0)
@@ -116,6 +144,7 @@ class MyWidget(QtWidgets.QWidget):
         self.outputPageOptionStop = QtWidgets.QCheckBox("Stop on warnings")
         self.outputPageOptionStop.setObjectName("outputPageOptionStop")
 
+        '''---Setup basic Box layout of output page---'''
         self.outputOptionsLayout = QtWidgets.QVBoxLayout()
         self.outputOptionsLayout.addWidget(self.outputPageOptionCheckSHA)
         self.outputOptionsLayout.addWidget(self.outputPageOptionCompress)
@@ -161,6 +190,9 @@ class MyWidget(QtWidgets.QWidget):
 
         self.binaryFoldersButton.clicked.connect(self.chooseBinaryPath)
         self.metaDataButton.clicked.connect(self.chooseMetadataFile)
+        self.metaDataEditButton.clicked.connect(self.editMetadata)
+        self.metaData.textChanged.connect(self.metaDataTextChanged)
+        self.catalog.textChanged.connect(self.catalogTextChanged)
         self.catalogButton.clicked.connect(self.chooseCatalogFile)
 
     def chooseBinaryPath(self):
@@ -174,6 +206,24 @@ class MyWidget(QtWidgets.QWidget):
     def chooseCatalogFile(self):
         filePath=QFileDialog.getOpenFileName()
         self.catalog.setText(filePath[0])
+
+    def editMetadata(self):
+        self.editMetaWindow = MetaDataEditWidget(self.MainWindow)
+        self.editMetaWindow.show()
+
+    def metaDataTextChanged(self):
+        #print(self.metaData.text())
+        if self.metaData.text() != "":
+            self.metaDataEditButton.setEnabled(True)
+        else:
+            self.metaDataEditButton.setEnabled(False)
+
+    def catalogTextChanged(self):
+        if self.catalog.text() != "":
+            self.catalogEditButton.setEnabled(True)
+        else:
+            self.catalogEditButton.setEnabled(False)
+
 '''
    label = new QLabel("foo");
     button = new QPushButton("Browse");
@@ -194,10 +244,10 @@ void MyMainWindow::browse()
     }
 }'''
 if __name__ == "__main__":
-    app = QtWidgets.QApplication([])
+    app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
 
-    widget = MyWidget(MainWindow)
+    widget = MainPanelWidget(MainWindow)
     widget.resize(850, 400)
     widget.show()
 
