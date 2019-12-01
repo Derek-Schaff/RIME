@@ -1,4 +1,5 @@
 from PySide2 import QtWidgets
+from PySide2.QtWidgets import QAction
 
 from gui.panels.rime_inputpanel import InputPanelWidget
 from gui.panels.rime_outputpanel import OutputPanelWidget
@@ -30,19 +31,31 @@ class MainPanelWidget(QtWidgets.QWidget):
         self.panels.addItem(self.outputPage, "Output")
         self.panels.addItem(self.runPage, "Run")
 
+        self.menuBar = QtWidgets.QMenuBar(self.mainWindow)  # requires parent
+        self.menu = QtWidgets.QMenu(self)
+        self.menu.setTitle("File")
+        self.menuBar.addMenu(self.menu)
+        self.menu.addAction("Load Preset")
+        self.menu.addAction("Save Preset")
+        self.menu.addAction("Quit")
+        self.menu.triggered[QAction].connect(self.MenuAction)
+
         self.layout = QtWidgets.QVBoxLayout()
         self.layout.addWidget(self.panels)
+        self.layout.setMenuBar(self.menuBar)
         self.setLayout(self.layout)
+
+        self.panels.currentChanged.connect(self.panelChange)
 
         self.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "Rime", None, -1))
 
         style_file = "gui/styles/rime_styles.qss"
-        with open(style_file, "r") as fh:
-            self.setStyleSheet(fh.read())
-        '''
-        self.panels.setItemText(self.panels.indexOf(self.inputPage),
-                                QtWidgets.QApplication.translate("MainWindow", "Input", None, -1))
-        self.panels.setItemText(self.panels.indexOf(self.outputPage),
-                                QtWidgets.QApplication.translate("MainWindow", "Output", None, -1))
-        '''
+        with open(style_file, "r") as styles:
+            self.setStyleSheet(styles.read())
 
+    def MenuAction(self, q):
+        print("Menu action: " + q.text())
+
+    def panelChange(self, panelID):
+        if panelID == 2:
+            self.runPage.update_statistics()

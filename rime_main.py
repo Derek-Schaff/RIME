@@ -9,7 +9,8 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
 
     widget = MainPanelWidget(MainWindow)
-    widget.resize(850, 360)
-    widget.show()
+    MainWindow.setCentralWidget(widget)
+    MainWindow.resize(850, 375)
+    MainWindow.show()
 
     sys.exit(app.exec_())

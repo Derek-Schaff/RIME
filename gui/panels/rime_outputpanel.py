@@ -1,10 +1,8 @@
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide2 import QtWidgets, QtCore
 from PySide2.QtWidgets import QFileDialog
 
-from gui.rime_editmeta import MetaDataEditWidget
-from gui.rime_variables import LABEL_WIDTH
+from rime_manager import Manager
 
-import PySide2.QtPositioning
 
 class OutputPanelWidget(QtWidgets.QWidget):
     def __init__(self):
@@ -123,10 +121,51 @@ class OutputPanelWidget(QtWidgets.QWidget):
 
         self.setLayout(self.outputPageGrid)
 
-        self.outputLogFileButtonGroup.buttonClicked.connect(self.logFileChange)
+        self.outputLocationButton.clicked.connect(self.chooseOutputPath)
+        self.outputLogFileButtonGroup.buttonClicked.connect(self.chooseLogLocation)
+        self.outputLogfileBoxButton.clicked.connect(self.chooseLogLocation)
+
+        self.outputPageOutputHDF5.stateChanged.connect(self.outputGroupClick)
+        self.outputPageOutputNetCDF.stateChanged.connect(self.outputGroupClick)
+        self.outputPageOutputGeoTIFF.stateChanged.connect(self.outputGroupClick)
+
+        self.outputPageOptionCheckSHA.stateChanged.connect(self.optionGroupClick)
+        self.outputPageOptionStop.stateChanged.connect(self.optionGroupClick)
+        self.outputPageOptionCompress.stateChanged.connect(self.optionGroupClick)
 
         self.outputLogfileBox.setEnabled(False)
         self.outputLogfileBoxButton.setEnabled(False)
+
+    def chooseLogLocation(self):
+        if self.outputLogFileButtonGroup.checkedId() == 1:
+            file_path = QFileDialog.getExistingDirectory()
+            self.outputLogfileBox.setText(file_path[0])
+            Manager.getInstance().run_params['log_path'] = file_path[0]
+
+    def chooseOutputPath(self):
+        file_path = QFileDialog.getExistingDirectory()
+        self.outputLocationBox.setText(file_path)
+        Manager.getInstance().run_params['output_path'] = file_path
+
+    def outputGroupClick(self, box):
+        boxChecked = self.sender().text()
+
+        if boxChecked == "HDF5":
+            Manager.getInstance().run_params['output_hdf5'] = self.outputPageOutputHDF5.isChecked()
+        elif boxChecked == "NetCDF4":
+            Manager.getInstance().run_params['output_netcdf4'] = self.outputPageOutputNetCDF.isChecked()
+        elif boxChecked == "GeoTIFF":
+            Manager.getInstance().run_params['output_geotiff'] = self.outputPageOutputGeoTIFF.isChecked()
+
+    def optionGroupClick(self, box):
+        boxChecked = self.sender().text()
+
+        if boxChecked == "Generate SHA256 Checksum":
+            Manager.getInstance().run_params['output_option_filehash'] = self.outputPageOptionCheckSHA.isChecked()
+        elif boxChecked == "Compress output":
+            Manager.getInstance().run_params['output_option_compress'] = self.outputPageOptionCompress.isChecked()
+        elif boxChecked == "Stop on warnings":
+            Manager.getInstance().run_params['output_option_stopwarn'] = self.outputPageOptionStop.isChecked()
 
     def logFileChange(self):
         if self.outputLogFileButtonGroup.checkedId() == 2:

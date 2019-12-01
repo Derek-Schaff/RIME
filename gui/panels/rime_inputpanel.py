@@ -1,8 +1,10 @@
 from PySide2 import QtWidgets
 from PySide2.QtWidgets import QFileDialog
+from pathlib import Path
 
-from gui.rime_editmeta import MetaDataEditWidget
+from gui.panels.rime_editmeta import MetaDataEditWidget
 from gui.rime_variables import LABEL_WIDTH
+from rime_manager import Manager
 
 
 class InputPanelWidget(QtWidgets.QWidget):
@@ -11,8 +13,6 @@ class InputPanelWidget(QtWidgets.QWidget):
         '''----------'''
         '''INPUT PAGE'''
         '''----------'''
-
-        self.editMetaWindow = MetaDataEditWidget()
 
         '''---Left part - binary input selection---'''
         '''Components of binary selection group'''
@@ -110,17 +110,23 @@ class InputPanelWidget(QtWidgets.QWidget):
     def chooseBinaryPath(self):
         file_path = QFileDialog.getExistingDirectory()
         self.binaryFolders.setText(file_path)
+        Manager.getInstance().run_params['binary_path'] = file_path
+
 
     def chooseMetadataFile(self):
         file_path = QFileDialog.getOpenFileName()
         self.metaData.setText(file_path[0])
+        Manager.getInstance().run_params['metadata_path'] = file_path[0]
 
     def chooseCatalogFile(self):
         file_path = QFileDialog.getOpenFileName()
         self.catalog.setText(file_path[0])
+        Manager.getInstance().run_params['catalog_path'] = file_path[0]
 
     def editMetadata(self):
-        self.editMetaWindow.show()
+        if Path(self.metaData.text()).is_file():
+            self.editMetaWindow = MetaDataEditWidget(self.metaData.text())
+            self.editMetaWindow.show()
 
     def metaDataTextChanged(self):
         # print(self.metaData.text())
