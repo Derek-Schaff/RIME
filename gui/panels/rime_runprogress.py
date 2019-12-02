@@ -281,6 +281,8 @@ class RunProgressWidget(QtWidgets.QWidget):
 
         self.runProgressBar.setValue(0)
 
+        self.cancelButton.clicked.connect(self.cancelButtonClick)
+
         self.fakeProgressTimer = QtCore.QTimer(self)
         self.fakeProgressTimer.setSingleShot(False)
         self.fakeProgressTimer.timeout.connect(self.fakeProgressUpdate)
@@ -298,6 +300,23 @@ class RunProgressWidget(QtWidgets.QWidget):
         self.runProgressBox.append(self.fake_progress_messages[randrange(0, len(self.fake_progress_messages) - 1)] + '\n')
 
         if self.runProgressBar.value() < 100:
-            self.fakeProgressTimer.start(2000)
+          self.fakeProgressTimer.start(2000)
         else:
-            self.fakeProgressTimer.stop()
+          self.cancelButton.setText("Next")
+          self.fakeProgressTimer.stop()
+
+    def cancelButtonClick(self):
+      if(self.runProgressBar.value() < 100):
+        msgBox = QtWidgets.QMessageBox(self)
+        msgBox.setText("Cancel Run")
+        msgBox.setInformativeText("Are you sure you want to cancel the run?")
+        msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+
+        choice = msgBox.exec()
+
+        if choice == QtWidgets.QMessageBox.Ok:
+          self.fakeProgressTimer.stop()
+          self.close()
+      else:
+        self.close()

@@ -59,3 +59,4 @@ class MainPanelWidget(QtWidgets.QWidget):
     def panelChange(self, panelID):
         if panelID == 2:
             self.runPage.update_statistics()
+            self.runPage.validate_forms()

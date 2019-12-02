@@ -17,7 +17,6 @@ class MetaDataEditWidget(QtWidgets.QWidget):
         self.metaTable.setColumnWidth(1, 200)
         self.metaTable.setHorizontalHeaderItem(0, QTableWidgetItem("Name"))
         self.metaTable.setHorizontalHeaderItem(1, QTableWidgetItem("Value"))
-
         self.layout.addWidget(self.metaTable)
         self.setLayout(self.layout)
 

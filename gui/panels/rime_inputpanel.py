@@ -140,3 +140,5 @@ class InputPanelWidget(QtWidgets.QWidget):
             self.catalogEditButton.setEnabled(True)
         else:
             self.catalogEditButton.setEnabled(False)
+
+

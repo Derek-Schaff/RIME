@@ -1,4 +1,5 @@
 from PySide2 import QtWidgets
+from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QFileDialog
 
 from gui.panels.rime_runprogress import RunProgressWidget
@@ -30,7 +31,23 @@ class RunPanelWidget(QtWidgets.QWidget):
         self.runPageStatistics.clear()
 
         for p in Manager.getInstance().run_params:
+            if ((p == 'binary_path' and Manager.getInstance().run_params[p] == '') or
+                (p == 'metadata_path' and Manager.getInstance().run_params[p] == '') or
+                (p == 'catalog_path' and Manager.getInstance().run_params[p] == '') or
+                (p == 'output_path' and Manager.getInstance().run_params[p] == '')):
+                self.runPageStatistics.setTextBackgroundColor(QColor(251,115,115))
+            else:
+                self.runPageStatistics.setTextBackgroundColor(QColor(255, 255, 255))
+
             self.runPageStatistics.append(p + ": " + str(Manager.getInstance().run_params[p]) + "\n")
+
+    def validate_forms(self):
+        if(Manager.checkNecessaryInput(Manager)):
+            self.runPageRunButton.setEnabled(True)
+        else:
+            self.runPageRunButton.setEnabled(False)
+            self.runPageRunButton.setToolTip("Please input the required shit!")
+
 
     def runRime(self):
         self.runProgressWindow = RunProgressWidget()
