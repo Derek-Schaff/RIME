@@ -44,9 +44,10 @@ class RunPanelWidget(QtWidgets.QWidget):
     def validate_forms(self):
         if(Manager.checkNecessaryInput(Manager)):
             self.runPageRunButton.setEnabled(True)
+            self.runPageRunButton.setToolTip("Start execution")
         else:
             self.runPageRunButton.setEnabled(False)
-            self.runPageRunButton.setToolTip("Please input the required shit!")
+            self.runPageRunButton.setToolTip("Please set the required input/output parameters!")
 
 
     def runRime(self):
