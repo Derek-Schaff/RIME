@@ -122,7 +122,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.setLayout(self.outputPageGrid)
 
         self.outputLocationButton.clicked.connect(self.chooseOutputPath)
-        self.outputLogFileButtonGroup.buttonClicked.connect(self.chooseLogLocation)
+        self.outputLogFileButtonGroup.buttonClicked.connect(self.logFileChange)
         self.outputLogfileBoxButton.clicked.connect(self.chooseLogLocation)
 
         self.outputPageOutputHDF5.stateChanged.connect(self.outputGroupClick)
@@ -137,10 +137,10 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.outputLogfileBoxButton.setEnabled(False)
 
     def chooseLogLocation(self):
-        if self.outputLogFileButtonGroup.checkedId() == 1:
+        if self.outputLogFileButtonGroup.checkedId() == 2:
             file_path = QFileDialog.getExistingDirectory()
-            self.outputLogfileBox.setText(file_path[0])
-            Manager.getInstance().run_params['log_path'] = file_path[0]
+            self.outputLogfileBox.setText(file_path)
+            Manager.getInstance().run_params['log_path'] = file_path
 
     def chooseOutputPath(self):
         file_path = QFileDialog.getExistingDirectory()
@@ -174,4 +174,5 @@ class OutputPanelWidget(QtWidgets.QWidget):
         else:
             self.outputLogfileBox.setEnabled(False)
             self.outputLogfileBoxButton.setEnabled(False)
+            Manager.getInstance().run_params['log_path'] = "DEFAULT"
 

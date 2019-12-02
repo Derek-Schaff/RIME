@@ -2,12 +2,13 @@
 class Manager:
     __instance = None
 
+    #expanded on multiple lines for clarity
     run_params = {}
     run_params['binary_path'] = ''
     run_params['metadata_path'] = ''
     run_params['catalog_path'] = ''
     run_params['output_path'] = ''
-    run_params['logfile_path'] = ''
+    run_params['logfile_path'] = 'DEFAULT'
     run_params['output_hdf5'] = False
     run_params['output_netcdf4'] = False
     run_params['output_geotiff'] = False

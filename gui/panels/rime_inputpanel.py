@@ -20,7 +20,7 @@ class InputPanelWidget(QtWidgets.QWidget):
         self.binaryFoldersLabel.setMinimumWidth(LABEL_WIDTH)
         self.binaryFoldersButton = QtWidgets.QPushButton("...")
         self.binaryFoldersButton.setObjectName("binaryFoldersButton")
-        self.binaryFoldersButton.setMaximumWidth(30)
+        self.binaryFoldersButton.setMinimumWidth(23)
         self.binaryFolders = QtWidgets.QLineEdit()
         self.binaryFolders.setObjectName("binaryFolders")
 

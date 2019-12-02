@@ -4,6 +4,7 @@ from PySide2.QtWidgets import QAction
 from gui.panels.rime_inputpanel import InputPanelWidget
 from gui.panels.rime_outputpanel import OutputPanelWidget
 from gui.panels.rime_runpanel import RunPanelWidget
+from gui.widgets.QToolBoxPlus import QToolBoxPlus
 
 
 class MainPanelWidget(QtWidgets.QWidget):
@@ -14,7 +15,7 @@ class MainPanelWidget(QtWidgets.QWidget):
         # self.text.setAlignment(QtCore.Qt.AlignCenter)
 
         ''' Create main container (QToolBox) for dropdown style panels'''
-        self.panels = QtWidgets.QToolBox()
+        self.panels = QtWidgets.QToolBox(self.mainWindow)
         self.panels.setObjectName("MainPanel")
 
         '''Create different 'pages' for dropdown panels'''

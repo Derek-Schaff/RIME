@@ -7,7 +7,7 @@ from PySide2.QtWidgets import QFileDialog, QTableWidgetItem
 class MetaDataEditWidget(QtWidgets.QWidget):
     def __init__(self, path):
         super().__init__()
-        ''' Create main container (QToolBox) for dropdown style panels'''
+
         self.layout = QtWidgets.QGridLayout()
         self.layout.setObjectName("editMetaDataPanel")
         self.resize(525, 300)

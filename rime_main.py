@@ -10,6 +10,7 @@ if __name__ == "__main__":
 
     widget = MainPanelWidget(MainWindow)
     MainWindow.setCentralWidget(widget)
+    MainWindow.setWindowTitle("Rime")
     MainWindow.resize(850, 375)
     MainWindow.show()
 
