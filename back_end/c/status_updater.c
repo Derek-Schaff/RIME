@@ -1,4 +1,4 @@
-#include "status_updater.h"
+#include "c/status_updater.h"
 
 int statusUpdate(char* message, char* log_path){
     time_t current_time = time(0);
