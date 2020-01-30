@@ -9,8 +9,6 @@ int statusUpdate(char* message, char* log_path){
     if(message == NULL){
         return -1;
     }
-
-
     //print to command line
     printf("%s: %s\n", timeBuffer, message);
 
@@ -27,13 +25,11 @@ int statusUpdate(char* message, char* log_path){
 return 0;
 }
 
-
 int pushToGui(){
     /* need to figure out best way to push
  * status update to python front end */
     return 0;
 }
-
 int pushToWeb(){
     /* implement once we have web interface
 * in phase 4 */
