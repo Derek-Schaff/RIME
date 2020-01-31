@@ -1,5 +1,6 @@
 import argparse
 import sys
+import ctypes
 
 # create parser object, which handles commandline arguments
 def parseArgs(sysArgs):
@@ -11,6 +12,7 @@ def parseArgs(sysArgs):
     # options with -- are optional and can occur in any order. If a type isn't explicitly defined, they are assumed to be booleans that are set to true when enabled
     parser.add_argument("--ignore_warnings", "-i", action="store_true", help="Instead of stopping on warnings, ignore and continue")
     parser.add_argument("--netcdf4", "-n", action="store_true", help="Store output in NetCDF4 file format. Any combination of output format options can be specified simultaneously")
+    parser.add_argument("--gui", "-gu", action="store_true", help="Launch RIME GUI")
     parser.add_argument("--hdf5", "-hd", action="store_true", help="Store output in HDF5 file format. Any combination of output format options can be specified simultaneously")
     parser.add_argument("--geotiff", "-g", action="store_true", help="Store output in GeoTIFF file format. Any combination of output format options can be specified simultaneously")
     parser.add_argument("--checksum", "-c", action="store_true", help="")
@@ -25,3 +27,10 @@ def parseArgs(sysArgs):
 
 if __name__ == "__main__":
     args = parseArgs(sys.argv[1:])
+
+    from ctypes.util import find_library
+    parseLib = ctypes.CDLL('../c/parserlib.so')
+    print(parseLib)
+    parseLib.parseDir.argtypes = [ctypes.c_wchar_p]
+    parseLib.parseDir.restypes = [ctypes.c_void_p]
+
