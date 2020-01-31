@@ -1,6 +1,10 @@
 import argparse
 import sys
-import ctypes
+from ctypes import *
+
+class BinStruct(Structure):
+    _fields_ = [('files', c_char_p),
+                ('numFiles', c_int)]
 
 # create parser object, which handles commandline arguments
 def parseArgs(sysArgs):
@@ -29,8 +33,10 @@ if __name__ == "__main__":
     args = parseArgs(sys.argv[1:])
 
     from ctypes.util import find_library
-    parseLib = ctypes.CDLL('../c/parserlib.so')
+    parseLib = CDLL('../c/parserlib.so')
     print(parseLib)
-    parseLib.parseDir.argtypes = [ctypes.c_wchar_p]
-    parseLib.parseDir.restypes = [ctypes.c_void_p]
+    parseLib.parseDir.argtypes = [c_wchar_p]
+    parseLib.parseDir.restypes = [c_void_p]
 
+    p1 = BinStruct.from_address(parseLib.parseDir('.'))
+    print(p1.files)
