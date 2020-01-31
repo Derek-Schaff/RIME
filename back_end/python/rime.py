@@ -1,8 +1,11 @@
 import argparse
 import sys
 from ctypes import *
+from ctypes.util import find_library
 
+# this class will store data in a struct
 class BinStruct(Structure):
+    # does some black magic. Describe struct fields and their data types
     _fields_ = [('files', c_char_p),
                 ('numFiles', c_int)]
 
@@ -30,13 +33,17 @@ def parseArgs(sysArgs):
 
 
 if __name__ == "__main__":
+    # get commandline args
     args = parseArgs(sys.argv[1:])
 
-    from ctypes.util import find_library
+    # load C .so library to get access to parseDir()
     parseLib = CDLL('../c/parserlib.so')
+    # debug print statement.. delete me later!
     print(parseLib)
+    # specify C types of input args and return value
     parseLib.parseDir.argtypes = [c_wchar_p]
     parseLib.parseDir.restypes = [c_void_p]
 
+    # the C function returns a struct- throw it into a class with the same values and print to see if it's right
     p1 = BinStruct.from_address(parseLib.parseDir('.'))
     print(p1.files)
