@@ -3,14 +3,16 @@ import sys
 from ctypes import *
 from ctypes.util import find_library
 
+
 # this class will store data in a struct
 class BinStruct(Structure):
     # does some black magic. Describe struct fields and their data types
     _fields_ = [('files', c_char_p),
                 ('numFiles', c_int)]
 
+
 # create parser object, which handles commandline arguments
-def parseArgs(sysArgs):
+def parse_args(sysArgs):
     parser = argparse.ArgumentParser(sysArgs)
     # options without -- are required and positional
     parser.add_argument("catalog", help="")
@@ -32,10 +34,28 @@ def parseArgs(sysArgs):
     return parser.parse_args()
 
 
+def parse_params(filePath):
+    paramDic = {}  # type: Dict[str, str]
+
+    # use open convention that helps avoid weird issues if the program crashes with file open:
+    with open(filePath) as paramFile:
+        for line in paramFile:
+            # skip comments starting with #. Otherwise, remove whitespace and split using '=' as delimiter
+            if line[0] != '#':
+                line = line.strip()
+                # skip empty lines
+                if line:
+                    splitLine = line.split('=')
+                    paramDic[splitLine[0].strip()] = splitLine[1].strip()
+
+    return paramDic
+
+
 if __name__ == "__main__":
     # get commandline args
-    args = parseArgs(sys.argv[1:])
+    args = parse_args(sys.argv[1:])
 
+    '''
     # load C .so library to get access to parseDir()
     parseLib = CDLL('../c/parserlib.so')
     # debug print statement.. delete me later!
@@ -47,3 +67,8 @@ if __name__ == "__main__":
     # the C function returns a struct- throw it into a class with the same values and print to see if it's right
     p1 = BinStruct.from_address(parseLib.parseDir('.'))
     print(p1.files)
+    '''
+
+    testDic = parse_params("../test/test_rip.txt")
+    for key in testDic.keys():
+        print('%s : %s' % (key, testDic[key]))
