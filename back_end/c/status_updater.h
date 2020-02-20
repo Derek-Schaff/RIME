@@ -9,4 +9,4 @@ int pushToGui();
 int pushToWeb();
 int statusUpdate(char* message, char* log_path);
 
-#endif //RIME_STATUS_UPDATER_H
+#endif //STATUS_UPDATER_H
