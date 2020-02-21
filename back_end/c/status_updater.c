@@ -1,6 +1,8 @@
-#include "c/status_updater.h"
+#include "status_updater.h"
 
-int statusUpdate(char* message, char* log_path){
+int statusUpdate(char* message, char* log_path);
+
+int statusUpdate(char *message, char *log_path) {
     time_t current_time = time(0);
     char timeBuffer[80];
     strftime(timeBuffer,80,"%x - %I:%M:%S %p",localtime(&current_time));
@@ -22,7 +24,7 @@ int statusUpdate(char* message, char* log_path){
     //push message to web interface
     pushToWeb();
 
-return 0;
+    return 0;
 }
 
 int pushToGui(){
