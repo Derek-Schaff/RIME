@@ -1,8 +1,9 @@
 import argparse
 import sys
-from os import path
 from ctypes import *
 from ctypes.util import find_library
+import rime_main
+import os
 
 
 # this class will store data in a struct
@@ -35,38 +36,21 @@ def parse_args(sysArgs):
     return parser.parse_args()
 
 
-# reads lines from catalog file, which contains paths to input binaries
-def read_catalog(filePath):
-    binList = []
-
-    with open(filePath) as catalog:
-        for binPath in catalog:
-            binPath = binPath.strip()
-
-            if path.exists(binPath):
-                binList.append(binPath)
-            else:
-                raise FileNotFoundError()
-
-    return binList
-
-
-def parse_rip(filePath):
-    ripDic = {}  # type: Dict[str, str]
+def parse_params(filePath):
+    paramDic = {}  # type: Dict[str, str]
 
     # use open convention that helps avoid weird issues if the program crashes with file open:
-    with open(filePath) as ripFile:
-        for line in ripFile:
+    with open(filePath) as paramFile:
+        for line in paramFile:
             # skip comments starting with #. Otherwise, remove whitespace and split using '=' as delimiter
             if line[0] != '#':
                 line = line.strip()
                 # skip empty lines
                 if line:
                     splitLine = line.split('=')
-                    ripDic[splitLine[0].strip()] = splitLine[1].strip()
+                    paramDic[splitLine[0].strip()] = splitLine[1].strip()
 
-    return ripDic
-
+    return paramDic
 
 # hey dummy, combine metadata and rip parse into a single method because they're super similar
 def parse_metadata(filePath):
@@ -86,36 +70,70 @@ def parse_metadata(filePath):
 
 if __name__ == "__main__":
     # get commandline args
-    args = parse_args(sys.argv[1:])
-    catalogPath = args.catalog
-    ripPath = args.rip
-    outputPath = args.output
-    ignoreWarnings = args.ignore_warnings
-    netcdf4 = args.netcdf4
-    gui = args.gui
-    hdf5 = args.hdf5
-    geotiff = args.geotiff
-    checksum = args.checksum
-    tarNet = args.tar_netcdf4
-    tarHdf = args.tar_hdf5
-    tarGeo = args.tar_geotiff
-    tarAll = args.tar_all
+    if sys.argv[1] == '--gui':
+        rime_main.run()
 
-    '''
-    # load C .so library to get access to parseDir()
-    parseLib = CDLL('../c/parserlib.so')
-    # debug print statement.. delete me later!
-    print(parseLib)
-    # specify C types of input args and return value
-    parseLib.parseDir.argtypes = [c_wchar_p]
-    parseLib.parseDir.restypes = [c_void_p]
 
-    # the C function returns a struct- throw it into a class with the same values and print to see if it's right
-    p1 = BinStruct.from_address(parseLib.parseDir('.'))
-    print(p1.files)
-    '''
+    else:
+        args = parse_args(sys.argv[1:])
+        catalogPath = args.catalog
+        ripPath = args.rip
+        outputPath = args.output
+        ignoreWarnings = args.ignore_warnings
+        netcdf4 = args.netcdf4
+        #gui = args.gui
+        hdf5 = args.hdf5
+        geotiff = args.geotiff
+        checksum = args.checksum
+        tarNet = args.tar_netcdf4
+        tarHdf = args.tar_hdf5
+        tarGeo = args.tar_geotiff
+        tarAll = args.tar_all
 
-    ripDic = parse_rip("test/test_rip.txt")
-    metadataDic = parse_metadata("test/test_metadata.txt")
-    binPaths = read_catalog("test_catalog.txt")
+        '''
+        # load C .so library to get access to parseDir()
+        parseLib = CDLL('../c/parserlib.so')
+        # debug print statement.. delete me later!
+        print(parseLib)
+        # specify C types of input args and return value
+        parseLib.parseDir.argtypes = [c_wchar_p]
+        parseLib.parseDir.restypes = [c_void_p]
+
+        # the C function returns a struct- throw it into a class with the same values and print to see if it's right
+        p1 = BinStruct.from_address(parseLib.parseDir('.'))
+        print(p1.files)
+        '''
+
+        testDic = parse_params(os.path.dirname(__file__) + "/test/test_rip.txt")
+        for key in testDic.keys():
+            print('%s : %s' % (key, testDic[key]))
+
+        if netcdf4:
+            None
+            #Run conv
+
+        if hdf5:
+            None
+            #run conv
+
+        if geotiff:
+            None
+            #run conv
+
+        if tarAll:
+            None
+        else:
+            if tarNet:
+                None
+            if tarGeo:
+                None
+            if tarHdf:
+                None
+
+        if checksum:
+            None
+            #checksum stuff
+
+
+
 
