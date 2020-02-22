@@ -3,8 +3,7 @@ from PySide2 import QtWidgets
 
 from gui.rime_mainpanel import MainPanelWidget
 
-
-if __name__ == "__main__":
+def run():
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
 
@@ -15,3 +14,7 @@ if __name__ == "__main__":
     MainWindow.show()
 
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    run()

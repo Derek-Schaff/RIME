@@ -4,6 +4,7 @@ from PySide2.QtWidgets import QAction
 from gui.panels.rime_inputpanel import InputPanelWidget
 from gui.panels.rime_outputpanel import OutputPanelWidget
 from gui.panels.rime_runpanel import RunPanelWidget
+import os
 
 
 class MainPanelWidget(QtWidgets.QWidget):
@@ -14,7 +15,7 @@ class MainPanelWidget(QtWidgets.QWidget):
         # self.text.setAlignment(QtCore.Qt.AlignCenter)
 
         ''' Create main container (QToolBox) for dropdown style panels'''
-        self.panels = QtWidgets.QToolBox(self.mainWindow)
+        self.panels = QtWidgets.QToolBox()
         self.panels.setObjectName("MainPanel")
 
         '''Create different 'pages' for dropdown panels'''
@@ -49,7 +50,7 @@ class MainPanelWidget(QtWidgets.QWidget):
 
         self.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "Rime", None, -1))
 
-        style_file = "gui/styles/rime_styles.qss"
+        style_file = os.path.dirname(__file__) + "/styles/rime_styles.qss"
         with open(style_file, "r") as styles:
             self.setStyleSheet(styles.read())
 

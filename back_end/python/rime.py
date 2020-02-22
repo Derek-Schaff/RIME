@@ -4,9 +4,10 @@ import validate
 import numpy as np
 import h5py
 import sys
-from os import path
 from ctypes import *
 from ctypes.util import find_library
+import rime_main
+import os
 
 
 # this class will store data in a struct
@@ -47,7 +48,7 @@ def read_catalog(filePath):
         for binPath in catalog:
             binPath = binPath.strip()
 
-            if path.exists(binPath):
+            if os.path.exists(binPath):
                 binList.append(binPath)
             else:
                 raise FileNotFoundError()
@@ -72,8 +73,8 @@ def parse_rip(filePath):
     ripDic = {}  # type: Dict[str, str]
 
     # use open convention that helps avoid weird issues if the program crashes with file open:
-    with open(filePath) as ripFile:
-        for line in ripFile:
+    with open(filePath) as paramFile:
+        for line in paramFile:
             # skip comments starting with #. Otherwise, remove whitespace and split using '=' as delimiter
             if line[0] != '#':
                 line = line.strip()
@@ -83,7 +84,6 @@ def parse_rip(filePath):
                     ripDic[splitLine[0].strip()] = splitLine[1].strip()
 
     return ripDic
-
 
 # hey dummy, combine metadata and rip parse into a single method because they're super similar. Maybe make them one of
 # those fancy factory things
@@ -144,15 +144,61 @@ if __name__ == "__main__":
     ripDic = parse_rip("test/test_rip.txt")
     metadataDic = parse_metadata("test/test_metadata.txt")
 
-
-    x = int(ripDic["FT_DATASET_ROWS"])
-    y = int(ripDic["FT_DATASET_COLUMNS"])
-    binList = read_catalog("test/test_catalog.txt")
-    bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
+    if sys.argv[1] == '--gui':
+        rime_main.run()
 
 
-    hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")
-    GTIFF = convert.create("path.gtif", bin, ripDic, metadataDic, "GEOTIFF")
-    # print(h5py.is_hdf5(hdf5.filename))
-    # print(hdf5.keys())
-    hdf5.close()
+    else:
+        args = parse_args(sys.argv[1:])
+        catalogPath = args.catalog
+        ripPath = args.rip
+        outputPath = args.output
+        ignoreWarnings = args.ignore_warnings
+        netcdf4 = args.netcdf4
+        #gui = args.gui
+        hdf5 = args.hdf5
+        geotiff = args.geotiff
+        checksum = args.checksum
+        tarNet = args.tar_netcdf4
+        tarHdf = args.tar_hdf5
+        tarGeo = args.tar_geotiff
+        tarAll = args.tar_all
+
+        '''
+        # load C .so library to get access to parseDir()
+        parseLib = CDLL('../c/parserlib.so')
+        # debug print statement.. delete me later!
+        print(parseLib)
+        # specify C types of input args and return value
+        parseLib.parseDir.argtypes = [c_wchar_p]
+        parseLib.parseDir.restypes = [c_void_p]
+
+        # the C function returns a struct- throw it into a class with the same values and print to see if it's right
+        p1 = BinStruct.from_address(parseLib.parseDir('.'))
+        print(p1.files)
+        '''
+        if tarAll:
+            None
+        else:
+            if tarNet:
+                None
+            if tarGeo:
+                None
+            if tarHdf:
+                None
+
+        if checksum:
+            None
+            #checksum stuff
+
+        x = int(ripDic["FT_DATASET_ROWS"])
+        y = int(ripDic["FT_DATASET_COLUMNS"])
+        binList = read_catalog("test/test_catalog.txt")
+        bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
+
+
+        hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")
+        GTIFF = convert.create("path.gtif", bin, ripDic, metadataDic, "GEOTIFF")
+        # print(h5py.is_hdf5(hdf5.filename))
+        # print(hdf5.keys())
+        hdf5.close()
