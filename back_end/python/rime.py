@@ -1,4 +1,8 @@
 import argparse
+import convert
+import validate
+import numpy as np
+import h5py
 import sys
 from os import path
 from ctypes import *
@@ -51,6 +55,19 @@ def read_catalog(filePath):
     return binList
 
 
+def load_binary(binaryPath, dataType):
+    binary = np.fromfile(binaryPath, dataType)
+
+    return binary
+
+
+def resolution_reshape(array, x, y):
+    validate.validate_np_array(array)
+    array = np.reshape(array, (x,y))
+
+    return array
+
+
 def parse_rip(filePath):
     ripDic = {}  # type: Dict[str, str]
 
@@ -68,7 +85,8 @@ def parse_rip(filePath):
     return ripDic
 
 
-# hey dummy, combine metadata and rip parse into a single method because they're super similar
+# hey dummy, combine metadata and rip parse into a single method because they're super similar. Maybe make them one of
+# those fancy factory things
 def parse_metadata(filePath):
     metadataDic = {} # type: Dict[str, str]
 
@@ -79,8 +97,16 @@ def parse_metadata(filePath):
             # skip comments and empty strings
             if line and line[0] != '#':
                 splitLine = line.split(',')
+                key = splitLine[0].strip()
+                value = splitLine[1].strip()
+
+                # ensure that key doesn't exist so we don't accidentally overwrite a value we want
+                if key in metadataDic:
+                    print("Key %s already exists in metadataDic!" % key)
+                    raise KeyError
+
                 # now that we've split the line, make sure we get rid of trailing whitespace
-                metadataDic[splitLine[0].strip()] = splitLine[1].strip()
+                metadataDic[key] = value
 
     return metadataDic
 
@@ -117,5 +143,16 @@ if __name__ == "__main__":
 
     ripDic = parse_rip("test/test_rip.txt")
     metadataDic = parse_metadata("test/test_metadata.txt")
-    binPaths = read_catalog("test_catalog.txt")
 
+
+    x = int(ripDic["FT_DATASET_ROWS"])
+    y = int(ripDic["FT_DATASET_COLUMNS"])
+    binList = read_catalog("test/test_catalog.txt")
+    bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
+
+
+    hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")
+    GTIFF = convert.create("path.gtif", bin, ripDic, metadataDic, "GEOTIFF")
+    # print(h5py.is_hdf5(hdf5.filename))
+    # print(hdf5.keys())
+    hdf5.close()

@@ -1,205 +1,308 @@
-# file   : FT_V4_ReDo-2017-07-14.rip
-# revised: 2017-07-14T11:35:00, modified to regen ALL HDF5 and GeoTIFF files and
-#          to use FT_ISO_METADATA_v1.6.txt metadata definitions.
-# version : 1.7.8 (ft_postproc_v1.7.8.py
-# purpose: define runtime input parameters for FT 2016 RE-Process run, noting
-#          that the CATALOG referenced below is where all specific raw binary 
-#          Freeze Thaw (binary) images are named and locatedt
+# file   : FT_ISO_METADATA_v1.6.txt
+# revised: 2017-04-21T14:22, implement NSIDC requested metadata changes
+# revised: 2016-11-07T17:01, correct change from QA to QC for bitflags
+# revised: 2016-11-04T16:22, correct F/T legend
+# revised: 2016-10-31T12:19:00, resolved additional @MACRO runtime definitions
+# revised: 2016-10-27T14:49:00, added README pub info
+# revised: 2016-10-24T15:16:00, adapt to resolve @MACRO late-binding entries
+# revised: 2016-09-29T14:54:00-07:00
 # author : Joe Glassy
-# dependencies: external catalog file listing all F/T raw binary paths to process
-# context: Production post-process run for FT_2016 v4 instance.
-# project: NASA Measures Freeze Thaw ESDR version 4 for 2016
-# Supported Mode choices: (ft_status|annual_qa|annual_acc|image|geotiff|image_parallel|hash)
-# Note that sessionMode "image" causes the named type of visualization image to be generate
-
-# <JMG> 2017-03-23, tested and works, produced full set of 2015 GeoTIFFs
-FT_SESSION_MODE = ft_status
-
-# v1.7.3+ experimental: Define a serial LIST of one or MORE modes to perform
-# FT_SESSION_ACTIONS = ft_status image annual_qa annual_acc hash
-# FT_SESSION_ACTIONS = ft_status image annual_qa annual_acc hash
-
-# if "image" opMode, can now supply an image type {png,jpg,gif} via extension
-# NOTE: jpg, png, and gif tested as all working here
-FT_SESSION_IMAGE_EXT           = gif
-FT_SESSION_IMAGE_COLORIZE      = True
-FT_SESSION_IMAGE_PRODUCE_ALL   = True
-FT_SESSION_VERBOSE             = True
-FT_SESSION_ENABLE_STAT_METRICS = True
-# if OVERWRITE_PRIOR, we overwrite any prior output files of same name as new
-# if False, we use (skip over) any prior output files
-FT_SESSION_OVERWRITE_PRIOR     = False
-
-# Explicitly set HDF5 files to have MD5 performed on them NOT .bin files!
-FT_SESSION_HASH_TARGET      = hdf5
-
-FT_SESSION_CPU_REQUESTED    = 6
-
-# <JMG> modified 2017-05-08 to incorporate NSIDC recommended corrections
-FT_GEOTIFF_SEED_PATH = ./SEED_FT_V4.tif
-
-# Root path for task-level log files, REMEMBER: thisis distinct from the master session log
-FT_OUTPUT_LOG_DIR    = ./log
-
-FT_SESSION_COMPRESS_LEVEL = 2
-
-# set True when ISO implementation complete and tested
-FT_SESSION_ENABLE_ISO_METADATA = True
-
-# Remember: If FT_SESSION_RANDOM_SAMPLE is 0, then ALL catalog entries
-#   are processed. If >0, then a random sample of this many entries are
-#   randomly chosen from the full list. Useful for abbreviating the test cycles.
-FT_SESSION_RANDOM_SAMPLE  = 0
-
-# Added 2017-07-10T17:52, to provide runtime subset filtering
-FT_SESSION_FILTER_STARTYEAR = 1979
-FT_SESSION_FILTER_ENDYEAR   = 2017
-
-# TBD, goal is to make these orig params obsolete, by deriving the
-#  start and end year from the named catalog. This was intended to allow
-#  the user to restrict a run to a SUBSET of the granule dates found in
-#  the catalog.
-# Define start and ending year for this ESDR (duration)
-FT_SESSION_ESDR_STARTYEAR = 1979
-FT_SESSION_ESDR_ENDYEAR   = 2017
-
-# Verify 2017-07-07, : check if this is now obsolete..
-# Rule {FT_OUTPUT_LOCATION_POLICY} dictates where HDF5 outputs are written
-#  as either "IN_PLACE" vs. "AT_ANCHOR_ROOTPATH"
-FT_OUTPUT_LOCATION_POLICY  = AT_ANCHOR_ROOTPATH
-
-FT_INPUT_ANCHOR_DIR     = /anx_v1/pr/yk/FT_status/v04
-# This catalog contains EVERYTHING (SMMR,SSMI,AMSR)
-FT_INPUT_CATALOG_FT_PATH  = ../catalogs/FT_V4_ALL_2017_NTSG.ctg
-
-# NEW form of sessionMode specific nvps. These may now be left in
-# a common RIP file template since they don't conflict with each
-# other, or with legacy NVPs. 
-# Remember: these may be present but are NOT used unless the equivalent sessionMode is used
-FT_INPUT_CATALOG_QA_PATH   = ../catalogs/ft_annual_qa_bin_NTSG.ctg
-FT_INPUT_CATALOG_ACC_PATH  = ../catalogs/ft_annual_acc_NTSG.ctg
-
-# Ancillary "package" file contains all binary ancillary images, so use it
-#   if it is available 
-# FT_INPUT_ANC_HDF5_PATH = ../anc/ft_ancillary_2016.h5
-# Ancillary root path where cell_lat,cell_lon, GLOBE Terrain, ASC300m resides
-FT_INPUT_ANC_DIR          = ../anc/
-FT_INPUT_ANC_LAT_PATH     = cell_lat_586x1383_flt32.bin
-FT_INPUT_ANC_LON_PATH     = cell_lon_586x1383_flt32.bin
-# Units: elevationGradient-as-standard-deviation of 1km elevation distribution in ea 25km gridcell
-FT_INPUT_ANC_GLOBETERRRAIN_PATH = GLOBE_Terrain_flt32.bin
-# Units: fractional water coverage, scaled (0..100) per 25km gridcell
-FT_INPUT_ANC_ESA_MAP300M_PATH   = ESACCI_LC_300m_flt32.bin
-
-# Modified 2017-05-08 to use NSIDC corrections
-FT_INPUT_METADATA_PATH        = ../metadata/FT_ISO_METADATA_v1.6.txt
+# purpose: Define all ISO 19115 / 19139 metadata elements for NASA Measures Freeze Thaw v4 as
+# purpose:  name-value-pairs, for injecting into a 'group-of-group' attribute hiearchy.
+# status : In progress, not yet completed.
+# version: 1.6
 #
-# <JMG> 2017-03-15T11:18, Note: "gap" files appear to be only available for SSMI 2015, not AMSR or SMMR yet
-FT_INPUT_CATALOG_GAP_PATH     = /anx_v4/TRANS/FT_2016/catalogs/FT_V4_GAPS.ctg
-# There ARE precp files defined for 2015
-FT_INPUT_CATALOG_PRECIP_PATH  = /anx_v4/TRANS/FT_2016/catalogs/FT_V4_PRECIP.ctg
-# Define for 2015 only run
-FT_OUTPUT_ANCHOR_DIR   = ../OUTPUT_REPROC
-# NEW form of sessionMode specific "ANCHOR_ROOT" to name OUTPUT prefixes are:
-FT_OUTPUT_FT_DIR       = ../OUTPUT_REPROCOUTPUT_2015_ONLY
-FT_OUTPUT_ACC_DIR      = ../OUTPUT_REPROC/OUTPUT_ACC
-FT_OUTPUT_QA_DIR       = ../OUTPUT_REPROC/OUTPUT_QA
-# These next, mode specific anchor roots may be named
-FT_OUTPUT_HASH_DIR   = ../OUTPUT_REPROC/HASH
+# notes  : Values marked beginnign with @MACRO-xxx indicate a substution macro is intended
+#          to be supplied for this value. The correct substition is indicated by the xxx tag
 #
-FT_OUTPUT_IMAGE_DIR  = ../OUTPUT_REPROC/IMAGE
+# notes  : The token delimiting scheme used here uses a slash symbol "/" to delimit
+#          HDF5 "Metadata group" sub-paths, where the HDF5 group "path" is terminated
+#          by a bar-symbol "|". This "|" symbol indicates that the next token is the "attributeName",
+#          distinguished from the attributes "VALUE" string by a single comma ",".
+#          The vertical bar "|" is necessarily different from the "," comma delimiter to allow for nested group parsing.
+#
+# notes  : L4_C ISO 19115 template used. Elements commented out do not directly apply to Freeze/Thaw product or couldn't readily be cross-walked.
+#
+# notes  : The first token refers to the HDF5 full "group-path", e.g. Metadata, or "Metadata/Config"
+#          The second token refers to the HDF5 attribute name, e.g. "iso_19139_dataset_xml"
+#          The third tokenset refers to the HDF5 attribute VALUE (string) which may itself contain spaces or commas,
+#          for example:    <?xml version="1.0" encoding="UTF-8"?>
+#
+# Metadata|iso_19139_dataset_xml,<?xml version="1.0" encoding="UTF-8"?>
+# Metadata|iso_19139_series_xml,<?xml version="1.0" encoding="UTF-8"?>
+Metadata|iso_19115_HDF5-group-of-groups-encoding,HDF5-group-of-groups
+#
+Metadata/AcquisitionInformation/platform|description,The NASA Measures Freeze/Thaw ESDR is a long-term, global, daily freeze thaw state 25KM dataset extending from 1979-2014.
+Metadata/AcquisitionInformation/platform|identifier,NASA_Measures_Freeze_Thaw
+# SUBSTITUTE IN A F/T Reference document EQUIVELENT OF A "Platform Document"
+Metadata/AcquisitionInformation/platformDocument|publicationDate,2016-11-07
+Metadata/AcquisitionInformation/platformDocument|edition,F/T edition 4
+# <JMG> 2017-04-21, as per NSIDC request
+Metadata/AcquisitionInformation/platformDocument|title,Kim, Y., J. S. Kimball, and J. Glassy. 2016. MEaSUREs Global Record of Daily Landscape Freeze/Thaw Status, Version 04 [1979 to 2014]. Boulder Colorado USA: National Snow and Ice Data Center. Digital media (http://dx.doi.org/10.5067/MEASURES/CRYOSPHERE/nsidc-0477.004).
+# Note: this ESDR element has been custom adapted for the F/T product(s)
+Metadata/ESDR|ESDR_SUMMARY,NASA Measures Freeze Thaw global daily dataset
+Metadata/ESDR|ESDR_VERSION,4.0
+Metadata/ESDR|ESDR_START_YEAR,1979
+Metadata/ESDR|ESDR_ENDING_YEAR,2014
+Metadata/ESDR|ESDR_SPATIAL_EXTENT,global
+Metadata/ESDR|ESDR_SPATIAL_RESOLUTION,25km
+Metadata/ESDR|ESDR_TEMPORAL_RESOLUTION,daily
+Metadata/ESDR|ESDR_DURATION_PERIOD,1979-2014
+#
+# Note: F/T does not define a "CRID" per se, but we use these as a placeholder for an equivlanet TBD
+# Metadata/CRID/Root|FT_KERNEL_PROCESSOR,x86_64
+# Metadata/CRID/Root|FT_KERNEL_VERSION,#1 SMP Tue Jun 9 20:57:37 UTC 2015
+# Metadata/CRID/Root|FT_KERNEL_RELEASE,2.6.32-504.23.4.el6.x86_64  x86_64 x86_64 x86_64 GNU/Linux
+# Metadata/CRID/Root|FT_COMPILER_VERSION,gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-11)
+# Metadata/CRID/Root|FT_HDF5_formatVersion,h5py-version-2.5.0,HDF5-version-1.8.14
+# Metadata/CRID/Root|FT_PRODUCTION_VERSION,4
+# Metadata/CRID/Root|FT_KERNEL_NAME,Linux
+# Metadata/CRID/Root|FT_PRODUCT_VersionID,v4
+# Metadata/CRID/Root|FT_OPERATING_SYSTEM,GNU/Linux
+# Metadata/CRID/Root|FT_METADATA_version,FreezeThaw-meta_v1.0,NTSG/jmg
+#
+# also add POST-PROCESSOR CONFIG INFO HERE
+Metadata/Config|FT_directoryID,NSIDC-TBD
+Metadata/Config|FT_documentDate,2009-07-03
+Metadata/Config|FT_documentation,NASA MEaSUREs: Making Earth System Data Records for Use in Research Environments (NNH06ZDA001N) An Earth System Data Record for Land Surface Freeze/Thaw State
+Metadata/Config|FT_SSMI_version,v1
+Metadata/Config|FT_SMMR_version,v1
+Metadata/Config|FT_AMSRE_version,v1
+Metadata/Config|FT_AMSR2_version,v1
+#
+Metadata/Config|FT_METADATA_changeLog,Initial version 4
+Metadata/Config|FT_METADATA_description,NASA MEASURES FREEZE THAW Metadata Version 4
+Metadata/Config|FT_revisionDate,2016-09-28
+Metadata/Config|FT_SWVersionID,V4
+Metadata/Config|FT_algorithmVersionID,FREEZE_THAW_Algorithm_Version_4
+#
+Metadata/Config|FT_SSMI_directoryID,./SSMI
+Metadata/Config|FT_SMMR_directoryID,./SMMR
+Metadata/Config|FT_AMSRE_directoryID,./AMSRE
+#
+Metadata/DataQuality/FT_STATUS|Scope,ft_status
+Metadata/DataQuality/FT_STATUS/CompletenessOmission|evaluationMethodType,directInternal
+Metadata/DataQuality/FT_STATUS/CompletenessOmission|measureDescription,Percent of F/T domain lacking a F/T classification
+Metadata/DataQuality/FT_STATUS/CompletenessOmission|nameOfMeasure,Percent of Missing Data
+Metadata/DataQuality/FT_STATUS/CompletenessOmission|unitOfMeasure,Percent
+Metadata/DataQuality/FT_STATUS/CompletenessOmission|value,0
+Metadata/DataQuality/FT_STATUS/DomainConsistency|evaluationMethodType,directInternal
+Metadata/DataQuality/FT_STATUS/DomainConsistency|measureDescription,Percent of F/T domain that fall within a predefined acceptable range of measure.
+Metadata/DataQuality/FT_STATUS/DomainConsistency|nameOfMeasure,Percent of F/T status data that are within the acceptable range.
+Metadata/DataQuality/FT_STATUS/DomainConsistency|unitOfMeasure,Percent
+Metadata/DataQuality/FT_STATUS/DomainConsistency|value,100.0
+#
+Metadata/DataQuality/FT_QC|Scope,ft_qc
+Metadata/DataQuality/FT_QC/CompletenessOmission|evaluationMethodType,directInternal
+Metadata/DataQuality/FT_QC/CompletenessOmission|measureDescription,Percent of F/T domain lacking a valid QC classification
+Metadata/DataQuality/FT_QC/CompletenessOmission|nameOfMeasure,Percent of Missing Data
+Metadata/DataQuality/FT_QC/CompletenessOmission|unitOfMeasure,Percent
+Metadata/DataQuality/FT_QC/CompletenessOmission|value,0
+Metadata/DataQuality/FT_QC/DomainConsistency|evaluationMethodType,directInternal
+Metadata/DataQuality/FT_QC/DomainConsistency|measureDescription,Percent of F/T QC domain that fall within a predefined acceptable range of measure.
+Metadata/DataQuality/FT_QC/DomainConsistency|nameOfMeasure,Percent of F/T QC data that are within the acceptable range.
+Metadata/DataQuality/FT_QC/DomainConsistency|unitOfMeasure,Percent
+Metadata/DataQuality/FT_QC/DomainConsistency|value,100.0
+#
+Metadata/DatasetIdentification|shortName,FREEZE-THAW
+Metadata/DatasetIdentification|characterSet,utf8
+Metadata/DatasetIdentification|QAAbstract,An HDF5 product that contains statistical information on data product results. These statistics enable data producers and users to assess the quality of the data in the data product granule.
+Metadata/DatasetIdentification|VersionDescription,this NASA Freeze Thaw Earth Science Data Record (ESDR) version 4 global data 25km resolution product applies to the 1979-2014 extended earth science data record.
+# WRITE ONE UUID APPLYING TO ALL OF DATASET HERE
+Metadata/DatasetIdentification|UUID,acebb65c-9c98-11e6-bad9-d7a82845d75b
+Metadata/DatasetIdentification|language,english
+#
+# WRITE HDF5 OUTPUT GRANULE BASENAME here
+#
+Metadata/DatasetIdentification|QC_FileName,@MACRO
+Metadata/DatasetIdentification|topicCategoryCode,geoscientificInformation
+Metadata/DatasetIdentification|abstract,The NASA Measures Freeze/Thaw status data product provides global, daily freeze thaw status at 25 km resolution.
+#  WRITE CREATION DATETIME HERE, e.g. 2016-09-07T15:51:39.000Z
+Metadata/DatasetIdentification|creationDate,@MACRO
+Metadata/DatasetIdentification|VersionID,v4
+Metadata/DatasetIdentification|status,onGoing
+# WRITE QA product-generation DATETIME here
+Metadata/DatasetIdentification|QACreationDate,@MACRO
+Metadata/DatasetIdentification|credit,The software that generates the Freeze/Thaw data product is the property of the University of Montana Numerical Terradynamic Simulation Group (NTSG) and was transferred to the NASA Global Modeling and Assimilation Office (GMAO), Goddard Space Flight Center, Greenbelt, Maryland, USA.
+Metadata/DatasetIdentification|purpose,The Freeze Thaw status data product provides spatially and temporally complete Freeze Thaw status information for 1979-2014 at a daily resolution globally at 25 km for science and applications users.
+#
+# WRITE (substitute in) the given daily F/T OUTPUT GRANULE NAME HERE
+#
+Metadata/DatasetIdentification|fileName,@MACRO
+Metadata/DatasetIdentification|longName,NASA Measures Freeze Thaw Daily 25km global freeze thaw status, 1979-2014
+Metadata/DatasetIdentification|ReleaseID,v4
+Metadata/DatasetIdentification|originatorOrganizationName,University of Montana, College of Forestry and Conservation(CFC), Numerical Terradynamic Simulation Group (NTSG), Missoula, MT, USA
+Metadata/DatasetIdentification|FreezeThawShortName,FreezeThaw_status
+#
+Metadata/Extent|description,NASA Measures Freeze Thaw domain TBD-describe here
+# FIX AS STATIC WRITE lat,lon bounds here
+Metadata/Extent|westBoundLongitude,-179.999994,86.716744
+Metadata/Extent|eastBoundLongitude,179.999994,86.716744
+Metadata/Extent|southBoundLatitude,-86.716744
+Metadata/Extent|northBoundLatitude,86.716744
+# WRITE PRODUCTION DATETIME start,finish here
+Metadata/Extent|rangeBeginningDateTime,@MACRO
+Metadata/Extent|rangeEndingDateTime,@MACRO
+#
+Metadata/Extent/easegrid|grid_lower_center_xy,-1.8E-6,-4.3E-6
+Metadata/Extent/easegrid|grid_lower_left_xy,-1.7334193538E7,-7344784.825
+Metadata/Extent/easegrid|grid_lower_right_xy,1.7334193537E7,-7344784.825
+Metadata/Extent/easegrid|grid_upper_left_xy,-1.7334193538E7,7344784.825
+Metadata/Extent/easegrid|grid_upper_right_xy,1.7334193537E7,7344784.825
+Metadata/Extent/easegrid|grid_units,meters
+#
+Metadata/Extent/geographic|lower_center_lon_lat_deg,0.0,0.0
+Metadata/Extent/geographic|ne_lon_lat_deg,179.999994,86.716744
+Metadata/Extent/geographic|nw_lon_lat_deg,-179.999994,86.716744
+Metadata/Extent/geographic|se_lon_lat_deg,179.999994,-86.716744
+Metadata/Extent/geographic|sw_lon_lat_deg,-179.999994,-86.716744
+Metadata/Extent/geographic|units,decimal_degrees
+#
+Metadata/GridSpatialRepresentation|GridDescription,EASEGRID v1.0 by NSIDC
+Metadata/GridSpatialRepresentation|GridName,EASEGRID
+Metadata/GridSpatialRepresentation|GridVersion,v1.0
+Metadata/GridSpatialRepresentation|GridUnits,meters
+#
+Metadata/GridSpatialRepresentation/Latitude|dimensionSize,varies-by-latitude
+Metadata/GridSpatialRepresentation/Latitude|resolution,25 km on average
+Metadata/GridSpatialRepresentation/Longitude|dimensionSize,varies-by-longitude
+Metadata/GridSpatialRepresentation/Longitude|resolution,25 km on average
+# WRITE EASEGRID RASTER PIXEL EXTENT here
+Metadata/GridSpatialRepresentation/cells_northsouth|dimensionSize,586
+Metadata/GridSpatialRepresentation/cells_northsouth|resolution,25 km on average
+Metadata/GridSpatialRepresentation/cells_eastwest|dimensionSize,1383
+Metadata/GridSpatialRepresentation/cells_eastwest|resolution,25 km on average
+#
+Metadata/ProcessStep|epochUTCDate,2000-01-01T11:58:55.816Z
+Metadata/ProcessStep|processDescription,Freeze Thaw status uses {SSMI,SMMR,AMSR-E,AMSR2} data within a daily global model to generate spatially complete and temporally continuous estimates of freeze thaw state at 25km.
+Metadata/ProcessStep|stepDateTime,@MACRO
+Metadata/ProcessStep|documentation,NASA MEaSUREs: Making Earth System Data Records for Use in Research Environments (NNH06ZDA001N) An Earth System Data Record for Land Surface Freeze/Thaw State
+Metadata/ProcessStep|algorithmVersionID,umt-FREEZE-THAW-v4_0
+Metadata/ProcessStep|softwareTitle,Freeze Thaw status post-processor software, ft_postproc.py
+Metadata/ProcessStep|identifier,FT_post-processor-software (Python v2.7)
+Metadata/ProcessStep|ATBDVersion,v1
+# WRITE SOFTWARE POST-PROCESSOR DATE and VERSION here
+Metadata/ProcessStep|softwareDate,v1.6.9-2016-11-07T15:47:00-07:00
+# WRITE ft_postproc.py -- postprocessor software's full versTag here
+Metadata/ProcessStep|SWVersionID,v1.6.9-2016-11-07T15:47:00-07:00
+Metadata/ProcessStep|ATBDDate,2009-07-03
+# WRITE custom,per-granule input RADAR properties of interest, supplied at runtime via INPUT F/T PATH metadata
+Metadata/ProcessStep|radar_overpass_label,AM,PM,CO
+Metadata/ProcessStep|radar_frequency,37V
+Metadata/ProcessStep|radar_day_of_year,001-366
+Metadata/ProcessStep|radar_instrument_label,ASMR,SMMR,SSMI
+Metadata/ProcessStep|radar_year,1979-2014
+#
+Metadata/ProcessStep|algorithmDescription,Freeze Thaw daily,global status at 25km resolution for 1979-2014
+# PUBLICATION CITE, uses original ATBD for now
+Metadata/ProcessStep|ATBDTitle,NASA MEaSUREs: Making Earth System Data Records for Use in Research Environments (NNH06ZDA001N) An Earth System Data Record for Land Surface Freeze/Thaw State
+Metadata/ProcessStep|epochJulianDate,2.45154e+06
+Metadata/ProcessStep|timeVariableEpoch,J2000
+Metadata/ProcessStep|documentDate,2009-07-03
+Metadata/ProcessStep|processor,Univ, CFC Department, Montana Numerical Terradynamic Simulation Group (NTSG)
+Metadata/ProcessStep|documentVersion,2009-07-03
+#
+Metadata/SeriesIdentification|identifier_product_DOI,dx.doi.org/10.5067
+Metadata/SeriesIdentification|shortName,Freeze-Thaw
+Metadata/SeriesIdentification|mission,NASA Measures Earth Science Data Record (ESDR) Freeze Thaw status
+Metadata/SeriesIdentification|characterSet,utf8
+Metadata/SeriesIdentification|resourceProviderOrganizationName,National Aeronautics and Space Administration
+Metadata/SeriesIdentification|ECSVersionDescription,N/A
+Metadata/SeriesIdentification|language,english
+Metadata/SeriesIdentification|formatVersion,HDF5-Version-1.8.14
+Metadata/SeriesIdentification|PSDTitle,A Global Data Record of Daily Landscape Freeze/Thaw status Version 4.0
+Metadata/SeriesIdentification|PSDAuthors,Youngwook Kim, John S. Kimball, Joseph Glassy
+Metadata/SeriesIdentification|PSDPublicationDate,2016-03-31
+Metadata/SeriesIdentification|PSDEdition,v4
+Metadata/SeriesIdentification|PSDDOI,http://dx.doi.org/10.5067/MEASURES/CRYOSPHERE/nsidc-0477.004
+Metadata/SeriesIdentification|topicCategoryCode,geo-scientific-Information
+#
+Metadata/SeriesIdentification|abstract,The NASA Measures Freeze Thaw earth science data record (1979-2014) provides provides spatially and temporally freeze thaw state for science and applications users.
+Metadata/SeriesIdentification|VersionID,V4
+Metadata/SeriesIdentification|status,on-going
+Metadata/SeriesIdentification|revisionDate,2016-10-27
+Metadata/SeriesIdentification|credit,The software that generates the NASA Freeze/Thaw data product is the property of the University of Montana Numerical Terradynamic Simulation Group (NTSG) and was transferred to the NASA Global Modeling and Assimilation Office (GMAO), Goddard Space Flight Center, Greenbelt, Maryland, USA.
+Metadata/SeriesIdentification|purpose,The NASA Measures Freeze Thaw earth science data record (1979-2014) provides provides spatially and temporally freeze thaw state for science and applications users.
+Metadata/SeriesIdentification|format,HDF5
+Metadata/SeriesIdentification|longName,NASA Measures Freeze/Thaw Earth Science Data Record (ESDR), daily global 25km resolution freeze thaw status classification for 1979-2014
+Metadata/SeriesIdentification|maintenanceAndUpdateFrequency,As-Needed
+Metadata/SeriesIdentification|pointOfContact,National Snow and Ice Data Center, Boulder, Colorado, USA; and Univ. Montana NTSG
+Metadata/SeriesIdentification|CompositeReleaseID,v4
+Metadata/SeriesIdentification|maintenanceDate,2016-11-02
+Metadata/SeriesIdentification|FREEZE_THAW_ShortName,ft_status
+#
+# Joe--in Source store all pertinent info on raw binary radar image: overpass, frequency
+Metadata/Source/FT_RADAR_INPUT1|description,AMSR
+Metadata/Source/FT_RADAR_INPUT1|filename,AMSR series
+Metadata/Source/FT_RADAR_INPUT1|creationdate,2006-01-01
+Metadata/Source/FT_RADAR_INPUT1|version,v1
+Metadata/Source/FT_RADAR_INPUT1|identifier,AMSR radar
+Metadata/Source/FT_RADAR_INPUT1|publication,Knowles, K., M. Savoie, R. Armstrong, and M. Brodzik. 2006. AMSR-E/Aqua Daily EASE-Grid Brightness Temperatures, Version 1. [Indicate subset used]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. doi: http://dx.doi.org/10.5067/XIMNXRTQVMOX.
+Metadata/Source/FT_RADAR_INPUT1|url,http://nsidc.org/data/nsidc-0071
+Metadata/Source/FT_RADAR_INPUT1|DOI,http://dx.doi.org/10.5067/XIMNXRTQVMOX.
+#
+Metadata/Source/FT_RADAR_INPUT2|description,SMMR -- Nimbus-7 SMMR Pathfinder Daily EASE-Grid Brightness Temperature
+Metadata/Source/FT_RADAR_INPUT2|filename,SMMR_37V series
+Metadata/Source/FT_RADAR_INPUT2|creationdate,2000-01-01
+Metadata/Source/FT_RADAR_INPUT2|version,v1
+Metadata/Source/FT_RADAR_INPUT2|identifier,SMMR
+Metadata/Source/FT_RADAR_INPUT2|url,http://nsidc.org/data/nsidc-0071
+Metadata/Source/FT_RADAR_INPUT2|publication,Knowles, K., E. G. Njoku, R. Armstrong, and M. Brodzik. 2000. Nimbus-7 SMMR Pathfinder Daily EASE-Grid Brightness Temperatures, Version 1. [Indicate subset used]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. doi: http://dx.doi.org/10.5067/36SLCSCZU7N6.
+Metadata/Source/FT_RADAR_INPUT2|DOI,http://dx.doi.org/10.5067/36SLCSCZU7N6
+#
+Metadata/Source/FT_RADAR_INPUT3|description,SSMI
+Metadata/Source/FT_RADAR_INPUT3|filename,SSMI_37V series
+Metadata/Source/FT_RADAR_INPUT3|creationdate,1994,updated 2016
+Metadata/Source/FT_RADAR_INPUT3|version,v1
+Metadata/Source/FT_RADAR_INPUT3|identifier,SSMI radar
+Metadata/Source/FT_RADAR_INPUT3|publication,Armstrong, R., K. Knowles, M. Brodzik, and M. A. Hardman. 1994, updated 2016. DMSP SSM/I-SSMIS Pathfinder Daily EASE-Grid Brightness Temperatures, Version 2. [Indicate subset used]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. doi: http://dx.doi.org/10.5067/3EX2U1DV3434
+Metadata/Source/FT_RADAR_INPUT3|url,http://nsidc.org/data/nsidc-0032
+Metadata/Source/FT_RADAR_INPUT3|DOI,http://dx.doi.org/10.5067/3EX2U1DV3434
+#
+Metadata/Source/FT_RADAR_INPUT4|description,AMSR2 L1R Version 2.1
+Metadata/Source/FT_RADAR_INPUT4|filename,AMSR2 radar series
+Metadata/Source/FT_RADAR_INPUT4|creationdate,2016-10-27
+Metadata/Source/FT_RADAR_INPUT4|version,L1R Version 2.1
+Metadata/Source/FT_RADAR_INPUT4|identifier,AMSR2 radar
+Metadata/Source/FT_RADAR_INPUT4|publication,TBD
+Metadata/Source/FT_RADAR_INPUT4|url,TBD
+Metadata/Source/FT_RADAR_INPUT4|DOI,TBD
+#
+Metadata/Source/Ancillary/FT_cell_lat|description,Freeze Thaw cell latitude bin-center 586x1383 reference binary float32 image
+Metadata/Source/Ancillary/FT_cell_lat|fileName,ft_cell_lat.h5
+Metadata/Source/Ancillary/FT_cell_lat|creationDate,2016-10-27T14:45:00-07:00
+Metadata/Source/Ancillary/FT_cell_lat|version,v4
+Metadata/Source/Ancillary/FT_cell_lat|identifier,FT_CELL_LAT
+Metadata/Source/Ancillary/FT_cell_lat|DOI,N/A
+#
+Metadata/Source/Ancillary/FT_cell_lon|description,Freeze Thaw cell longitude bin-center 586x1383 reference binary float32 image
+Metadata/Source/Ancillary/FT_cell_lon|fileName,ft_cell_lon.h5
+Metadata/Source/Ancillary/FT_cell_lon|creationDate,2016-10-27T14:45:00-07:00
+Metadata/Source/Ancillary/FT_cell_lon|version,v4
+Metadata/Source/Ancillary/FT_cell_lon|identifier,FT_CELL_LON
+Metadata/Source/Ancillary/FT_cell_lon|DOI,N/A
+#
+# DEFINE LEGEND of CATEGORICAL VALUES describing "pixel value" of Freeze Thaw Status
+Metadata/AdditionalAttribute/FT_Legend|LegendDescription,Definition of the Freeze Thaw v4 pixel-wise classification by instr-year-Overpass-DayOfYear combination.
+Metadata/AdditionalAttribute/FT_Legend|FT_DomainDefinition,F/T codes for ESDR domain extent are (0,1,2,3) with all other pixels outside F/T domain
+Metadata/AdditionalAttribute/FT_Legend|FT_value_000,0   -- Frozen (AM/PM frozen) RGB{0,0,255) in color images
+Metadata/AdditionalAttribute/FT_Legend|FT_value_001,1   -- Thawed (AM/PM thawed) RGB{255,0,0) in color images
+Metadata/AdditionalAttribute/FT_Legend|FT_value_002,2   -- Transitional (AM frozen and PM thawed) RGB{168,168,0) in color images
+Metadata/AdditionalAttribute/FT_Legend|FT_value_003,3   -- Inverse Transitional (PM frozen and AM thawed) RGB{76,230,0) in color images
+Metadata/AdditionalAttribute/FT_Legend|FT_value_252,252 -- No data defined. RGB{255,255,255} in color images
+Metadata/AdditionalAttribute/FT_Legend|FT_value_253,253 -- non-cold constraint area RGB{200,200,200} in color images
+Metadata/AdditionalAttribute/FT_Legend|FT_value_254,254 -- 100 Percent open water RGB{255,255,255} in color images
+Metadata/AdditionalAttribute/FT_Legend|FT_value_255,255 -- Fillvalue RGB{255,255,255} in color images
+#
+Metadata/AdditionalAttribute/QC_Bit_Definition|FT_QC_bit_0,0:Brightness temperatures (Tb) were NOT interpolated, and 1: Tb WAS interpolated for this pixel.
+Metadata/AdditionalAttribute/QC_Bit_Definition|FT_QC_bit_1,0:Open water fraction of pixel is less than or equal to 20%; and 1: Open water fraction is >20% for this pixel/day.
+Metadata/AdditionalAttribute/QC_Bit_Definition|FT_QC_bit_2,0:Large Elevation Gradient less than or equal to 300m this pixel; and 1: Large elevation gradient >300m this pixel/day.
+Metadata/AdditionalAttribute/QC_Bit_Definition|FT_QC_bit_3,0:NO large precip event occurred this pixel/day; and 1: Large precip event DID OCCUR this pixel/day.
+#
+Metadata/AdditionalAttribute/Glossary|Term_AM,AM refers to morning overpass
+Metadata/AdditionalAttribute/Glossary|Term_PM,PM refers to afternoon overpass
+Metadata/AdditionalAttribute/Glossary|Term_CO,CO refers to combined morning and afternoon overpass
+# add any other relevant glossary terms here
+#  end-of-metadata
 
-# Verify 7/7/2017, old rule was when a HASH_PATH supplied
-#   we omitted an extension to a hash repository,
-#   it will be added later depending on which type of HASH was generated
-FT_OUTPUT_HASH_PATH = ./FT_2015_ONLY_HashRepository.md5
 
-# DATASET PROPERTIES defined. These are generic, applying to whole collection
-FT_DATASET_UUID          = 1356af32-0dc8-11e7-8ef0-2fc36935f400
-FT_DATASET_ROWS          = 586
-FT_DATASET_COLUMNS       = 1383
-# note: dataset properties with no "Input"|"Output" qualifier apply to BOTH input and output
-FT_DATASET_GRIDNAME      = EASEGRID v1.0
-FT_DATASET_GRID_UNITS    = meters
-FT_DATASET_GRID_LOWER_LEFT_XY  = -1.7334193538E7,-7344784.825
-FT_DATASET_GRID_LOWER_RIGHT_XY =  1.7334193537E7,-7344784.825
-FT_DATASET_GRID_UPPER_LEFT_XY  = -1.7334193538E7,7344784.825
-FT_DATASET_GRID_UPPER_RIGHT_XY = 1.7334193537E7,7344784.825
-
-# Geographic (geodetic) bounds and extents
-FT_DATASET_GEOG_UNITS     = decimal degrees
-FT_DATASET_GEOG_NORTH_BOUND_LATITUDE = 86.716744
-FT_DATASET_GEOG_SOUTH_BOUND_LATITUDE = -86.716744
-FT_DATASET_GEOG_WEST_BOUND_LONGITUDE = -179.999994
-FT_DATASET_GEOG_EAST_BOUND_LONGITUDE = 179.999994
-FT_DATASET_GEOG_EXTENT_LOWER_CENTER_LON_LAT_DEG = 0.0,0.0
-FT_DATASET_GEOG_EXTENT_NE_LON_LAT_DEG = 179.999994,86.716744
-FT_DATASET_GEOG_EXTENT_NW_LON_LAT_DEG = -179.999994,86.716744
-FT_DATASET_GEOG_EXTENT_SE_LON_LAT_DEG = 179.999994,-86.716744
-FT_DATASET_GEOG_EXTENT_SW_LON_LAT_DEG = -179.999994,-86.716744
-
-FT_DATASET_NAME_FOR_STATUS      = ft_status
-FT_DATASET_UNITS_FOR_STATUS     = dimensionless
-FT_DATASET_DATATYPE_FOR_STATUS  = uint8
-# Fill=255, 254=perm open water
-FT_DATASET_FILLVALUE_FOR_STATUS = 255
-FT_DATASET_VALID_MIN_FOR_STATUS = 0
-FT_DATASET_VALID_MAX_FOR_STATUS = 4
-
-# <JMG> changed "QA" to "QC" here, and changed ft_qa to ft_qc
-FT_DATASET_NAME_FOR_QC          = ft_qc
-FT_DATASET_UNITS_FOR_QC         = dimensionless
-FT_DATASET_DATATYPE_FOR_QC      = uint8
-FT_DATASET_FILLVALUE_FOR_QC     = 0
-FT_DATASET_VALID_MIN_FOR_QC     = 0
-FT_DATASET_VALID_MAX_FOR_QC     = 2
-
-FT_DATASET_NAME_FOR_CELL_LAT    = cell_lat
-FT_DATASET_UNITS_FOR_CELL_LAT     = decimal degrees
-FT_DATASET_DATATYPE_FOR_CELL_LAT  = float32
-FT_DATASET_FILLVALUE_FOR_CELL_LAT = -9999
-FT_DATASET_VALID_MIN_FOR_CELL_LAT = -90.0
-FT_DATASET_VALID_MAX_FOR_CELL_LAT = 90.0
-
-FT_DATASET_NAME_FOR_CELL_LON    = cell_lon
-FT_DATASET_UNITS_FOR_CELL_LON     = decimal degrees
-FT_DATASET_DATATYPE_FOR_CELL_LON  = float32
-FT_DATASET_FILLVALUE_FOR_CELL_LON = -9999
-FT_DATASET_VALID_MIN_FOR_CELL_LON = -90.0
-FT_DATASET_VALID_MAX_FOR_CELL_LON = 90.0
-
-FT_DATASET_NAME_FOR_ANNUAL_QA      = ft_annual_qa
-FT_DATASET_UNITS_FOR_ANNUAL_QA     = dimensionless
-FT_DATASET_DATATYPE_FOR_ANNUAL_QA  = float32
-FT_DATASET_FILLVALUE_FOR_ANNUAL_QA = -9999
-FT_DATASET_VALID_MIN_FOR_ANNUAL_QA = 0
-FT_DATASET_VALID_MAX_FOR_ANNUAL_QA = 100
-
-FT_DATASET_NAME_FOR_ANNUAL_ACC      = ft_annual_accuracy
-FT_DATASET_UNITS_FOR_ANNUAL_ACC     = dimensionless
-FT_DATASET_DATATYPE_FOR_ANNUAL_ACC  = float32
-FT_DATASET_FILLVALUE_FOR_ANNUAL_ACC = -9999
-FT_DATASET_VALID_MIN_FOR_ANNUAL_ACC = 0
-FT_DATASET_VALID_MAX_FOR_ANNUAL_ACC = 100
-
-# <JMG> updated 2016-11-04T16:21, define LEGEND: ft-status (primary) classification legend, 
-FT_DATASET_LEGEND_FT_STATUS_DESCRIPTION = Definition of the Freeze Thaw Vers 4 pixel classification by instr-year-Overpass-DayOfYear combination.
-FT_DATASET_LEGEND_FT_STATUS_DOMAIN = F/T codes for ESDR domain extent are (0,1,2,3) with all other pixels outside F/T domain
-FT_DATASET_LEGEND_FT_STATUS_000 = 0 is Frozen (AM/PM frozen) RGB{0,0,255) in color images
-FT_DATASET_LEGEND_FT_STATUS_001 = 1 is Thawed (AM/PM thawed) RGB{255,0,0) in color images
-FT_DATASET_LEGEND_FT_STATUS_002 = 2 is Transitional (AM frozen and PM thawed) RGB{168,168,0) in color images
-FT_DATASET_LEGEND_FT_STATUS_003 = 3 is Inverse Transitional  (PM frozen and AM thawed) RGB{76,230,0) in color images
-FT_DATASET_LEGEND_FT_STATUS_252 = 252 no data RGB{255,255,255} in color images in color images
-FT_DATASET_LEGEND_FT_STATUS_253 = 253 non-cold constraint area RGB{200,200,200} in color images
-FT_DATASET_LEGEND_FT_STATUS_254 = 254 is 100 Percent open water RGB{255,255,255} in color images
-FT_DATASET_LEGEND_FT_STATUS_255 = 255 is Fillvalue RGB{255,255,255} in color images
-
-# Supply info for pixel-wise QC bitmap legend (0|1) bitvalue definitions, by bit), 
-# noting only 4 of 8 bits are used in QC byte, so bits 4-7 are not defined (should be zeroed out)
-FT_DATASET_LEGEND_QC_BIT_DESCRIPTION =  Definition of how the daily, pixel-wise Freeze Thaw QC (0|1) bit values, for bits (0-3), are defined in an 8-bit QC word.
-FT_DATASET_LEGEND_QC_BIT_0  = INTERP 0: Brightness temperatures (Tb) WERE NOT interpolated, and 1: Tb WERE INTERPOLATED for this pixel.
-FT_DATASET_LEGEND_QC_BIT_1  = OWF    0: Open water fraction of pixel is less than or equal to 20%; and 1: Open water fraction is >20% for this pixel/day.
-FT_DATASET_LEGEND_QC_BIT_2  = LEG    0: Large Elevation Gradient less than or equal to 300m this pixel; and 1: Large elevation gradient >300m this pixel/day.
-FT_DATASET_LEGEND_QC_BIT_3  = PRECIP 0: NO Large precip event occurred this pixel/day; and 1: Large precip event DID OCCUR this pixel/day.
-
-# complete
