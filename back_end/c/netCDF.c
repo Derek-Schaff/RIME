@@ -60,7 +60,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     statusUpdate("Finishing and closing netCDF file.", *log_path);
     return 0;
 }
-
+//
 //int main(int argc, char *argv[]){
 //    char *fields[] = {"one","two","three"};
 //    char *vals[] = {"whoop 1","whoop 2","whoop 3"};
