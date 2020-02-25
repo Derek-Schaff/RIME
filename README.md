@@ -24,14 +24,14 @@ We need to now enter the directory containing the repository we just cloned:
 
 To allow us to run the script which will install all of the needed software (Docker) and prepare the Docker container with our RIME requirements.  Run the following command:
 
-`chmod a+x ./docker-build-dev.sh`
+`chmod a+x ./docker-build.sh`
 
 ### Step 4
 **Prepare Docker image**
 
 Run the script which will build the Docker image, putting all of the needed dependencies inside of a container:
 
-`./docker-build-dev.sh`
+`./docker-build.sh`
 
 ### Step 5
 **Start RIME**
