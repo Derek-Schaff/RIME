@@ -1,7 +1,17 @@
 # RIME
+RIME is a specialized conversion software used to translate binary satellite files into standardized NetCDF4, HDF5, and GeoTIFF formats.
 ## Prerequisites
-[Python 3.6.2](https://www.python.org/downloads/) <br />
-[PySide2](https://pypi.org/project/PySide2/) <br />
+Linux/GNU based operating system
+Docker
 
-## Usage
-python rime_main.py
+## Usage instructions
+###Step 1
+*Install Docker*
+
+###Step 2
+*Clone Git Repository*
+
+###Step 3
+*Run Rime script*
+
+
