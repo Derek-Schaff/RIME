@@ -24,16 +24,16 @@ class BinStruct(Structure):
 def parse_args(sysArgs):
     parser = argparse.ArgumentParser(sysArgs)
     # options without -- are required and positional
-    parser.add_argument("catalog", help="")
-    parser.add_argument("rip", help="")
-    parser.add_argument("output", help="")
+    parser.add_argument("metadata", help="File containing metadata necessary for file conversion. Must meet EASEGRID 2.0 standards")
+    parser.add_argument("rip", help="Read Input Parameter file containing necessary information for file conversion")
+    parser.add_argument("output", help="Desired output directory")
     # options with -- are optional and can occur in any order. If a type isn't explicitly defined, they are assumed to be booleans that are set to true when enabled
-    parser.add_argument("--ignore_warnings", "-i", action="store_true", help="Instead of stopping on warnings, ignore and continue")
+    #parser.add_argument("--ignore_warnings", "-i", action="store_true", help="Instead of stopping on warnings, ignore and continue")
+    parser.add_argument("--gui", "-gu", action="store_true", help="Launch RIME GUI. GUI currently inoperable")
     parser.add_argument("--netcdf4", "-n", action="store_true", help="Store output in NetCDF4 file format. Any combination of output format options can be specified simultaneously")
-    parser.add_argument("--gui", "-gu", action="store_true", help="Launch RIME GUI")
     parser.add_argument("--hdf5", "-hd", action="store_true", help="Store output in HDF5 file format. Any combination of output format options can be specified simultaneously")
     parser.add_argument("--geotiff", "-g", action="store_true", help="Store output in GeoTIFF file format. Any combination of output format options can be specified simultaneously")
-    parser.add_argument("--checksum", "-c", action="store_true", help="")
+    parser.add_argument("--checksum", "-c", action="store_true", help="Generate file checksum value")
     parser.add_argument("--tar_netcdf4", "-tn", action="store_true", help="Automatically compress output NetCDF4 files. --netcdf4 must be enabled")
     parser.add_argument("--tar_hdf5", "-th", action="store_true", help="Automatically compress output HDF5 files. --hdf5 must be enabled")
     parser.add_argument("--tar_geotiff", "-tg", action="store_true", help="Automatically compress output GeoTIFF files. --geotiff must be enabled")
@@ -123,10 +123,10 @@ def update_status(updateString, log):
 if __name__ == "__main__":
     # get commandline args
     args = parse_args(sys.argv[1:])
-    catalogPath = args.catalog
+    metadataPath = args.metadata
     ripPath = args.rip
     outputPath = args.output
-    ignoreWarnings = args.ignore_warnings
+    #ignoreWarnings = args.ignore_warnings
     netcdf4 = args.netcdf4
     gui = args.gui
     hdf5 = args.hdf5
@@ -153,20 +153,22 @@ if __name__ == "__main__":
 
     ripDic = parse_rip("test/test_rip.txt")
     metadataDic = parse_metadata("test/test_metadata.txt")
+    times = np.array([])
 
     if gui:
         #rime_main.run()
+        print("RIME GUI not currently accessible")
         None
 
 
     else:
         args = parse_args(sys.argv[1:])
-        catalogPath = args.catalog
+        metadataPath = args.metadata
         ripPath = args.rip
         outputPath = args.output
-        ignoreWarnings = args.ignore_warnings
+        #ignoreWarnings = args.ignore_warnings
         netcdf4 = args.netcdf4
-        #gui = args.gui
+        gui = args.gui
         hdf5 = args.hdf5
         geotiff = args.geotiff
         checksum = args.checksum
@@ -208,55 +210,91 @@ if __name__ == "__main__":
             #checksum stuff
 
         # BELOW IS SPOOFING FOR USER TESTING
-        '''
-        if badMetadata and badCatalog:
-            if not ignoreWarnings:
-                # TODO
-                if badMetadata:
-                    #TODO
-                elif badCatalog:
-                    #TODO
-        '''
 
-        if netcdf4 and hdf5 and geotiff:
-            #TODO
-            if tarAll:
-                None
-                # TODO
-        elif netcdf4:
-            None
-            #TODO
-            if tarNet:
-                None
-                #TODO
-        elif hdf5:
+        if metadataPath == "invalid_metadata.txt" or ripPath == "invalid_rip.txt":
+            if metadataPath == "invalid_metadata.txt":
+                print("Warning: values in %s are invalid! Please select a valid metadata file or correct values" % metadataPath)
+                exit()
+            elif ripPath == "invalid_rip.txt":
+                print("Warning: values in %s are invalid! Please select a valid RIP file or correct values" % ripPath)
+                exit()
+
+        if netcdf4:
             for i in range(0,10):
-                testOutput = 'test1/'
+                testOutput = 'output/netcdf'
                 if not path.isdir(testOutput):
-                    command = "mkdir %s" % testOutput
+                    command = "mkdir -p %s" % testOutput
+                    subprocess.run(command.split())
+
+                spoofPath = '%s/output%d.nc' % (testOutput, i)
+
+                start = time.time()
+                print("Beginning conversion of bin%d.bin" % i)
+                test_hdf5 = convert.create(spoofPath, bin, ripDic, metadataDic, "HDF5")
+                test_hdf5.close()
+                end = time.time()
+                elapsed_time = end - start
+                times = np.append(times, elapsed_time)
+                mean_time = times.mean()
+                difference = 9 - i
+                eta = mean_time * difference
+                print("bin%d.bin conversion to NetCDF4 complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, end - start, eta))
+
+            if tarNet or tarAll:
+                command = "tar -czf %s.tgz %s" % (testOutput, testOutput)
+                subprocess.run(command.split())
+        if hdf5:
+            for i in range(0,10):
+                testOutput = 'output/hdf5'
+                if not path.isdir(testOutput):
+                    command = "mkdir -p %s" % testOutput
                     subprocess.run(command.split())
 
                 spoofPath = '%s/output%d.h5' % (testOutput, i)
 
                 start = time.time()
-                print("Beginning conversion of bin%d" % i)
+                print("Beginning conversion of bin%d.bin" % i)
                 test_hdf5 = convert.create(spoofPath, bin, ripDic, metadataDic, "HDF5")
+                test_hdf5.close()
                 end = time.time()
-                print("bin%d conversion to HDF5 complete. Total time elapsed: %f seconds" % (i, end - start))
+                elapsed_time = end - start
+                times = np.append(times, elapsed_time)
+                mean_time = times.mean()
+                difference = 9 - i
+                eta = mean_time * difference
+                print("bin%d.bin conversion to HDF5 complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, end - start, eta))
 
-            if tarHdf:
-                None
-                #TODO
-        elif geotiff:
-            None
-                # TODO
-            if tarGeo:
-                None
-                #TODO
+            if tarHdf or tarAll:
+                command = "tar -czf %s.tgz %s" % (testOutput, testOutput)
+                subprocess.run(command.split())
+
+        if geotiff:
+            for i in range(0,10):
+                testOutput = 'output/geotiff'
+                if not path.isdir(testOutput):
+                    command = "mkdir -p %s" % testOutput
+                    subprocess.run(command.split())
+
+                spoofPath = '%s/output%d.gtif' % (testOutput, i)
+
+                start = time.time()
+                print("Beginning conversion of bin%d.bin" % i)
+                test_geo = convert.create(spoofPath, bin, ripDic, metadataDic, "GEOTIFF")
+                end = time.time()
+                elapsed_time = end - start
+                times = np.append(times, elapsed_time)
+                mean_time = times.mean()
+                difference = 9 - i
+                eta = mean_time * difference
+                print("bin%d.bin conversion to GeoTIFF complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, end - start, eta))
+
+            if tarGeo or tarAll:
+                command = "tar -czf %s.tgz %s" % (testOutput, testOutput)
+                subprocess.run(command.split())
 
 
-        hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")
-        GTIFF = convert.create("path.gtif", bin, ripDic, metadataDic, "GEOTIFF")
+        #hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")
+        #GTIFF = convert.create("path.gtif", bin, ripDic, metadataDic, "GEOTIFF")
         # print(h5py.is_hdf5(hdf5.filename))
         # print(hdf5.keys())
-        hdf5.close()
+        #hdf5.close()

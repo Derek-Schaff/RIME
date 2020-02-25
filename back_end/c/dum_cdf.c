@@ -26,12 +26,13 @@ int conv_netCDF(){
 
     __uint8_t data[1383*586];
     FILE *fp;
-    fp = fopen("/home/turkishdisko/files.ntsg.umt.edu/data/FT_V3/DAILY_BINARY/AMSRE/2002/AMSRE_36V_AM_FT_2002_day170.bin","r"); //change dummy
+    fp = fopen("../python/test/test_bin.bin","r");
+    printf("3\n");
     fseek(fp,0,SEEK_SET);
     fread(data,sizeof(__uint8_t),1383*586,fp);
 
-    //statusUpdate("Creating netCDF file.", *log_path);
-    if ((retval = nc_create("/home/turkishdisko/RIME/back_end/python/test.nc", NC_NETCDF4, &ncid))) // change dummy
+    statusUpdate("Creating netCDF file.", *log_path);
+    if ((retval = nc_create("../python/output/netcdf", NC_NETCDF4, &ncid)))
     ERR(retval);
     /* Define the dimensions. */
     if ((retval = nc_def_dim(ncid, "x", 586, &x_dimid)))
@@ -55,19 +56,19 @@ int conv_netCDF(){
 //    ERR(retval);
 
     /*insert meta data*/
-    //statusUpdate("Writing meta data into netCDF file.", *log_path);
+    statusUpdate("Writing meta data into netCDF file.", *log_path);
     for(int i = 0; i < 3; i++){
         if(( retval = nc_put_att_text(ncid,varid,fields[i],sizeof(fields[i]),vals[i]))) ERR(retval);
     }
 
-    //statusUpdate("Writing data into netCDF file.", *log_path);
+    statusUpdate("Writing data into netCDF file.", *log_path);
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
     ERR(retval);
 
     if ((retval = nc_close(ncid)))
     ERR(retval);
 
-    //statusUpdate("Finishing and closing netCDF file.", *log_path);
+    statusUpdate("Finishing and closing netCDF file.", *log_path);
     return 0;
 }
 //
