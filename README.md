@@ -10,7 +10,7 @@ Docker
 
 Enter this command into the terminal to clone this Git repository, checking out the development branch:
 
-`git clone -b dev https://github.com/Turkishdisko/RIME.git`
+`git clone -b test_branch https://github.com/Turkishdisko/RIME.git`
 
 ### Step 2
 **Change the current directory to the cloned RIME directory**
