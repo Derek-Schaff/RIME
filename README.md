@@ -38,18 +38,3 @@ Finally, start the command line interface of RIME by typing:
 This will give you the usage parameters needed to run RIME.
 
 Great job, you have downloaded & installed several software applications and hundreds of libraries necessary for running RIME, all in _5_ steps!
-###Manual Steps
-1. Install git, docker
-*Install Docker*
-Docker is the software used to keep RIME modular. Installing all of the dependencies by hand can be cumbersome and fraught with mistakes.
-Docker allows us to keep all of that locked into a container, starting and stopping it with simple commands.
-
-sudo apt-get update
-sudo apt-get install git
-###Step 2
-*Clone Git Repository*
-
-###Step 3
-*Run Rime script*
-
-
