@@ -27,7 +27,6 @@ int conv_netCDF(){
     __uint8_t data[1383*586];
     FILE *fp;
     fp = fopen("/home/turkishdisko/files.ntsg.umt.edu/data/FT_V3/DAILY_BINARY/AMSRE/2002/AMSRE_36V_AM_FT_2002_day170.bin","r"); //change dummy
-    printf("3\n");
     fseek(fp,0,SEEK_SET);
     fread(data,sizeof(__uint8_t),1383*586,fp);
 
