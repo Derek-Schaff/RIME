@@ -31,7 +31,7 @@ To allow us to run the script which will install all of the needed software (Doc
 
 Run the script which will build the Docker image, putting all of the needed dependencies inside of a container:
 
-`./docker-build`
+`./docker-build.sh`
 
 ### Step 5
 **Start RIME**
