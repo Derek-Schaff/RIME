@@ -153,6 +153,7 @@ if __name__ == "__main__":
 
     ripDic = parse_rip("test/test_rip.txt")
     metadataDic = parse_metadata("test/test_metadata.txt")
+    times = np.array([])
 
     if gui:
         #rime_main.run()
@@ -241,12 +242,19 @@ if __name__ == "__main__":
                 start = time.time()
                 print("Beginning conversion of bin%d" % i)
                 test_hdf5 = convert.create(spoofPath, bin, ripDic, metadataDic, "HDF5")
+                test_hdf5.close()
                 end = time.time()
-                print("bin%d conversion to HDF5 complete. Total time elapsed: %f seconds" % (i, end - start))
+                elapsed_time = end - start
+                times = np.append(times, elapsed_time)
+                mean_time = times.mean()
+                difference = 9- i
+                eta = mean_time * difference
+                print("bin%d conversion to HDF5 complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f" % (i, end - start, eta))
 
             if tarHdf:
-                None
-                #TODO
+                command = "tar -czf %s.tgz %s" % ("hdf", testOutput)
+                print(command)
+                subprocess.run(command.split())
         elif geotiff:
             None
                 # TODO
