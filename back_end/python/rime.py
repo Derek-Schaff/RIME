@@ -1,8 +1,8 @@
 import argparse
-# import convert
-# import validate
-# import numpy as np
-# import h5py
+import convert
+import validate
+import numpy as np
+import h5py
 import time
 import sys
 from ctypes import *
@@ -65,11 +65,11 @@ def load_binary(binaryPath, dataType):
     return binary
 
 
-# def resolution_reshape(array, x, y):
-#     validate.validate_np_array(array)
-#     array = np.reshape(array, (x,y))
-#
-#     return array
+def resolution_reshape(array, x, y):
+    validate.validate_np_array(array)
+    array = np.reshape(array, (x,y))
+
+    return array
 
 
 def parse_rip(filePath):
@@ -137,8 +137,6 @@ if __name__ == "__main__":
     tarGeo = args.tar_geotiff
     tarAll = args.tar_all
 
-
-
     '''
     # load C .so library to get access to parseDir()
     parseLib = CDLL('../c/parserlib.so')
@@ -152,12 +150,11 @@ if __name__ == "__main__":
     p1 = BinStruct.from_address(parseLib.parseDir('.'))
     print(p1.files)
     '''
-    netCDF = CDLL("/home/turkishdisko/RIME/back_end/c/dum.so")
+
     ripDic = parse_rip("test/test_rip.txt")
     metadataDic = parse_metadata("test/test_metadata.txt")
 
     if gui:
-        netCDF.conv_netCDF()
         #rime_main.run()
         None
 
@@ -191,75 +188,75 @@ if __name__ == "__main__":
         p1 = BinStruct.from_address(parseLib.parseDir('.'))
         print(p1.files)
         '''
-        # x = int(ripDic["FT_DATASET_ROWS"])
-        # y = int(ripDic["FT_DATASET_COLUMNS"])
-        # binList = read_catalog("test/test_catalog.txt")
-        # bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
-        #
-        # if tarAll:
-        #     None
-        # else:
-        #     if tarNet:
-        #         None
-        #     if tarGeo:
-        #         None
-        #     if tarHdf:
-        #         None
-        #
-        # if checksum:
-        #     None
-        #     #checksum stuff
-        #
-        # # BELOW IS SPOOFING FOR USER TESTING
-        # '''
-        # if badMetadata and badCatalog:
-        #     if not ignoreWarnings:
-        #         # TODO
-        #         if badMetadata:
-        #             #TODO
-        #         elif badCatalog:
-        #             #TODO
-        # '''
-        #
-        # if netcdf4 and hdf5 and geotiff:
-        #     #TODO
-        #     if tarAll:
-        #         None
-        #         # TODO
-        # elif netcdf4:
-        #     None
-        #     #TODO
-        #     if tarNet:
-        #         None
-        #         #TODO
-        # elif hdf5:
-        #     for i in range(0,10):
-        #         testOutput = 'test1/'
-        #         if not path.isdir(testOutput):
-        #             command = "mkdir %s" % testOutput
-        #             subprocess.run(command.split())
-        #
-        #         spoofPath = '%s/output%d.h5' % (testOutput, i)
-        #
-        #         start = time.time()
-        #         print("Beginning conversion of bin%d" % i)
-        #         test_hdf5 = convert.create(spoofPath, bin, ripDic, metadataDic, "HDF5")
-        #         end = time.time()
-        #         print("bin%d conversion to HDF5 complete. Total time elapsed: %f seconds" % (i, end - start))
-        #
-        #     if tarHdf:
-        #         None
-        #         #TODO
-        # elif geotiff:
-        #     None
-        #         # TODO
-        #     if tarGeo:
-        #         None
-        #         #TODO
-        #
-        #
-        # hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")
-        # GTIFF = convert.create("path.gtif", bin, ripDic, metadataDic, "GEOTIFF")
-        # # print(h5py.is_hdf5(hdf5.filename))
-        # # print(hdf5.keys())
-        # hdf5.close()
+        x = int(ripDic["FT_DATASET_ROWS"])
+        y = int(ripDic["FT_DATASET_COLUMNS"])
+        binList = read_catalog("test/test_catalog.txt")
+        bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
+
+        if tarAll:
+            None
+        else:
+            if tarNet:
+                None
+            if tarGeo:
+                None
+            if tarHdf:
+                None
+
+        if checksum:
+            None
+            #checksum stuff
+
+        # BELOW IS SPOOFING FOR USER TESTING
+        '''
+        if badMetadata and badCatalog:
+            if not ignoreWarnings:
+                # TODO
+                if badMetadata:
+                    #TODO
+                elif badCatalog:
+                    #TODO
+        '''
+
+        if netcdf4 and hdf5 and geotiff:
+            #TODO
+            if tarAll:
+                None
+                # TODO
+        elif netcdf4:
+            None
+            #TODO
+            if tarNet:
+                None
+                #TODO
+        elif hdf5:
+            for i in range(0,10):
+                testOutput = 'test1/'
+                if not path.isdir(testOutput):
+                    command = "mkdir %s" % testOutput
+                    subprocess.run(command.split())
+
+                spoofPath = '%s/output%d.h5' % (testOutput, i)
+
+                start = time.time()
+                print("Beginning conversion of bin%d" % i)
+                test_hdf5 = convert.create(spoofPath, bin, ripDic, metadataDic, "HDF5")
+                end = time.time()
+                print("bin%d conversion to HDF5 complete. Total time elapsed: %f seconds" % (i, end - start))
+
+            if tarHdf:
+                None
+                #TODO
+        elif geotiff:
+            None
+                # TODO
+            if tarGeo:
+                None
+                #TODO
+
+
+        hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")
+        GTIFF = convert.create("path.gtif", bin, ripDic, metadataDic, "GEOTIFF")
+        # print(h5py.is_hdf5(hdf5.filename))
+        # print(hdf5.keys())
+        hdf5.close()
