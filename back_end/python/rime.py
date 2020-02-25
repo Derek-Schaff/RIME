@@ -150,11 +150,12 @@ if __name__ == "__main__":
     p1 = BinStruct.from_address(parseLib.parseDir('.'))
     print(p1.files)
     '''
-
+    netCDF = CDLL("/home/turkishdisko/RIME/back_end/c/dum.so")
     ripDic = parse_rip("test/test_rip.txt")
     metadataDic = parse_metadata("test/test_metadata.txt")
 
     if gui:
+        netCDF.conv_netCDF()
         #rime_main.run()
         None
 
