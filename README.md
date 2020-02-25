@@ -38,7 +38,7 @@ Run the script which will build the Docker image, putting all of the needed depe
 
 Finally, start the command line interface of RIME by typing:
 
-`./rime-cli`
+`./rime-cli.sh`
 
 This will give you the usage parameters needed to run RIME.
 
