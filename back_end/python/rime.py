@@ -85,6 +85,7 @@ def parse_rip(filePath):
 
     return ripDic
 
+
 # hey dummy, combine metadata and rip parse into a single method because they're super similar. Maybe make them one of
 # those fancy factory things
 def parse_metadata(filePath):
@@ -109,6 +110,11 @@ def parse_metadata(filePath):
                 metadataDic[key] = value
 
     return metadataDic
+
+
+def update_status(updateString, log):
+
+
 
 if __name__ == "__main__":
     # get commandline args
@@ -144,7 +150,7 @@ if __name__ == "__main__":
     ripDic = parse_rip("test/test_rip.txt")
     metadataDic = parse_metadata("test/test_metadata.txt")
 
-    if sys.argv[1] == '--gui':
+    if gui:
         rime_main.run()
 
 
@@ -191,11 +197,40 @@ if __name__ == "__main__":
             None
             #checksum stuff
 
+        # BELOW IS SPOOFING FOR USER TESTING
+        if badMetadata and badCatalog:
+                if not ignoreWarnings:
+                # TODO
+            else:
+                if badMetadata:
+                #TODO
+                elif badCatalog:
+                #TODO
+        else:
+            if netcdf4 and hdf5 and geotiff:
+                #TODO
+                if tarAll:
+                    # TODO
+            elif netcdf4:
+                #TODO
+                if tarNet:
+                    #TODO
+            elif hdf5:
+                #TODO
+                if tarHdf:
+                    #TODO
+            elif geotiff:
+                    # TODO
+                if tarGeo:
+                    #TODO
+
+
+
+
         x = int(ripDic["FT_DATASET_ROWS"])
         y = int(ripDic["FT_DATASET_COLUMNS"])
         binList = read_catalog("test/test_catalog.txt")
         bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
-
 
         hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")
         GTIFF = convert.create("path.gtif", bin, ripDic, metadataDic, "GEOTIFF")
