@@ -1,11 +1,15 @@
-FROM ubuntu:cosmic
+FROM theshadowx/qt5:18.04
 
 ########################################################
 # Essential packages for remote building/compiling, debugging, and logging in
 ########################################################
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
-    apt-utils gcc g++ openssh-server cmake build-essential gdb gdbserver rsync vim 
+    apt-utils gcc g++ openssh-server cmake build-essential gdb gdbserver rsync vim \
+    libglu1-mesa-dev python3-pip libfontconfig libxrender1 ca-certificates
+
+RUN add-apt-repository ppa:ubuntugis/ubuntugis-unstable && apt-get install -y \
+    gdal-bin python3-gdal
 
 RUN mkdir /var/run/sshd
 
@@ -24,6 +28,8 @@ RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/s
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
 ENV NOTVISIBLE "in users profile"
+ENV QT_GRAPHICSSYSTEM="native"
+
 RUN echo "export VISIBLE=now" >> /etc/profile
 ########
 
@@ -34,8 +40,11 @@ RUN useradd -ms /bin/bash debugger
 RUN echo 'debugger:pwd' | chpasswd
 
 ########################################################
-# More C Libraries go after here (eg. HDF5 libraries)
+# More C/Python Libraries go after here (eg. HDF5 libraries)
 ########################################################
 
+RUN pip3 install PySide2 numpy h5py GDAL
+
 CMD ["/usr/sbin/sshd", "-D"]
+
 
