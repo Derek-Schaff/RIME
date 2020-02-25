@@ -45,6 +45,7 @@ RUN echo 'debugger:pwd' | chpasswd
 
 RUN pip3 install PySide2 numpy h5py GDAL
 
-CMD ["/usr/sbin/sshd", "-D"]
+CMD ["/bin/bash"]
+#CMD ["/usr/sbin/sshd", "-D"]
 
 
