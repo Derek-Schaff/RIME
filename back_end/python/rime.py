@@ -153,11 +153,9 @@ if __name__ == "__main__":
 
     ripDic = parse_rip("test/test_rip.txt")
     metadataDic = parse_metadata("test/test_metadata.txt")
-    times = np.array([])
 
     if gui:
         #rime_main.run()
-        print("RIME GUI not currently accessible")
         None
 
 
@@ -220,61 +218,41 @@ if __name__ == "__main__":
                     #TODO
         '''
 
-
-        if netcdf4:
+        if netcdf4 and hdf5 and geotiff:
+            #TODO
+            if tarAll:
+                None
+                # TODO
+        elif netcdf4:
             None
             #TODO
-            if tarNet or tarAll:
+            if tarNet:
                 None
                 #TODO
-        if hdf5:
+        elif hdf5:
             for i in range(0,10):
-                testOutput = 'test1/hdf5'
+                testOutput = 'test1/'
                 if not path.isdir(testOutput):
-                    command = "mkdir -p %s" % testOutput
+                    command = "mkdir %s" % testOutput
                     subprocess.run(command.split())
 
                 spoofPath = '%s/output%d.h5' % (testOutput, i)
 
                 start = time.time()
-                print("Beginning conversion of bin%d.bi" % i)
+                print("Beginning conversion of bin%d" % i)
                 test_hdf5 = convert.create(spoofPath, bin, ripDic, metadataDic, "HDF5")
-                test_hdf5.close()
                 end = time.time()
-                elapsed_time = end - start
-                times = np.append(times, elapsed_time)
-                mean_time = times.mean()
-                difference = 9 - i
-                eta = mean_time * difference
-                print("bin%d.bi conversion to HDF5 complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, end - start, eta))
+                print("bin%d conversion to HDF5 complete. Total time elapsed: %f seconds" % (i, end - start))
 
-            if tarHdf or tarAll:
-                command = "tar -czf %s.tgz %s" % (testOutput, testOutput)
-                subprocess.run(command.split())
-
-        if geotiff:
-            for i in range(0,10):
-                testOutput = 'test2/geotiff'
-                if not path.isdir(testOutput):
-                    command = "mkdir -p %s" % testOutput
-                    subprocess.run(command.split())
-
-                spoofPath = '%s/output%d.gtif' % (testOutput, i)
-
-                start = time.time()
-                print("Beginning conversion of bin%d.bi" % i)
-                test_geo = convert.create(spoofPath, bin, ripDic, metadataDic, "GEOTIFF")
-                end = time.time()
-                elapsed_time = end - start
-                times = np.append(times, elapsed_time)
-                mean_time = times.mean()
-                difference = 9 - i
-                eta = mean_time * difference
-                print("bin%d.bi conversion to GeoTIFF complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, end - start, eta))
-
-            if tarGeo or tarAll:
-                command = "tar -czf %s.tgz %s" % (testOutput, testOutput)
-                subprocess.run(command.split())
+            if tarHdf:
+                None
+                #TODO
+        elif geotiff:
+            None
+                # TODO
+            if tarGeo:
+                None
+                #TODO
 
 
         hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")

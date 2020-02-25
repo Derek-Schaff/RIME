@@ -14,5 +14,6 @@ sudo apt update
 sudo apt install docker-ce
 
 echo "Building Docker container..."
+sleep 1
 docker image build -t $container_name .
 
