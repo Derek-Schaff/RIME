@@ -6,8 +6,46 @@ Docker
 
 ## Usage instructions
 ###Step 1
-*Install Docker*
+*Clone Git Repository*
+Enter this command into the terminal to clone this Git repository, checking out the development branch:
 
+`git clone -b dev https://github.com/Turkishdisko/RIME.git`
+
+###Step 2
+*Change the current directory to the cloned RIME directory*
+We need to now enter the directory containing the repository we just cloned:
+
+`cd RIME`
+
+###Step 3
+*Give permission to allow execution to the install script*
+To allow us to run the script which will install all of the needed software (Docker) and prepare the Docker container with our RIME requirements.  Run the following command:
+
+`chmod a+x ./docker-build.sh`
+
+###Step 4
+*Prepare Docker image*
+Run the script which will build the Docker image, putting all of the needed dependencies inside of a container:
+
+`./docker-build`
+
+###Step 5
+**
+Finally, start the command line interface of RIME by typing:
+
+`./rime-cli`
+
+This will give you the usage parameters needed to run RIME.
+
+Great job, you have downloaded & installed several software applications and hundreds of libraries necessary for running RIME, all in _5_ steps!
+###Manual Steps
+1. Install git, docker
+*Install Docker*
+Docker is the software used to keep RIME modular. Installing all of the dependencies by hand can be cumbersome and fraught with mistakes.
+Docker allows us to keep all of that locked into a container, starting and stopping it with simple commands.
+
+sudo apt-get update
+sudo apt-get install git
 ###Step 2
 *Clone Git Repository*
 
