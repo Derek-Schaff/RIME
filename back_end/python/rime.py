@@ -199,30 +199,29 @@ if __name__ == "__main__":
 
         # BELOW IS SPOOFING FOR USER TESTING
         if badMetadata and badCatalog:
-                if not ignoreWarnings:
+            if not ignoreWarnings:
                 # TODO
-            else:
                 if badMetadata:
-                #TODO
+                    #TODO
                 elif badCatalog:
-                #TODO
-        else:
-            if netcdf4 and hdf5 and geotiff:
-                #TODO
-                if tarAll:
-                    # TODO
-            elif netcdf4:
-                #TODO
-                if tarNet:
                     #TODO
-            elif hdf5:
+            
+        if netcdf4 and hdf5 and geotiff:
+            #TODO
+            if tarAll:
+                # TODO
+        elif netcdf4:
+            #TODO
+            if tarNet:
                 #TODO
-                if tarHdf:
-                    #TODO
-            elif geotiff:
-                    # TODO
-                if tarGeo:
-                    #TODO
+        elif hdf5:
+            #TODO
+            if tarHdf:
+                #TODO
+        elif geotiff:
+                # TODO
+            if tarGeo:
+                #TODO
 
 
 
