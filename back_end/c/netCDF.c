@@ -10,7 +10,7 @@
  *
  */
 
-int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_num, char *meta_fields[], char *meta_vals[], char **output_path, char **log_path){
+int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_num, char *meta_fields[], char *meta_vals[], char *output_path, char *log_path){
     int ncid, x_dimid, y_dimid, varid;
     int retval;
     size_t chunks[2];
@@ -20,8 +20,8 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
 //    deflate = 1;
 //    deflate_level = 1;
 
-    statusUpdate("Creating netCDF file.", *log_path);
-    if ((retval = nc_create(*output_path, NC_NETCDF4, &ncid)))
+    //statusUpdate("Creating netCDF file.", *log_path);
+    if ((retval = nc_create(output_path, NC_NETCDF4, &ncid)))
         ERR(retval);
     /* Define the dimensions. */
     if ((retval = nc_def_dim(ncid, "x", data_set_rows, &x_dimid)))
@@ -45,19 +45,19 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
 //    ERR(retval);
 
     /*insert meta data*/
-    statusUpdate("Writing meta data into netCDF file.", *log_path);
+    //statusUpdate("Writing meta data into netCDF file.", *log_path);
     for(int i = 0; i < meta_num; i++){
         if(( retval = nc_put_att_text(ncid,varid,meta_fields[i],sizeof(meta_fields[i]),meta_vals[i]))) ERR(retval);
     }
 
-    statusUpdate("Writing data into netCDF file.", *log_path);
+    //statusUpdate("Writing data into netCDF file.", *log_path);
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
     ERR(retval);
 
     if ((retval = nc_close(ncid)))
     ERR(retval);
 
-    statusUpdate("Finishing and closing netCDF file.", *log_path);
+    //statusUpdate("Finishing and closing netCDF file.", *log_path);
     return 0;
 }
 //
