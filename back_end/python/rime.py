@@ -54,7 +54,7 @@ def read_catalog(filePath):
             if os.path.exists(binPath):
                 binList.append(binPath)
             else:
-                raise FileNotFoundError()
+                raise FileNotFoundError(binPath)
 
     return binList
 
@@ -120,8 +120,8 @@ def update_status(updateString, log):
     return
 
 
-if __name__ == "__main__":
-    # get commandline args
+def main():
+    # get commandline args    
     args = parse_args(sys.argv[1:])
     metadataPath = args.metadata
     ripPath = args.rip
@@ -298,3 +298,7 @@ if __name__ == "__main__":
         # print(h5py.is_hdf5(hdf5.filename))
         # print(hdf5.keys())
         #hdf5.close()
+
+
+if __name__ == "__main__":    
+    main()
