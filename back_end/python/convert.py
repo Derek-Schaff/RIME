@@ -36,12 +36,21 @@ def _create_hdf5(filePath, binary, ripDic, metadataDict):
 
 
 def _create_netcdf4(logPath, outputPath, metadataDict, binData, datRows, datCols):
-    netCDF = CDLL("../c/netCDF.so")
-    netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char), POINTER(c_char),
+    netCDF = CDLL("/home/turkishdisko/RIME/back_end/c/netCDF.so")
+    netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char_p), POINTER(c_char_p),
                                    c_char_p, c_char_p]
 
-    meta_fields = metadataDict.keys()
-    meta_values = metadataDict.values()
+    data = (c_int8 * len(binData))
+    dat_Arr = data(*binData)
+
+    meta_fields = [] #metadataDict.keys()
+    meta_values = [] #metadataDict.values()
+
+    for key in metadataDict.keys():
+        meta_fields.append(key)
+    for val in metadataDict.values():
+        meta_values.append(val)
+
     field_bytes = []
     val_bytes = []
     if len(meta_fields) != len(meta_values):
@@ -57,8 +66,8 @@ def _create_netcdf4(logPath, outputPath, metadataDict, binData, datRows, datCols
 
     b_logPath = logPath.encode('utf-8')
     b_outputPath = outputPath.encode('utf-8')
-    
-    netCDF.conv_netCDF(binData, datRows, datCols, len(meta_fields), fields_arr, vals_arr, b_outputPath, b_logPath)
+
+    netCDF.conv_netCDF(dat_Arr, datRows, datCols, len(meta_fields), fields_arr, vals_arr, b_outputPath, b_logPath)
     # (__uint8_t *data | int data_set_rows | int data_set_cols,int meta_num | char *meta_fields[] | char *meta_vals[] | char *output_path | char *log_path)
 
     return
