@@ -21,9 +21,9 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
         ERR(retval);
 
     /* Define the dimensions. */
-    if ((retval = nc_def_dim(ncid, "x", data_set_rows, &x_dimid)))
+    if ((retval = nc_def_dim(ncid, "longitude", data_set_rows, &x_dimid)))
         ERR(retval);
-    if ((retval = nc_def_dim(ncid, "y", data_set_cols, &y_dimid)))
+    if ((retval = nc_def_dim(ncid, "latitude", data_set_cols, &y_dimid)))
         ERR(retval);
 
     /* Set up variable data. */
