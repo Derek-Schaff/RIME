@@ -35,48 +35,31 @@ def _create_hdf5(filePath, binary, ripDic, metadataDict):
     return file
 
 
-def _create_netcdf4(filePath, outputPath):
+def _create_netcdf4(logPath, outputPath, metadataDict, binData, datRows, datCols):
     netCDF = CDLL("../c/netCDF.so")
-    netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char * 100), POINTER(c_char * 100),
+    netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char), POINTER(c_char),
                                    c_char_p, c_char_p]
 
-    b_filePath = filePath.encode('utf-8')
+    meta_fields = metadataDict.keys()
+    meta_values = metadataDict.values()
+    field_bytes = []
+    val_bytes = []
+    if len(meta_fields) != len(meta_values):
+        print("Converting dictionary into 2 arrays FAILED")
+    else:
+        for i in range(len(meta_fields)):
+            field_bytes.append(bytes(meta_fields[i], 'utf-8'))
+            val_bytes.append(bytes(meta_values[i], 'utf-8'))
+    fields_arr = (c_char_p * (len(field_bytes)+1))()
+    vals_arr = (c_char_p * (len(val_bytes)+1))()
+    fields_arr[:-1] = field_bytes
+    vals_arr[:-1] = val_bytes
+
+    b_logPath = logPath.encode('utf-8')
     b_outputPath = outputPath.encode('utf-8')
-    '''
-    We'll need to discuss what y'alls vision was for the conversion routine before
-    netCDF can be completed. It works now, with how I had data set up, but type conversion
-    will need to be applied once we agree on the data flow for arguments. 
     
-    WARNING!    
-        I may or may not have half forgotten exactly why type conversions were done this way
-        but it works ??? I will update comments for why sometime.
-    
-    !!!Ctypes is a BLAST!!!
-    
-    EXAMPLES of type conversions
-    
-    #binary data read into an array
-    bin_dat = [1,2,3,4,5,6]
-    data = (c_int8 * 6)
-    dat_Arr = data(*dat)
-    
-    # Meta data dictionary will need to be split into 2 arrays, one for key(fields) and values
-        This type conversion is a janky example, it will be cleaner once we decide on how this 
-        general process will be living. This example is for just 2 instances of metadata.
-    
-    fields = (c_char * 100 * 2)()
-    fields[0].value = b'first'
-    fields[1].value = b'second'
-    vals = (c_char * 100 * 2)()
-    vals[0].value = b"1"
-    vals[1].value = b"2"
-
-    netCDF.conv_netCDF(dat_Arr, 2, 3, 2, fields, vals, b_filePath, b_outputPath)
-    #(__uint8_t *data | int data_set_rows | int data_set_cols,int meta_num | char *meta_fields[] | char *meta_vals[] |
-        char *output_path | char *log_path)
-
-    '''
-
+    netCDF.conv_netCDF(binData, datRows, datCols, len(meta_fields), fields_arr, vals_arr, b_outputPath, b_logPath)
+    # (__uint8_t *data | int data_set_rows | int data_set_cols,int meta_num | char *meta_fields[] | char *meta_vals[] | char *output_path | char *log_path)
 
     return
 
