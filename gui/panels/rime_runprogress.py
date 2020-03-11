@@ -298,7 +298,6 @@ class RunProgressWidget(QtWidgets.QWidget):
         # convert_to_hdf5(bin, ripDicPath, metaDicPath, outputPath, outputName):
         for i in range(0,10):
           rime.convert_to_hdf5(bin, ripDic, metadataDic, Manager.getInstance().run_params['output_path'], "test_1")
-        '''
         #self.fakeProgressTimer = QtCore.QTimer(self)
         #self.fakeProgressTimer.setSingleShot(False)
         #self.fakeProgressTimer.timeout.connect(self.fakeProgressUpdate)

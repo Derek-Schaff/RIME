@@ -92,9 +92,9 @@ class InputPanelWidget(QtWidgets.QWidget):
         '''---Setup Grid layout of input page---'''
         self.inputPageGrid = QtWidgets.QGridLayout()
         self.inputPageGrid.setObjectName("inputPageLayout")
-        self.inputPageGrid.addWidget(self.inputBinariesGroup, 0, 0)
+        self.inputPageGrid.addWidget(self.catalogGroup, 0, 0)
         self.inputPageGrid.addWidget(self.metaDataGroup, 1, 0)
-        self.inputPageGrid.addWidget(self.catalogGroup, 2, 0)
+        self.inputPageGrid.addWidget(self.inputBinariesGroup, 2, 0)
         self.inputPageGrid.addWidget(self.sideLayout, 0, 1, 3, 1)
 
         self.setLayout(self.inputPageGrid)
