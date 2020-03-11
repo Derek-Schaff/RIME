@@ -2,11 +2,12 @@ import helpers
 from queue import Queue
 import sys
 from PySide2 import QtCore
-from back_end.python.rime import *
+import back_end.python.rime as rime
 
 # Singleton style manager class
 class Manager:
     __instance = None
+    rimeAccess = rime
 
     # create Queue to be passed to WriteStream and WriteStreamListener
     queue = Queue()

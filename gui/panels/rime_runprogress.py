@@ -1,8 +1,10 @@
+import os
 from random import randrange
 
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QFileDialog, QTableWidgetItem
 
+from rime_manager import Manager
 
 class RunProgressWidget(QtWidgets.QWidget):
     fake_progress_messages = [
@@ -283,14 +285,19 @@ class RunProgressWidget(QtWidgets.QWidget):
 
         self.cancelButton.clicked.connect(self.cancelButtonClick)
 
-        ripDic = parse_rip("../back_end/test/test_rip.txt")
-        metadataDic = parse_metadata("../back_end/test/test_metadata.txt")
+        #ripDic =  Manager.getInstance().rimeAccess.parse_rip("test/test_rip.txt")
+        #metadataDic = Manager.getInstance().rimeAccess.parse_metadata("test/test_metadata.txt")
+        rime = Manager.getInstance().rimeAccess
         
+        ripDic = rime.parse_rip(Manager.getInstance().run_params['binary_path'])
         x = int(ripDic["FT_DATASET_ROWS"])
         y = int(ripDic["FT_DATASET_COLUMNS"])
-        binList = read_catalog("test/test_catalog.txt")
-        bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
-        
+        binList = rime.read_catalog(Manager.getInstance().run_params['catalog_path'])
+        bin = rime.resolution_reshape(rime.load_binary(binList[0], 'uint8'), x, y)
+        metadataDic = rime.parse_metadata(Manager.getInstance().run_params['metadata_path'])
+        # convert_to_hdf5(bin, ripDicPath, metaDicPath, outputPath, outputName):
+        for i in range(0,10):
+          rime.convert_to_hdf5(bin, ripDic, metadataDic, Manager.getInstance().run_params['output_path'], "test_1")
         '''
         self.fakeProgressTimer = QtCore.QTimer(self)
         self.fakeProgressTimer.setSingleShot(False)

@@ -46,9 +46,10 @@ class RunPanelWidget(QtWidgets.QWidget):
             self.runPageRunButton.setEnabled(True)
             self.runPageRunButton.setToolTip("Start execution")
         else:
-            self.runPageRunButton.setEnabled(False)
+            self.runPageRunButton.setEnabled(True)
             self.runPageRunButton.setToolTip("Please set the required input/output parameters!")
 
+    @Slot()
     def runRime(self):
         self.runProgressWindow = RunProgressWidget()
         Manager.getInstance().connectOutput(self.runProgressWindow.runProgressBox.append)

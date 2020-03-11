@@ -19,11 +19,14 @@ def run():
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
+    os.chdir(os.path.join(os.path.dirname(__file__),"back_end/python/"))
+
     for arg in sys.argv:
         if arg == "--gui":
             print("Starting GUI...")
             run()
 
-    os.chdir(os.path.join(os.path.dirname(__file__),"back_end/python/"))
+    sys.stdout = sys.__stdout__
+    print("Starting CLI...")
     rime.main()
         

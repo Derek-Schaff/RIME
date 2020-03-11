@@ -108,9 +108,9 @@ class InputPanelWidget(QtWidgets.QWidget):
 
 
     def chooseBinaryPath(self):
-        file_path = QFileDialog.getExistingDirectory()
-        self.binaryFolders.setText(file_path)
-        Manager.getInstance().run_params['binary_path'] = file_path
+        file_path = QFileDialog.getOpenFileName()
+        self.binaryFolders.setText(file_path[0])
+        Manager.getInstance().run_params['binary_path'] = file_path[0]
 
 
     def chooseMetadataFile(self):
