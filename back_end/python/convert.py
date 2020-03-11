@@ -1,8 +1,9 @@
-import h5py
-from osgeo import gdal, gdal_array, osr
-import numpy as np
-import validate
+# import h5py
+# from osgeo import gdal, gdal_array, osr
+# import numpy as np
+# import validate
 from ctypes import *
+import os
 
 
 # define factory pattern client
@@ -36,7 +37,7 @@ def _create_hdf5(filePath, binary, ripDic, metadataDict):
 
 
 def _create_netcdf4(logPath, outputPath, metadataDict, binData, datRows, datCols):
-    netCDF = CDLL("/home/turkishdisko/RIME/back_end/c/netCDF.so")
+    netCDF = CDLL(os.path.dirname(__file__) + "/../c/netCDF.so")
     netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char_p), POINTER(c_char_p),
                                    c_char_p, c_char_p]
 
@@ -122,3 +123,6 @@ def load_metadata_hdf5(file, metadataDic):
             group = file.create_group(groupPath)
 
         group.attrs[attrName] = metadataDic[key]
+
+if __name__ == "__main__":
+    print(os.path.dirname(__file__) + "/../c/netCDF.so")

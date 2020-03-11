@@ -16,13 +16,13 @@ class InputPanelWidget(QtWidgets.QWidget):
 
         '''---Left part - binary input selection---'''
         '''Components of binary selection group'''
-        self.binaryFoldersLabel = QtWidgets.QLabel("Binaries location:")
+        self.binaryFoldersLabel = QtWidgets.QLabel("Catalog file location:")
         self.binaryFoldersLabel.setMinimumWidth(LABEL_WIDTH)
         self.binaryFoldersButton = QtWidgets.QPushButton("...")
-        self.binaryFoldersButton.setObjectName("binaryFoldersButton")
+        self.binaryFoldersButton.setObjectName("catalogFoldersButton")
         self.binaryFoldersButton.setMinimumWidth(23)
         self.binaryFolders = QtWidgets.QLineEdit()
-        self.binaryFolders.setObjectName("binaryFolders")
+        self.binaryFolders.setObjectName("catalogFolders")
 
         '''Horizontal layout for binary selection group'''
         self.inputBinariesLayout = QtWidgets.QHBoxLayout()
@@ -62,19 +62,19 @@ class InputPanelWidget(QtWidgets.QWidget):
 
         '''---Left part - catalog input selection---'''
         '''Components of catalog selection group'''
-        self.catalogLabel = QtWidgets.QLabel("Catalog file location:")
+        self.catalogLabel = QtWidgets.QLabel("RIP file location:")
         self.catalogLabel.setMinimumWidth(LABEL_WIDTH)
         self.catalogButton = QtWidgets.QPushButton("...")
-        self.catalogButton.setObjectName("CatalogButton")
+        self.catalogButton.setObjectName("ripButton")
         self.catalogButton.setMaximumWidth(30)
 
         self.catalogEditButton = QtWidgets.QPushButton("Edit")
-        self.catalogEditButton.setObjectName("catalogEditButton")
+        self.catalogEditButton.setObjectName("ripEditButton")
         self.catalogEditButton.setMaximumWidth(30)
         self.catalogEditButton.setEnabled(False)
 
         self.catalog = QtWidgets.QLineEdit()
-        self.catalog.setObjectName("Catalog")
+        self.catalog.setObjectName("rip")
 
         '''Grid layout for catalog selection group'''
         self.catalogLayout = QtWidgets.QGridLayout()
