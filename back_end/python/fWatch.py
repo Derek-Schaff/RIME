@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+from gui.panels.rime_runprogress import RunProgressWidget
 
 class Watcher(object):
     running = True
@@ -21,6 +22,7 @@ class Watcher(object):
                 message = list(myfile)[-1]
             # put gui status updater here with argument (message)
             #if theres a better python way to get the last line plz fix
+            RunProgressWidget.updateProgressBox(message)
 
     # Keep watching in a loop
     def watch(self):

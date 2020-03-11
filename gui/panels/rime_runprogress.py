@@ -288,8 +288,7 @@ class RunProgressWidget(QtWidgets.QWidget):
         self.fakeProgressTimer.timeout.connect(self.fakeProgressUpdate)
         self.fakeProgressTimer.start(500)
 
-        self.runProgressBox.append(self.fake_progress_messages[randrange(0, len(self.fake_progress_messages) - 1)] + '\n')
-
+        #self.runProgressBox.append(self.fake_progress_messages[randrange(0, len(self.fake_progress_messages) - 1)] + '\n')
     def fakeProgressUpdate(self):
         amount = randrange(5, 20)
 
@@ -297,7 +296,7 @@ class RunProgressWidget(QtWidgets.QWidget):
             amount = 100 - self.runProgressBar.value()
 
         self.runProgressBar.setValue(self.runProgressBar.value() + amount)
-        self.runProgressBox.append(self.fake_progress_messages[randrange(0, len(self.fake_progress_messages) - 1)] + '\n')
+        #self.runProgressBox.append(self.fake_progress_messages[randrange(0, len(self.fake_progress_messages) - 1)] + '\n')
 
         if self.runProgressBar.value() < 100:
           self.fakeProgressTimer.start(2000)
@@ -320,3 +319,6 @@ class RunProgressWidget(QtWidgets.QWidget):
           self.close()
       else:
         self.close()
+
+    def updateProgressBox(self,message):
+      self.runProgressBox.append(message)
