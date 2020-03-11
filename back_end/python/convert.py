@@ -1,10 +1,9 @@
-# import h5py
-# from osgeo import gdal, gdal_array, osr
-# import numpy as np
-# import validate
+import h5py
+from osgeo import gdal, gdal_array, osr
+import numpy as np
+import validate
 from ctypes import *
 import os
-
 
 # define factory pattern client
 def create(filePath, binary, ripDic, metadataDic, fileFormat):

@@ -157,7 +157,7 @@ def main():
 
     if gui:
         #rime_main.run()
-        print("RIME GUI not currently accessible")
+        print("Error! PLease start GUI from rime_main.py in the main folder (with --gui switch).")
         None
 
 
@@ -194,7 +194,6 @@ def main():
         y = int(ripDic["FT_DATASET_COLUMNS"])
         binList = read_catalog("test/test_catalog.txt")
         bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
-
         if tarAll:
             None
         else:
@@ -299,6 +298,29 @@ def main():
         # print(hdf5.keys())
         #hdf5.close()
 
+def convert_to_hdf5(bin, ripDicPath, metaDicPath, outputPath, outputName):
+    testOutput = 'output/hdf5'
+    if not path.isdir(testOutput):
+        command = "mkdir -p %s" % testOutput
+        subprocess.run(command.split())
+
+    #spoofPath = '%s/output%d.h5' % (testOutput, i)
+    if(outputPath[-1] == '/'):
+        outputPath = outputPath[0:-1]
+    
+    fullPath = '%s/%s.h5' % (outputPath, outputName)
+    start = time.time()
+    i = 1
+    print("Beginning conversion of bin%d.bin" % i)
+    test_hdf5 = convert.create(fullPath, bin, ripDicPath, metaDicPath, "HDF5")
+    test_hdf5.close()
+    end = time.time()
+    elapsed_time = end - start
+    #times = np.append(times, elapsed_time)
+    #mean_time = times.mean()
+    #difference = 9 - i
+    #eta = mean_time * difference
+    print("bin%d.bin conversion to HDF5 complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, elapsed_time, 0.00))
 
 if __name__ == "__main__":    
     main()
