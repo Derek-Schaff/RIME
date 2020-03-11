@@ -283,13 +283,22 @@ class RunProgressWidget(QtWidgets.QWidget):
 
         self.cancelButton.clicked.connect(self.cancelButtonClick)
 
+        ripDic = parse_rip("../back_end/test/test_rip.txt")
+        metadataDic = parse_metadata("../back_end/test/test_metadata.txt")
+        
+        x = int(ripDic["FT_DATASET_ROWS"])
+        y = int(ripDic["FT_DATASET_COLUMNS"])
+        binList = read_catalog("test/test_catalog.txt")
+        bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
+        
+        '''
         self.fakeProgressTimer = QtCore.QTimer(self)
         self.fakeProgressTimer.setSingleShot(False)
         self.fakeProgressTimer.timeout.connect(self.fakeProgressUpdate)
         self.fakeProgressTimer.start(500)
 
         self.runProgressBox.append(self.fake_progress_messages[randrange(0, len(self.fake_progress_messages) - 1)] + '\n')
-
+        '''
     def fakeProgressUpdate(self):
         amount = randrange(5, 20)
 
@@ -302,7 +311,7 @@ class RunProgressWidget(QtWidgets.QWidget):
         if self.runProgressBar.value() < 100:
           self.fakeProgressTimer.start(2000)
         else:
-          self.cancelButton.setText("Next")
+          self.cancelButton.setText("Success!")
           self.fakeProgressTimer.stop()
 
     def cancelButtonClick(self):
