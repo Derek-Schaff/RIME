@@ -36,7 +36,7 @@
 # Note that sessionMode "image" causes the named type of visualization image to be generate
 
 # <JMG> 2017-03-23, tested and works, produced full set of 2015 GeoTIFFs
-FT_SESSION_MODE  = geotiff
+FT_SESSION_MODE   = geotiff
 
 # v1.7.3+ experimental: Define a serial LIST of one or MORE modes to perform
 # FT_SESSION_ACTIONS = ft_status image annual_qa annual_acc hash

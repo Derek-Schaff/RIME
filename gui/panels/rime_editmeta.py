@@ -23,7 +23,7 @@ class MetaDataEditWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
 
         self.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "Edit Metadata", None, -1))
-
+        self.path = path
         metadata_file = path
         with open(metadata_file, "r") as meta:
             content = meta.readlines()
@@ -40,4 +40,4 @@ class MetaDataEditWidget(QtWidgets.QWidget):
         self.metaTable.itemChanged.connect(self.dataUpdate)
 
     def dataUpdate(self, item):
-        updateMetaData.update("/home/turkishdisko/RIME/metadata_attrbiutes.txt", self.metaTable.item(item.row(), 0).text(), self.metaTable.item(item.row(), 1).text())
+        updateMetaData.update(self.path, self.metaTable.item(item.row(), 0).text(), self.metaTable.item(item.row(), 1).text())
