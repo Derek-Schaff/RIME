@@ -7,7 +7,7 @@ from back_end.python.updateMetaData import updateMetaData
 
 
 class MetaDataEditWidget(QtWidgets.QWidget):
-    def __init__(self, path):
+    def __init__(self, path, windowTitle):
         super().__init__()
 
         self.layout = QtWidgets.QGridLayout()
@@ -22,7 +22,7 @@ class MetaDataEditWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.metaTable)
         self.setLayout(self.layout)
 
-        self.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "Edit Metadata", None, -1))
+        self.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", windowTitle, None, -1))
         self.path = path
         metadata_file = path
         with open(metadata_file, "r") as meta:
