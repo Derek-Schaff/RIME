@@ -1,6 +1,24 @@
+import helpers
+from queue import Queue
+import sys
+from PySide2 import QtCore
+import back_end.python.rime as rime
+
 # Singleton style manager class
 class Manager:
     __instance = None
+    rimeAccess = rime
+
+    # create Queue to be passed to WriteStream and WriteStreamListener
+    queue = Queue()
+    # redirect stdout to WriteStream()
+    sys.stdout = helpers.WriteStream(queue)
+
+    # create a thread that is connected to the queue which can be freely
+    # forwarded to any function
+    listener_thread = helpers.WriteStreamThread(queue)
+    listener_thread.start()
+    print("Redirected sys.stdout to WriteStream")
 
     #expanded on multiple lines for clarity
     run_params = {}
@@ -19,6 +37,8 @@ class Manager:
     run_params['output_option_compress'] = False
     run_params['output_option_stopwarn'] = False
 
+    listeners = []
+
     def checkNecessaryInput(self):
         inputCheck = False
         outputCheck = False
@@ -31,8 +51,14 @@ class Manager:
 
         return inputCheck and outputCheck
 
-
-
+    def connectOutput(self, output_method):
+        output_method_name = output_method.__name__
+        
+        if output_method_name not in self.listeners:
+            self.listeners.append(output_method_name)
+            self.listener_thread.queue_updated.connect(output_method)
+        else:
+            pass
 
     @staticmethod
     def getInstance():
@@ -47,3 +73,7 @@ class Manager:
             raise Exception("This class is a singleton!")
         else:
             Manager.__instance = self
+    
+    def __del__(self):
+        self.listener_thread.exit()
+

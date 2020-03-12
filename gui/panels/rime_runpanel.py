@@ -1,6 +1,6 @@
 from PySide2 import QtWidgets
-from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QFileDialog
+from PySide2.QtGui import QColor, QTextCursor
+from PySide2.QtCore import Slot
 
 from gui.panels.rime_runprogress import RunProgressWidget
 from rime_manager import Manager
@@ -46,10 +46,15 @@ class RunPanelWidget(QtWidgets.QWidget):
             self.runPageRunButton.setEnabled(True)
             self.runPageRunButton.setToolTip("Start execution")
         else:
-            self.runPageRunButton.setEnabled(False)
+            self.runPageRunButton.setEnabled(True)
             self.runPageRunButton.setToolTip("Please set the required input/output parameters!")
 
-
+    @Slot()
     def runRime(self):
         self.runProgressWindow = RunProgressWidget()
+        Manager.getInstance().connectOutput(self.runProgressWindow.runProgressBox.append)
         self.runProgressWindow.show()
+
+    @Slot(str)
+    def appendToStats(self, msg):
+        self.runPageStatistics.append(msg)

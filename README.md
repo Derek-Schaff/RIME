@@ -24,14 +24,14 @@ We need to now enter the directory containing the repository we just cloned:
 
 To allow us to run the script which will install all of the needed software (Docker) and prepare the Docker container with our RIME requirements.  Run the following command:
 
-`chmod a+x ./docker-build-dev.sh`
+`chmod a+x ./docker-build.sh`
 
 ### Step 4
 **Prepare Docker image**
 
 Run the script which will build the Docker image, putting all of the needed dependencies inside of a container:
 
-`./docker-build-dev.sh`
+`./docker-build.sh`
 
 ### Step 5
 **Start RIME**
@@ -43,3 +43,17 @@ Finally, start the command line interface of RIME by typing:
 This will give you the usage parameters needed to run RIME.
 
 Great job, you have downloaded & installed several software applications and hundreds of libraries necessary for running RIME, all in _5_ steps!
+
+
+# Dev Instructions
+
+
+All that has been tested is with the following input:
+  - Rip Location: test/test_rip.txt
+  - Metadata Location: test/test_metadata.txt
+  - Catalog Location:  test/test_catalog.txt
+
+Running from containers: Output Path can be any folder directly off of the main RIME folder
+Running locally: Output Path can be any folder you choose, as long as you have permissions
+
+Check HDF5, hit Run.

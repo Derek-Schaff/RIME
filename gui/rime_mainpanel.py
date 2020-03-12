@@ -1,18 +1,18 @@
-from PySide2 import QtWidgets
-from PySide2.QtWidgets import QAction
+from PySide2 import QtWidgets, QtGui
+from PySide2.QtCore import Slot
 
 from gui.panels.rime_inputpanel import InputPanelWidget
 from gui.panels.rime_outputpanel import OutputPanelWidget
 from gui.panels.rime_runpanel import RunPanelWidget
+from rime_manager import Manager
+
 import os
-
-
+import sys
+   
 class MainPanelWidget(QtWidgets.QWidget):
     def __init__(self, main_window):
-        super().__init__()
+        super(MainPanelWidget, self).__init__()
         self.mainWindow = main_window
-
-        # self.text.setAlignment(QtCore.Qt.AlignCenter)
 
         ''' Create main container (QToolBox) for dropdown style panels'''
         self.panels = QtWidgets.QToolBox()
@@ -39,7 +39,7 @@ class MainPanelWidget(QtWidgets.QWidget):
         self.menu.addAction("Load Preset")
         self.menu.addAction("Save Preset")
         self.menu.addAction("Quit")
-        self.menu.triggered[QAction].connect(self.MenuAction)
+        self.menu.triggered[QtWidgets.QAction].connect(self.MenuAction)
 
         self.layout = QtWidgets.QVBoxLayout()
         self.layout.addWidget(self.panels)
@@ -53,11 +53,19 @@ class MainPanelWidget(QtWidgets.QWidget):
         style_file = os.path.dirname(__file__) + "/styles/rime_styles.qss"
         with open(style_file, "r") as styles:
             self.setStyleSheet(styles.read())
+        
+        Manager.getInstance().connectOutput(self._log_to_qtextedit)
 
     def MenuAction(self, q):
-        print("Menu action: " + q.text())
+        print("Menu action: " + q.text() + "\n")
 
     def panelChange(self, panelID):
         if panelID == 2:
             self.runPage.update_statistics()
             self.runPage.validate_forms()
+            Manager.getInstance().connectOutput(self.runPage.appendToStats)
+
+    @Slot(str)
+    def _log_to_qtextedit(self, msg):
+        self.inputPage.sideLayout.insertPlainText(msg)
+

@@ -2,7 +2,8 @@ import h5py
 from osgeo import gdal, gdal_array, osr
 import numpy as np
 import validate
-
+from ctypes import *
+import os
 
 # define factory pattern client
 def create(filePath, binary, ripDic, metadataDic, fileFormat):
@@ -34,8 +35,41 @@ def _create_hdf5(filePath, binary, ripDic, metadataDict):
     return file
 
 
-def _create_netcdf4():
-    #TODO
+def _create_netcdf4(logPath, outputPath, metadataDict, binData, datRows, datCols):
+    netCDF = CDLL(os.path.dirname(__file__) + "/../c/netCDF.so")
+    netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char_p), POINTER(c_char_p),
+                                   c_char_p, c_char_p]
+
+    data = (c_int8 * len(binData))
+    dat_Arr = data(*binData)
+
+    meta_fields = [] #metadataDict.keys()
+    meta_values = [] #metadataDict.values()
+
+    for key in metadataDict.keys():
+        meta_fields.append(key)
+    for val in metadataDict.values():
+        meta_values.append(val)
+
+    field_bytes = []
+    val_bytes = []
+    if len(meta_fields) != len(meta_values):
+        print("Converting dictionary into 2 arrays FAILED")
+    else:
+        for i in range(len(meta_fields)):
+            field_bytes.append(bytes(meta_fields[i], 'utf-8'))
+            val_bytes.append(bytes(meta_values[i], 'utf-8'))
+    fields_arr = (c_char_p * (len(field_bytes)+1))()
+    vals_arr = (c_char_p * (len(val_bytes)+1))()
+    fields_arr[:-1] = field_bytes
+    vals_arr[:-1] = val_bytes
+
+    b_logPath = logPath.encode('utf-8')
+    b_outputPath = outputPath.encode('utf-8')
+
+    netCDF.conv_netCDF(dat_Arr, datRows, datCols, len(meta_fields), fields_arr, vals_arr, b_outputPath, b_logPath)
+    # (__uint8_t *data | int data_set_rows | int data_set_cols,int meta_num | char *meta_fields[] | char *meta_vals[] | char *output_path | char *log_path)
+
     return
 
 
@@ -88,3 +122,6 @@ def load_metadata_hdf5(file, metadataDic):
             group = file.create_group(groupPath)
 
         group.attrs[attrName] = metadataDic[key]
+
+if __name__ == "__main__":
+    print(os.path.dirname(__file__) + "/../c/netCDF.so")
