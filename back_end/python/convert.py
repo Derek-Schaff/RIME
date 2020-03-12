@@ -1,5 +1,5 @@
 import h5py
-from osgeo import gdal, gdal_array, osr
+from osgeo import gdal, osr #gdal_array
 import numpy as np
 import validate
 from ctypes import *

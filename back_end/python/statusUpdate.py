@@ -1,8 +1,8 @@
 from ctypes import *
 import os
 
-class statusUpdate():
 
+class statusUpdate():
 
     def update_status(updateMessage,logPath):
         status_update = CDLL(os.path.dirname(__file__) + "/../c/status_updater.so")
