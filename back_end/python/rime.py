@@ -28,7 +28,7 @@ def parse_args(sysArgs):
     parser.add_argument("rip", help="Read Input Parameter file containing necessary information for file conversion")
     parser.add_argument("output", help="Desired output directory")
     # options with -- are optional and can occur in any order. If a type isn't explicitly defined, they are assumed to be booleans that are set to true when enabled
-    #parser.add_argument("--ignore_warnings", "-i", action="store_true", help="Instead of stopping on warnings, ignore and continue")
+    parser.add_argument("--ignore_warnings", "-i", action="store_true", help="Instead of stopping on warnings, ignore and continue")
     parser.add_argument("--gui", "-gu", action="store_true", help="Launch RIME GUI. GUI currently inoperable")
     parser.add_argument("--netcdf4", "-n", action="store_true", help="Store output in NetCDF4 file format. Any combination of output format options can be specified simultaneously")
     parser.add_argument("--hdf5", "-hd", action="store_true", help="Store output in HDF5 file format. Any combination of output format options can be specified simultaneously")
@@ -64,6 +64,12 @@ def load_binary(binaryPath, dataType):
 
     return binary
 
+
+def create_output_dir(dirPath):
+    command = "mkdir %s" % dirPath
+    subprocess.run(command.split())
+
+    validate.validate_dir(dirPath)
 
 def resolution_reshape(array, x, y):
     validate.validate_np_array(array)
@@ -120,183 +126,65 @@ def update_status(updateString, log):
     return
 
 
-def main():
-    # get commandline args    
-    args = parse_args(sys.argv[1:])
-    metadataPath = args.metadata
-    ripPath = args.rip
-    outputPath = args.output
-    #ignoreWarnings = args.ignore_warnings
-    netcdf4 = args.netcdf4
-    gui = args.gui
-    hdf5 = args.hdf5
-    geotiff = args.geotiff
-    checksum = args.checksum
-    tarNet = args.tar_netcdf4
-    tarHdf = args.tar_hdf5
-    tarGeo = args.tar_geotiff
-    tarAll = args.tar_all
-
-    '''
-    # load C .so library to get access to parseDir()
-    parseLib = CDLL('../c/parserlib.so')
-    # debug print statement.. delete me later!
-    print(parseLib)
-    # specify C types of input args and return value
-    parseLib.parseDir.argtypes = [c_wchar_p]
-    parseLib.parseDir.restypes = [c_void_p]
-
-    # the C function returns a struct- throw it into a class with the same values and print to see if it's right
-    p1 = BinStruct.from_address(parseLib.parseDir('.'))
-    print(p1.files)
-    '''
-
-    ripDic = parse_rip("test/test_rip.txt")
-    metadataDic = parse_metadata("test/test_metadata.txt")
+def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll):
+    metadataDic = parse_metadata(metadataPath)
+    ripDic = parse_rip(ripPath)
     times = np.array([])
 
-    if gui:
-        #rime_main.run()
-        print("Error! PLease start GUI from rime_main.py in the main folder (with --gui switch).")
-        None
+    x = int(ripDic["FT_DATASET_ROWS"])
+    y = int(ripDic["FT_DATASET_COLUMNS"])
+    catalogPath = ripDic["FT_INPUT_CATALOG_FT_PATH"]
+    datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
 
+    binList = read_catalog(catalogPath)
+    numBins = len(binList)
 
-    else:
-        args = parse_args(sys.argv[1:])
-        metadataPath = args.metadata
-        ripPath = args.rip
-        outputPath = args.output
-        #ignoreWarnings = args.ignore_warnings
-        netcdf4 = args.netcdf4
-        gui = args.gui
-        hdf5 = args.hdf5
-        geotiff = args.geotiff
-        checksum = args.checksum
-        tarNet = args.tar_netcdf4
-        tarHdf = args.tar_hdf5
-        tarGeo = args.tar_geotiff
-        tarAll = args.tar_all
+    for binFile in binList:
+        validate.validate_binary_file(binFile)
+        print("file: %s" % binFile)
+        binData = resolution_reshape(load_binary(binFile, datatype), x, y)
+        binBaseName = path.basename(binFile)
 
-        '''
-        # load C .so library to get access to parseDir()
-        parseLib = CDLL('../c/parserlib.so')
-        # debug print statement.. delete me later!
-        print(parseLib)
-        # specify C types of input args and return value
-        parseLib.parseDir.argtypes = [c_wchar_p]
-        parseLib.parseDir.restypes = [c_void_p]
-
-        # the C function returns a struct- throw it into a class with the same values and print to see if it's right
-        p1 = BinStruct.from_address(parseLib.parseDir('.'))
-        print(p1.files)
-        '''
-        x = int(ripDic["FT_DATASET_ROWS"])
-        y = int(ripDic["FT_DATASET_COLUMNS"])
-        binList = read_catalog("test/test_catalog.txt")
-        bin = resolution_reshape(load_binary(binList[0], 'uint8'), x, y)
-        if tarAll:
-            None
-        else:
-            if tarNet:
-                None
-            if tarGeo:
-                None
-            if tarHdf:
-                None
-
-        if checksum:
-            None
-            #checksum stuff
-
-        # BELOW IS SPOOFING FOR USER TESTING
-
-        if metadataPath == "invalid_metadata.txt" or ripPath == "invalid_rip.txt":
-            if metadataPath == "invalid_metadata.txt":
-                print("Warning: values in %s are invalid! Please select a valid metadata file or correct values" % metadataPath)
-                exit()
-            elif ripPath == "invalid_rip.txt":
-                print("Warning: values in %s are invalid! Please select a valid RIP file or correct values" % ripPath)
-                exit()
-
-        if netcdf4:
-            for i in range(0,10):
-                testOutput = 'output/netcdf'
-                if not path.isdir(testOutput):
-                    command = "mkdir -p %s" % testOutput
-                    subprocess.run(command.split())
-
-                spoofPath = '%s/output%d.nc' % (testOutput, i)
-
-                start = time.time()
-                print("Beginning conversion of bin%d.bin" % i)
-                test_hdf5 = convert.create(spoofPath, bin, ripDic, metadataDic, "HDF5")
-                test_hdf5.close()
-                end = time.time()
-                elapsed_time = end - start
-                times = np.append(times, elapsed_time)
-                mean_time = times.mean()
-                difference = 9 - i
-                eta = mean_time * difference
-                print("bin%d.bin conversion to NetCDF4 complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, end - start, eta))
-
-            if tarNet or tarAll:
-                command = "tar -czf %s.tgz %s" % (testOutput, testOutput)
-                subprocess.run(command.split())
         if hdf5:
-            for i in range(0,10):
-                testOutput = 'output/hdf5'
-                if not path.isdir(testOutput):
-                    command = "mkdir -p %s" % testOutput
-                    subprocess.run(command.split())
+            hdfOutputDir = "%s/HDF5" % outputPath
+            hdfOutputFile = ("%s/%s.h5" % (hdfOutputDir, binBaseName))
 
-                spoofPath = '%s/output%d.h5' % (testOutput, i)
+            # if output HDF5 dir doesn't exist, try to make it
+            if not validate.validate_dir(hdfOutputDir):
+                create_output_dir(hdfOutputDir)
 
-                start = time.time()
-                print("Beginning conversion of bin%d.bin" % i)
-                test_hdf5 = convert.create(spoofPath, bin, ripDic, metadataDic, "HDF5")
-                test_hdf5.close()
-                end = time.time()
-                elapsed_time = end - start
-                times = np.append(times, elapsed_time)
-                mean_time = times.mean()
-                difference = 9 - i
-                eta = mean_time * difference
-                print("bin%d.bin conversion to HDF5 complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, end - start, eta))
-
-            if tarHdf or tarAll:
-                command = "tar -czf %s.tgz %s" % (testOutput, testOutput)
-                subprocess.run(command.split())
+            hdfFile = convert.create(hdfOutputFile, binData, ripDic, metadataDic, "HDF5")
+            h5py.is_hdf5(hdfFile.filename) #TODO: Make this a validate method
+            hdfFile.close()
 
         if geotiff:
-            for i in range(0,10):
-                testOutput = 'output/geotiff'
-                if not path.isdir(testOutput):
-                    command = "mkdir -p %s" % testOutput
-                    subprocess.run(command.split())
+            gtifOutputDir = "%s/GEOTIFF" % outputPath
+            gtifOutputFile = ("%s/%s.h5" % (gtifOutputDir, binBaseName))
 
-                spoofPath = '%s/output%d.gtif' % (testOutput, i)
+            # if output HDF5 dir doesn't exist, try to make it
+            if not validate.validate_dir(gtifOutputDir):
+                create_output_dir(gtifOutputDir)
 
-                start = time.time()
-                print("Beginning conversion of bin%d.bin" % i)
-                test_geo = convert.create(spoofPath, bin, ripDic, metadataDic, "GEOTIFF")
-                end = time.time()
-                elapsed_time = end - start
-                times = np.append(times, elapsed_time)
-                mean_time = times.mean()
-                difference = 9 - i
-                eta = mean_time * difference
-                print("bin%d.bin conversion to GeoTIFF complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, end - start, eta))
+            GTIFFOutput = ("%s/GEOTIFF/%s.gtif" % (outputPath, binBaseName))
+            GTIFF = convert.create(GTIFFOutput, binData, ripDic, metadataDic, "GEOTIFF")
 
-            if tarGeo or tarAll:
-                command = "tar -czf %s.tgz %s" % (testOutput, testOutput)
-                subprocess.run(command.split())
+        #if netcdf4:
+        # this option needs some work to make the create function for netcdf4 compatible with the convert factory
 
+    if tarAll:
+        None
+    else:
+        if tarNet:
+            None
+        if tarGeo:
+            None
+        if tarHdf:
+            None
 
-        #hdf5 = convert.create("path.h5", bin, ripDic, metadataDic, "HDF5")
-        #GTIFF = convert.create("path.gtif", bin, ripDic, metadataDic, "GEOTIFF")
-        # print(h5py.is_hdf5(hdf5.filename))
-        # print(hdf5.keys())
-        #hdf5.close()
+    if checksum:
+        None
+        #checksum stuff
+
 
 def convert_to_hdf5(bin, ripDicPath, metaDicPath, outputPath, outputName):
     testOutput = 'output/hdf5'
@@ -322,5 +210,22 @@ def convert_to_hdf5(bin, ripDicPath, metaDicPath, outputPath, outputName):
     #eta = mean_time * difference
     print("bin%d.bin conversion to HDF5 complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, elapsed_time, 0.00))
 
-if __name__ == "__main__":    
-    main()
+
+if __name__ == "__main__":
+    # get commandline args
+    args = parse_args(sys.argv[1:])
+    metadataPath = args.metadata
+    ripPath = args.rip
+    outputPath = args.output
+    ignoreWarnings = args.ignore_warnings
+    gui = args.gui
+    netcdf4 = args.netcdf4
+    hdf5 = args.hdf5
+    geotiff = args.geotiff
+    checksum = args.checksum
+    tarNet = args.tar_netcdf4
+    tarHdf = args.tar_hdf5
+    tarGeo = args.tar_geotiff
+    tarAll = args.tar_all
+
+    run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll)

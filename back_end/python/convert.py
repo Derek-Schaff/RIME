@@ -1,9 +1,10 @@
 import h5py
-from osgeo import gdal, osr #gdal_array
+from osgeo import gdal, osr, gdal_array
 import numpy as np
 import validate
 from ctypes import *
 import os
+
 
 # define factory pattern client
 def create(filePath, binary, ripDic, metadataDic, fileFormat):
@@ -103,7 +104,6 @@ def _create_geotiff(filePath, binary, ripDic, metadataDic):
     geoTiff.SetProjection(srs.ExportToWkt())
     geoTiff.GetRasterBand(1).WriteArray(binary)
     geoTiff.FlushCache()
-    geoTiff = None
     return
 
 

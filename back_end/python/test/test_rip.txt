@@ -83,7 +83,7 @@ FT_SESSION_ESDR_ENDYEAR   = 2017
 FT_INPUT_ANCHOR_DIR       = /anx_v1/pr/yk/FT_status/v04
 # Note: for a GeoTIFF generation run, the catalog required is the one
 # that enumerates the raw binary files.
-FT_INPUT_CATALOG_FT_PATH  = ../catalogs/FT_V4_BIN_2017.ctg
+FT_INPUT_CATALOG_FT_PATH  = test/test_catalog.txt
 
 # NEW form of sessionMode specific nvps. These may now be left in
 # a common RIP file template since they don't conflict with each
