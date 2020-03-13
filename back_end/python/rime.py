@@ -121,69 +121,97 @@ def parse_metadata(filePath):
     return metadataDic
 
 
-def update_status(updateString, log):
-    #TODO
-    return
+# validate that all .bins in binDir exist and append them to list
+def build_bin_list(binDir):
+    binList = []
+
+    for root, dirs, files in os.walk(binDir):
+        for file in files:
+            if file.endswith(".bin"):
+                binPath = os.path.join(root, file)
+                validate.validate_binary_file(binPath)
+                binList.append(binPath)
+
+    return binList
+
+
+def update_status(updateString, log, currentFileNum, totalFileNum):
+    print(updateString);
+    log.write(updateString)
 
 
 def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll):
     metadataDic = parse_metadata(metadataPath)
     ripDic = parse_rip(ripPath)
     times = np.array([])
-
     x = int(ripDic["FT_DATASET_ROWS"])
     y = int(ripDic["FT_DATASET_COLUMNS"])
     catalogPath = ripDic["FT_INPUT_CATALOG_FT_PATH"]
     datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
+    binDir = ripDic["FT_BINARY_ROOT_DIR"]
+    logPath = "%s/log.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
 
-    binList = read_catalog(catalogPath)
+    # automatically detects all .bin files, validates they exist
+    binList = build_bin_list(binDir)
     numBins = len(binList)
 
-    for binFile in binList:
-        validate.validate_binary_file(binFile)
-        print("file: %s" % binFile)
-        binData = resolution_reshape(load_binary(binFile, datatype), x, y)
-        binBaseName = path.basename(binFile)
+    # open logfile
+    with open(logPath, "w") as logFile:
+        for currentBinNum, binFile in enumerate(binList):
+            validate.validate_binary_file(binFile)
+            print("file: %s" % binFile)
+            binData = resolution_reshape(load_binary(binFile, datatype), x, y)
+            binBaseName = path.basename(binFile)
 
-        if hdf5:
-            hdfOutputDir = "%s/HDF5" % outputPath
-            hdfOutputFile = ("%s/%s.h5" % (hdfOutputDir, binBaseName))
+            if hdf5:
+                hdfOutputDir = "%s/HDF5" % outputPath
+                hdfOutputFile = ("%s/%s.h5" % (hdfOutputDir, binBaseName))
 
-            # if output HDF5 dir doesn't exist, try to make it
-            if not validate.validate_dir(hdfOutputDir):
-                create_output_dir(hdfOutputDir)
+                # if output HDF5 dir doesn't exist, try to make it
+                if not validate.validate_dir(hdfOutputDir):
+                    create_output_dir(hdfOutputDir)
 
-            hdfFile = convert.create(hdfOutputFile, binData, ripDic, metadataDic, "HDF5")
-            h5py.is_hdf5(hdfFile.filename) #TODO: Make this a validate method
-            hdfFile.close()
+                start = time.clock()
+                hdfFile = convert.create(hdfOutputFile, binData, ripDic, metadataDic, "HDF5")
+                h5py.is_hdf5(hdfFile.filename) #TODO: Make this a validate method
+                hdfFile.close()
+                end = time.time()
 
-        if geotiff:
-            gtifOutputDir = "%s/GEOTIFF" % outputPath
-            gtifOutputFile = ("%s/%s.h5" % (gtifOutputDir, binBaseName))
+                updateString = "%s HDF5 conversion time: %f" % (binFile, end - start)
+                update_status(updateString, logFile, currentBinNum, numBins)
 
-            # if output HDF5 dir doesn't exist, try to make it
-            if not validate.validate_dir(gtifOutputDir):
-                create_output_dir(gtifOutputDir)
+            if geotiff:
+                gtifOutputDir = "%s/GEOTIFF" % outputPath
+                gtifOutputFile = ("%s/%s.h5" % (gtifOutputDir, binBaseName))
 
-            GTIFFOutput = ("%s/GEOTIFF/%s.gtif" % (outputPath, binBaseName))
-            GTIFF = convert.create(GTIFFOutput, binData, ripDic, metadataDic, "GEOTIFF")
+                # if output HDF5 dir doesn't exist, try to make it
+                if not validate.validate_dir(gtifOutputDir):
+                    create_output_dir(gtifOutputDir)
 
-        #if netcdf4:
-        # this option needs some work to make the create function for netcdf4 compatible with the convert factory
+                GTIFFOutput = ("%s/GEOTIFF/%s.gtif" % (outputPath, binBaseName))
+                start = time.clock()
+                GTIFF = convert.create(GTIFFOutput, binData, ripDic, metadataDic, "GEOTIFF")
+                end = time.time()
 
-    if tarAll:
-        None
-    else:
-        if tarNet:
+                updateString = "%s GEOTIFF conversion time: %f" % (binFile, end - start)
+                update_status(updateString)
+
+            #if netcdf4:
+            # this option needs some work to make the create function for netcdf4 compatible with the convert factory
+
+        if tarAll:
             None
-        if tarGeo:
-            None
-        if tarHdf:
-            None
+        else:
+            if tarNet:
+                None
+            if tarGeo:
+                None
+            if tarHdf:
+                None
 
-    if checksum:
-        None
-        #checksum stuff
+        if checksum:
+            None
+            #checksum stuff
 
 
 def convert_to_hdf5(bin, ripDicPath, metaDicPath, outputPath, outputName):
