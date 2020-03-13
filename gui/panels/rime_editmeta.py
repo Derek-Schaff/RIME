@@ -2,10 +2,12 @@ import sys
 import random
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QFileDialog, QTableWidgetItem
+import back_end.python.updateMetaData
+from back_end.python.updateMetaData import updateMetaData
 
 
 class MetaDataEditWidget(QtWidgets.QWidget):
-    def __init__(self, path):
+    def __init__(self, path, windowTitle):
         super().__init__()
 
         self.layout = QtWidgets.QGridLayout()
@@ -20,8 +22,8 @@ class MetaDataEditWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.metaTable)
         self.setLayout(self.layout)
 
-        self.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "Edit Metadata", None, -1))
-
+        self.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", windowTitle, None, -1))
+        self.path = path
         metadata_file = path
         with open(metadata_file, "r") as meta:
             content = meta.readlines()
@@ -34,3 +36,8 @@ class MetaDataEditWidget(QtWidgets.QWidget):
                     self.metaTable.insertRow(self.metaTable.rowCount())
                     self.metaTable.setItem(self.metaTable.rowCount()-1, 0,  QTableWidgetItem(temp[0]))
                     self.metaTable.setItem(self.metaTable.rowCount()-1, 1,  QTableWidgetItem(temp[1]))
+
+        self.metaTable.itemChanged.connect(self.dataUpdate)
+
+    def dataUpdate(self, item):
+        updateMetaData.update(self.path, self.metaTable.item(item.row(), 0).text(), self.metaTable.item(item.row(), 1).text())

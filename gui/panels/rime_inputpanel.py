@@ -105,6 +105,7 @@ class InputPanelWidget(QtWidgets.QWidget):
         self.metaData.textChanged.connect(self.metaDataTextChanged)
         self.catalog.textChanged.connect(self.catalogTextChanged)
         self.catalogButton.clicked.connect(self.chooseCatalogFile)
+        self.catalogEditButton.clicked.connect(self.editRipData)
 
 
     def chooseBinaryPath(self):
@@ -125,7 +126,15 @@ class InputPanelWidget(QtWidgets.QWidget):
 
     def editMetadata(self):
         if Path(self.metaData.text()).is_file():
-            self.editMetaWindow = MetaDataEditWidget(self.metaData.text())
+            self.editMetaWindow = MetaDataEditWidget(self.metaData.text(), "Edit Meta Data File")
+            self.editMetaWindow.show()
+    '''
+    self.catalog actually works on the rip file input and edit button.
+    We'll need to rework this to make sense at some point
+    '''
+    def editRipData(self):
+        if Path(self.catalog.text()).is_file():
+            self.editMetaWindow = MetaDataEditWidget(self.catalog.text(), "Edit Rip File")
             self.editMetaWindow.show()
 
     def metaDataTextChanged(self):

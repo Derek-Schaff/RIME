@@ -3,6 +3,7 @@ import sys
 import time
 from gui.panels.rime_runprogress import RunProgressWidget
 
+
 class Watcher(object):
     running = True
     #refresh_delay_secs = 1
