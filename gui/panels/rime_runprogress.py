@@ -247,6 +247,7 @@ class RunProgressWidget(QtWidgets.QWidget):
 ]
     def __init__(self):
         super().__init__()
+        self.curManager = Manager.getInstance()
 
         self.resize(525, 300)
         self.setWindowTitle("Run Progress")
@@ -284,20 +285,24 @@ class RunProgressWidget(QtWidgets.QWidget):
         self.runProgressBar.setValue(0)
 
         self.cancelButton.clicked.connect(self.cancelButtonClick)
-
-        #ripDic =  Manager.getInstance().rimeAccess.parse_rip("test/test_rip.txt")
-        #metadataDic = Manager.getInstance().rimeAccess.parse_metadata("test/test_metadata.txt")
-        rime = Manager.getInstance().rimeAccess
+        # metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll
+        rime = self.curManager.rimeAccess
         
-        ripDic = rime.parse_rip(Manager.getInstance().run_params['binary_path'])
+        '''
+        print(Manager.getInstance().run_params['binary_path'])
         x = int(ripDic["FT_DATASET_ROWS"])
         y = int(ripDic["FT_DATASET_COLUMNS"])
-        binList = rime.read_catalog(Manager.getInstance().run_params['catalog_path'])
+        binList = rime.build_bin_list(Manager.getInstance().run_params['binary_path'])
+        ripDic = rime.parse_rip(Manager.getInstance().run_params['rip_path'])
         bin = rime.resolution_reshape(rime.load_binary(binList[0], 'uint8'), x, y)
         metadataDic = rime.parse_metadata(Manager.getInstance().run_params['metadata_path'])
-        # convert_to_hdf5(bin, ripDicPath, metaDicPath, outputPath, outputName):
         for i in range(0,10):
           rime.convert_to_hdf5(bin, ripDic, metadataDic, Manager.getInstance().run_params['output_path'], "test_1")
+        '''
+        args = self.curManager.run_params
+        rime.run_rime(args['metadata_path'], args['rip_path'], args['output_path'], args['output_stopwarnings'], 
+                      args['output_netcdf4'], args['output_hdf5'], args['output_geotiff'], args['output_filehash'], 
+                      False, False, False, args['output_compress'])
         #self.fakeProgressTimer = QtCore.QTimer(self)
         #self.fakeProgressTimer.setSingleShot(False)
         #self.fakeProgressTimer.timeout.connect(self.fakeProgressUpdate)

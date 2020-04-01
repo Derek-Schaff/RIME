@@ -33,7 +33,7 @@ class RunPanelWidget(QtWidgets.QWidget):
         for p in Manager.getInstance().run_params:
             if ((p == 'binary_path' and Manager.getInstance().run_params[p] == '') or
                 (p == 'metadata_path' and Manager.getInstance().run_params[p] == '') or
-                (p == 'catalog_path' and Manager.getInstance().run_params[p] == '') or
+                (p == 'rip_path' and Manager.getInstance().run_params[p] == '') or
                 (p == 'output_path' and Manager.getInstance().run_params[p] == '')):
                 self.runPageStatistics.setTextBackgroundColor(QColor(251,115,115))
             else:

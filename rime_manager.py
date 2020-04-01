@@ -24,7 +24,7 @@ class Manager:
     run_params = {}
     run_params['binary_path'] = ''
     run_params['metadata_path'] = ''
-    run_params['catalog_path'] = ''
+    run_params['rip_path'] = ''
     run_params['output_path'] = ''
     run_params['logfile_path'] = 'DEFAULT'
     run_params['output_hdf5'] = False
@@ -43,7 +43,7 @@ class Manager:
         inputCheck = False
         outputCheck = False
 
-        if self.run_params['binary_path'] != '' and self.run_params['metadata_path']  != '' and self.run_params['catalog_path'] != '':
+        if self.run_params['binary_path'] != '' and self.run_params['metadata_path']  != '' and self.run_params['rip_path'] != '':
            inputCheck = True
 
         if self.run_params['output_hdf5'] or self.run_params['output_netcdf4'] or self.run_params['output_geotiff']:
