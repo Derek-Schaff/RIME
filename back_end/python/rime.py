@@ -140,7 +140,7 @@ def update_status(updateString, log, currentFileNum, totalFileNum):
     log.write(updateString)
 
 
-def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll):
+def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
     metadataDic = parse_metadata(metadataPath)
     ripDic = parse_rip(ripPath)
     times = np.array([])
@@ -148,8 +148,12 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     y = int(ripDic["FT_DATASET_COLUMNS"])
     catalogPath = ripDic["FT_INPUT_CATALOG_FT_PATH"]
     datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
-    binDir = ripDic["FT_BINARY_ROOT_DIR"]
     logPath = "%s/log.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
+
+    if not catalogPath:
+        binDir = ripDic["FT_BINARY_ROOT_DIR"]
+    else:
+        binDir = binRoot
 
     # automatically detects all .bin files, validates they exist
     binList = build_bin_list(binDir)
