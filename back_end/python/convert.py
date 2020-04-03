@@ -1,5 +1,5 @@
 import h5py
-from osgeo import gdal, osr, gdal_array
+from osgeo import gdal, osr #, gdal_array
 import numpy as np
 import validate
 from ctypes import *
@@ -36,7 +36,7 @@ def _create_hdf5(filePath, binary, ripDic, metadataDict):
     return file
 
 
-def _create_netcdf4(logPath, outputPath, metadataDict, binData, datRows, datCols):
+def _create_netcdf4(logPath, outputPath, metadataDict, binData, ripDic):
     netCDF = CDLL(os.path.dirname(__file__) + "/../c/netCDF.so")
     netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char_p), POINTER(c_char_p),
                                    c_char_p, c_char_p]
@@ -67,6 +67,9 @@ def _create_netcdf4(logPath, outputPath, metadataDict, binData, datRows, datCols
 
     b_logPath = logPath.encode('utf-8')
     b_outputPath = outputPath.encode('utf-8')
+
+    datRows = int(ripDic["FT_DATASET_ROWS"])
+    datCols = int(ripDic["FT_DATASET_COLUMNS"])
 
     netCDF.conv_netCDF(dat_Arr, datRows, datCols, len(meta_fields), fields_arr, vals_arr, b_outputPath, b_logPath)
     # (__uint8_t *data | int data_set_rows | int data_set_cols,int meta_num | char *meta_fields[] | char *meta_vals[] | char *output_path | char *log_path)
