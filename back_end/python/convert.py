@@ -1,5 +1,5 @@
 import h5py
-from osgeo import gdal, osr, gdal_array
+from osgeo import gdal, osr #, gdal_array
 import numpy as np
 import validate
 from ctypes import *
@@ -36,13 +36,13 @@ def _create_hdf5(filePath, binary, ripDic, metadataDict):
     return file
 
 
-def _create_netcdf4(logPath, outputPath, metadataDict, binData, datRows, datCols):
+def _create_netcdf4(filePath, binary, ripDic, metadataDict):
     netCDF = CDLL(os.path.dirname(__file__) + "/../c/netCDF.so")
     netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char_p), POINTER(c_char_p),
                                    c_char_p, c_char_p]
 
-    data = (c_int8 * len(binData))
-    dat_Arr = data(*binData)
+    data = (c_int8 * len(binary))
+    dat_Arr = data(*binary)
 
     meta_fields = [] #metadataDict.keys()
     meta_values = [] #metadataDict.values()
@@ -65,8 +65,13 @@ def _create_netcdf4(logPath, outputPath, metadataDict, binData, datRows, datCols
     fields_arr[:-1] = field_bytes
     vals_arr[:-1] = val_bytes
 
+    #get logPath from ripDic
+    logPath = ripDic["FT_OUTPUT_LOGDIR"]
     b_logPath = logPath.encode('utf-8')
-    b_outputPath = outputPath.encode('utf-8')
+    b_outputPath = filePath.encode('utf-8')
+
+    datRows = int(ripDic["FT_DATASET_ROWS"])
+    datCols = int(ripDic["FT_DATASET_COLUMNS"])
 
     netCDF.conv_netCDF(dat_Arr, datRows, datCols, len(meta_fields), fields_arr, vals_arr, b_outputPath, b_logPath)
     # (__uint8_t *data | int data_set_rows | int data_set_cols,int meta_num | char *meta_fields[] | char *meta_vals[] | char *output_path | char *log_path)

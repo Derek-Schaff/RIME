@@ -38,7 +38,7 @@ struct parsedFiles parseDir(char* inpDir){
     }
     folder = opendir(dir);
     int i = 0;
-    while(entry = readdir(folder)){
+    while(entry = readdir(folder)){ //add logic to ensure file is .bin
         if(entry->d_type != DT_DIR){ //check if file is not a directory
             strcpy(tmp,dir);
             strcat(tmp,"/");
