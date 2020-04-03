@@ -36,13 +36,13 @@ def _create_hdf5(filePath, binary, ripDic, metadataDict):
     return file
 
 
-def _create_netcdf4(filePath, metadataDict, binData, ripDic):
+def _create_netcdf4(filePath, binary, ripDic, metadataDict):
     netCDF = CDLL(os.path.dirname(__file__) + "/../c/netCDF.so")
     netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char_p), POINTER(c_char_p),
                                    c_char_p, c_char_p]
 
-    data = (c_int8 * len(binData))
-    dat_Arr = data(*binData)
+    data = (c_int8 * len(binary))
+    dat_Arr = data(*binary)
 
     meta_fields = [] #metadataDict.keys()
     meta_values = [] #metadataDict.values()
