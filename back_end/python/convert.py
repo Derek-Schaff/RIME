@@ -36,7 +36,7 @@ def _create_hdf5(filePath, binary, ripDic, metadataDict):
     return file
 
 
-def _create_netcdf4(logPath, outputPath, metadataDict, binData, ripDic):
+def _create_netcdf4(filePath, metadataDict, binData, ripDic):
     netCDF = CDLL(os.path.dirname(__file__) + "/../c/netCDF.so")
     netCDF.conv_netCDF.argtypes = [POINTER(c_int8), c_int, c_int, c_int, POINTER(c_char_p), POINTER(c_char_p),
                                    c_char_p, c_char_p]
@@ -65,8 +65,10 @@ def _create_netcdf4(logPath, outputPath, metadataDict, binData, ripDic):
     fields_arr[:-1] = field_bytes
     vals_arr[:-1] = val_bytes
 
+    #get logPath from ripDic
+    logPath = ripDic["FT_OUTPUT_LOGDIR"]
     b_logPath = logPath.encode('utf-8')
-    b_outputPath = outputPath.encode('utf-8')
+    b_outputPath = filePath.encode('utf-8')
 
     datRows = int(ripDic["FT_DATASET_ROWS"])
     datCols = int(ripDic["FT_DATASET_COLUMNS"])
