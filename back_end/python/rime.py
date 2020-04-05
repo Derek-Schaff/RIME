@@ -11,6 +11,7 @@ from ctypes.util import find_library
 import os
 from os import path
 import subprocess
+import back_end.python.fWatch as fWatch
 
 
 # this class will store data in a struct
@@ -159,6 +160,11 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     binList = build_bin_list(binDir)
     numBins = len(binList)
 
+    #start watching logfile to update gui status
+
+    watcher = fWatch.Watcher(logPath)
+    watcher.watch()  # start the watch going
+
     # open logfile
     with open(logPath, "w") as logFile:
         for currentBinNum, binFile in enumerate(binList):
@@ -200,8 +206,23 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 updateString = "%s GEOTIFF conversion time: %f" % (binFile, end - start)
                 update_status(updateString)
 
-            #if netcdf4:
-            # this option needs some work to make the create function for netcdf4 compatible with the convert factory
+            if netcdf4:
+                ncdfOutputDir = "%s/NETCDF4" % outputPath
+                ncdfOutputFile = ("%s/%s.nc" % (ncdfOutputDir, binBaseName))
+
+                # if output netCDF dir doesn't exist, try to make it
+                if not validate.validate_dir(ncdfOutputDir):
+                    create_output_dir(ncdfOutputDir)
+
+                ncdfOutput = ("%s/NETCDF4/%s.nc" % (outputPath, binBaseName))
+                start = time.clock()
+                ncdf = convert.create(ncdfOutput, binData, ripDic, metadataDic, "NETCDF4")
+                end = time.time()
+
+                updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
+                update_status(updateString) # there is the statusUpdate.py method that works with the c code as well
+                                            # we should discuss using that
+
 
         if tarAll:
             None

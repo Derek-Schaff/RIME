@@ -126,7 +126,7 @@ class InputPanelWidget(QtWidgets.QWidget):
 
     def editMetadata(self):
         if Path(self.metaData.text()).is_file():
-            self.editMetaWindow = MetaDataEditWidget(self.metaData.text(), "Edit Meta Data File")
+            self.editMetaWindow = MetaDataEditWidget(self.metaData.text(), "Edit Meta Data File", "|")
             self.editMetaWindow.show()
     '''
     self.catalog actually works on the rip file input and edit button.
@@ -134,7 +134,7 @@ class InputPanelWidget(QtWidgets.QWidget):
     '''
     def editRipData(self):
         if Path(self.catalog.text()).is_file():
-            self.editMetaWindow = MetaDataEditWidget(self.catalog.text(), "Edit Rip File")
+            self.editMetaWindow = MetaDataEditWidget(self.catalog.text(), "Edit Rip File", "=")
             self.editMetaWindow.show()
 
     def metaDataTextChanged(self):
