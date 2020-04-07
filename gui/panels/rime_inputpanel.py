@@ -7,6 +7,8 @@ from gui.rime_variables import LABEL_WIDTH
 from rime_manager import Manager
 
 
+
+
 class InputPanelWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()

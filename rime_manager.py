@@ -12,7 +12,7 @@ class Manager:
     # create Queue to be passed to WriteStream and WriteStreamListener
     queue = Queue()
     # redirect stdout to WriteStream()
-    sys.stdout = helpers.WriteStream(queue)
+    #sys.stdout = helpers.WriteStream(queue)
 
     # create a thread that is connected to the queue which can be freely
     # forwarded to any function

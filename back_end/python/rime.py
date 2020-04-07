@@ -12,6 +12,7 @@ import os
 from os import path
 import subprocess
 import back_end.python.fWatch as fWatch
+import back_end.python.statusUpdate as statusUpdate
 
 
 # this class will store data in a struct
@@ -160,11 +161,6 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     binList = build_bin_list(binDir)
     numBins = len(binList)
 
-    #start watching logfile to update gui status
-
-    watcher = fWatch.Watcher(logPath)
-    watcher.watch()  # start the watch going
-
     # open logfile
     with open(logPath, "w") as logFile:
         for currentBinNum, binFile in enumerate(binList):
@@ -282,3 +278,6 @@ if __name__ == "__main__":
     tarAll = args.tar_all
 
     run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll)
+
+    time.sleep(10)
+    stat

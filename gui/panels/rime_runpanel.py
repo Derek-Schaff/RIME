@@ -4,6 +4,8 @@ from PySide2.QtCore import Slot
 
 from gui.panels.rime_runprogress import RunProgressWidget
 from rime_manager import Manager
+import sys
+
 
 
 class RunPanelWidget(QtWidgets.QWidget):
@@ -51,9 +53,13 @@ class RunPanelWidget(QtWidgets.QWidget):
 
     @Slot()
     def runRime(self):
+        print("xxxxx")
         self.runProgressWindow = RunProgressWidget()
+        print("xxxxx")
         Manager.getInstance().connectOutput(self.runProgressWindow.runProgressBox.append)
+        print("xxxxx")
         self.runProgressWindow.show()
+        print("xxxxx")
 
     @Slot(str)
     def appendToStats(self, msg):
