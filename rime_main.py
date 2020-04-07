@@ -4,6 +4,7 @@ import runpy
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),"back_end/python/"))
 #from back_end.python import rime
 import back_end.python.rime as rime
+from rime_manager import Manager
 
 from PySide2 import QtWidgets
 from gui.rime_mainpanel import MainPanelWidget
@@ -26,6 +27,7 @@ if __name__ == "__main__":
     for arg in sys.argv:
         if arg == "--gui":
             print("Starting GUI...")
+            Manager.getInstance().rimeAccess = rime
             run()
 
     sys.stdout = sys.__stdout__
@@ -48,5 +50,5 @@ if __name__ == "__main__":
 
     rime.run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll)
     '''
-    runpy.run_module("back_end.python.rime", run_name='__main__')
+    runpy.run_module("rime", run_name='__main__')
         

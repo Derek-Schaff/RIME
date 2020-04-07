@@ -32,6 +32,11 @@ class MainPanelWidget(QtWidgets.QWidget):
         self.panels.addItem(self.outputPage, "Output")
         self.panels.addItem(self.runPage, "Run")
 
+        #self.warningIcon = QtGui.QIcon()
+        #self.warningIcon.addPixmap(QtGui.QPixmap("gui/img/warning.png"), QtGui.QIcon.Normal)
+        #self.panels.setItemIcon(1, self.warningIcon)
+        #self.panels.setItemIcon(2, self.warningIcon)
+
         self.menuBar = QtWidgets.QMenuBar(self.mainWindow)  # requires parent
         self.menu = QtWidgets.QMenu(self)
         self.menu.setTitle("File")
@@ -54,7 +59,7 @@ class MainPanelWidget(QtWidgets.QWidget):
         with open(style_file, "r") as styles:
             self.setStyleSheet(styles.read())
         
-        Manager.getInstance().connectOutput(self._log_to_qtextedit)
+        #Manager.getInstance().connectOutput(self._log_to_qtextedit)
 
     def MenuAction(self, q):
         print("Menu action: " + q.text() + "\n")
