@@ -7,7 +7,7 @@ from back_end.python.updateMetaData import updateMetaData
 
 
 class MetaDataEditWidget(QtWidgets.QWidget):
-    def __init__(self, path, windowTitle):
+    def __init__(self, path, windowTitle, delimiter):
         super().__init__()
 
         self.layout = QtWidgets.QGridLayout()
@@ -31,7 +31,7 @@ class MetaDataEditWidget(QtWidgets.QWidget):
             for line in content:
                 line.strip()
                 if not line.startswith('#') and len(line) > 1:
-                    temp = line.strip().split('=')
+                    temp = line.strip().split(delimiter)
 
                     self.metaTable.insertRow(self.metaTable.rowCount())
                     self.metaTable.setItem(self.metaTable.rowCount()-1, 0,  QTableWidgetItem(temp[0]))
