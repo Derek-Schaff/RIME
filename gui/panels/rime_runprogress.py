@@ -7,7 +7,7 @@ from PySide2.QtWidgets import QFileDialog, QTableWidgetItem
 class RunProgressWidget(QtWidgets.QWidget):
     def __init__(self, manager):
         super().__init__()
-        self.curManager = manager
+        self.manager = manager
 
         self.resize(525, 300)
         self.setWindowTitle("Run Progress")
@@ -46,7 +46,7 @@ class RunProgressWidget(QtWidgets.QWidget):
 
         self.cancelButton.clicked.connect(self.cancelButtonClick)
         # metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll
-        rime = self.curManager.getInstance().rimeAccess
+        rime = self.manager.getInstance().rimeAccess
         
         '''
         print(Manager.getInstance().run_params['binary_path'])
@@ -59,8 +59,8 @@ class RunProgressWidget(QtWidgets.QWidget):
         for i in range(0,10):
           rime.convert_to_hdf5(bin, ripDic, metadataDic, Manager.getInstance().run_params['output_path'], "test_1")
         '''
-        self.curManager.getInstance().connectOutput(self.updateProgressBox)
-        args = self.curManager.run_params
+        self.manager.getInstance().connectOutput(self.updateProgressBox)
+        args = self.manager.run_params
         rime.run_rime(args['metadata_path'], args['rip_path'], args['output_path'], args['output_stopwarnings'], 
                       args['output_netcdf4'], args['output_hdf5'], args['output_geotiff'], args['output_filehash'], 
                       False, False, False, args['output_compress'], args['binary_path'])
@@ -104,3 +104,8 @@ class RunProgressWidget(QtWidgets.QWidget):
 
     def updateProgressBox(self,message):
       self.runProgressBox.append(message)
+
+    def closeEvent(self, event):
+        self.manager.getInstance().removeOutput(self.updateProgressBox)
+        
+        return super().closeEvent(event)

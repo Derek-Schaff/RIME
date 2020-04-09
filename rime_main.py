@@ -28,7 +28,7 @@ if __name__ == "__main__":
         if arg == "--gui":
             print("Starting GUI...")
             Manager.getInstance().rimeAccess = rime
-            Manager.getInstance().connectOutput(sys.stdout.write)
+            #Manager.getInstance().connectOutput(sys.stdout.write)
             run()
 
     sys.stdout = sys.__stdout__

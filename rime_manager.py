@@ -64,6 +64,15 @@ class Manager:
         else:
             pass
 
+    def removeOutput(self, output_method):
+        output_method_name = output_method.__name__
+        
+        if output_method_name in self.listeners:
+            self.listeners.remove(output_method_name)
+            self.listener_thread.queue_updated.disconnect(output_method)
+        else:
+            pass
+
     @staticmethod
     def getInstance():
         """ Static access method. """

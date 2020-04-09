@@ -33,13 +33,12 @@ class WriteStreamThread(QtCore.QThread):
 
     def run(self):
         while not self.stop:    # i guess this is blocking
+            msg = None
             try:
                 msg = self.queue.get(block=False)
             except:
-                msg = "\n"
-                self.sleep(0.2)   # if commented out, app crashes
-            
-            if(msg != "\n"):
+                self.sleep(0.2)   # if commented out, app crashes            
+            if(msg):
                 self.queue_updated.emit(msg)
         self.finished.emit()
    

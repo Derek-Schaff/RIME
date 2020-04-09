@@ -52,6 +52,7 @@ class RunPanelWidget(QtWidgets.QWidget):
     def runRime(self):
         self.runProgressWindow = RunProgressWidget(self.manager)
         self.runProgressWindow.show()
+        print("xxxxx")
 
     @Slot(str)
     def appendToStats(self, msg):
