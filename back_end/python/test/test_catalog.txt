@@ -1,1 +1,1 @@
-test/test_bin.bin
+./test_bin.bin

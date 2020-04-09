@@ -5,6 +5,7 @@ docker run --rm \
             -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
 	        -v $(pwd):/usr/RIME \
             --ipc=host \
+	    -i -t \
             --user $(id -u):$(id -g) \
             --cap-drop=ALL \
             --security-opt=no-new-privileges \

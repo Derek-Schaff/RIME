@@ -12,7 +12,7 @@ from gui.rime_mainpanel import MainPanelWidget
 def run():
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    widget = MainPanelWidget(MainWindow)
+    widget = MainPanelWidget(MainWindow, Manager)
 
     MainWindow.setCentralWidget(widget)
     MainWindow.setWindowTitle("Rime")
@@ -28,6 +28,7 @@ if __name__ == "__main__":
         if arg == "--gui":
             print("Starting GUI...")
             Manager.getInstance().rimeAccess = rime
+            Manager.getInstance().connectOutput(sys.stdout.write)
             run()
 
     sys.stdout = sys.__stdout__

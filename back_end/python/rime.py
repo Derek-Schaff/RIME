@@ -161,10 +161,9 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     numBins = len(binList)
 
     #start watching logfile to update gui status
-
-    watcher = fWatch.Watcher(logPath)
-    watcher.watch()  # start the watch going
-
+    
+    #watcher = fWatch.Watcher(logPath)
+    #watcher.watch()  # start the watch going
     # open logfile
     with open(logPath, "w") as logFile:
         for currentBinNum, binFile in enumerate(binList):

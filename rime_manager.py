@@ -11,6 +11,7 @@ class Manager:
 
     # create Queue to be passed to WriteStream and WriteStreamListener
     queue = Queue()
+    terminal = sys.stdout
     # redirect stdout to WriteStream()
     sys.stdout = helpers.WriteStream(queue)
 
@@ -39,6 +40,9 @@ class Manager:
 
     listeners = []
 
+    listeners.append(terminal.write.__name__)
+    listener_thread.queue_updated.connect(terminal.write)
+ 
     def checkNecessaryInput(self):
         inputCheck = False
         outputCheck = False

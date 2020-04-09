@@ -4,12 +4,10 @@ from random import randrange
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtWidgets import QFileDialog, QTableWidgetItem
 
-from rime_manager import Manager
-
 class RunProgressWidget(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, manager):
         super().__init__()
-        self.curManager = Manager.getInstance()
+        self.curManager = manager
 
         self.resize(525, 300)
         self.setWindowTitle("Run Progress")
@@ -48,7 +46,7 @@ class RunProgressWidget(QtWidgets.QWidget):
 
         self.cancelButton.clicked.connect(self.cancelButtonClick)
         # metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll
-        rime = self.curManager.rimeAccess
+        rime = self.curManager.getInstance().rimeAccess
         
         '''
         print(Manager.getInstance().run_params['binary_path'])
@@ -61,7 +59,7 @@ class RunProgressWidget(QtWidgets.QWidget):
         for i in range(0,10):
           rime.convert_to_hdf5(bin, ripDic, metadataDic, Manager.getInstance().run_params['output_path'], "test_1")
         '''
-        self.curManager.connectOutput(self.updateProgressBox)
+        self.curManager.getInstance().connectOutput(self.updateProgressBox)
         args = self.curManager.run_params
         rime.run_rime(args['metadata_path'], args['rip_path'], args['output_path'], args['output_stopwarnings'], 
                       args['output_netcdf4'], args['output_hdf5'], args['output_geotiff'], args['output_filehash'], 

@@ -5,12 +5,13 @@ from rime_manager import Manager
 
 
 class OutputPanelWidget(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, manager):
         super().__init__()
         '''----------'''
         '''INPUT PAGE'''
         '''----------'''
 
+        self.manger = manager
         self.outputLocationBox = QtWidgets.QLineEdit()
         self.outputLocationBox.setObjectName("outputLocationBox")
         self.outputLocationButton = QtWidgets.QPushButton("...")
