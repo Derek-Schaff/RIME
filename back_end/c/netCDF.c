@@ -64,7 +64,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval)
             else{
                 //insert attribute with prev_id as ncid
                 printf("prev_id != 0\n");
-                printf("token: %s\n",token);
+                printf("token: %s, value: %s\n",token,meta_vals);
                 if(( retval = nc_put_att_text(prev_id,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
             }
         }
