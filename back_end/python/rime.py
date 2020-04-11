@@ -162,7 +162,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     numBins = len(binList)
 
     # open logfile
-    with open(logPath, "w") as logFile:
+    with open("/home/turkishdisko/RIME/back_end/python/test/log/log.txt", "w+") as logFile:
         for currentBinNum, binFile in enumerate(binList):
             validate.validate_binary_file(binFile)
             print("file: %s" % binFile)
@@ -203,6 +203,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 update_status(updateString)
 
             if netcdf4:
+
                 ncdfOutputDir = "%s/NETCDF4" % outputPath
                 ncdfOutputFile = ("%s/%s.nc" % (ncdfOutputDir, binBaseName))
 
@@ -211,12 +212,12 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                     create_output_dir(ncdfOutputDir)
 
                 ncdfOutput = ("%s/NETCDF4/%s.nc" % (outputPath, binBaseName))
-                start = time.clock()
-                ncdf = convert.create(ncdfOutput, binData, ripDic, metadataDic, "NETCDF4")
+                start = time.time()
+                ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
-                update_status(updateString) # there is the statusUpdate.py method that works with the c code as well
+                #update_status(updateString) # there is the statusUpdate.py method that works with the c code as well
                                             # we should discuss using that
 
 
