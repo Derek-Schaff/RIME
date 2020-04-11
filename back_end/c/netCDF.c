@@ -106,8 +106,8 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     return 0;
 }
 
-int main(int argc, char *argv[]){
-
-
-    return 0;
-}
+//int main(int argc, char *argv[]){
+//
+//
+//    return 0;
+//}
