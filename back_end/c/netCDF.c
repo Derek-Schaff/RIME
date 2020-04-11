@@ -90,13 +90,14 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     if ((retval = nc_def_var(ncid, "data", NC_INT, 2, dimids, &varid)))
     ERR(retval);
 
-    ht_dump(groups);
+
 
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
         insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,groups,grp_offset);
     }
-
+    printf("dump now: \n");
+    ht_dump(groups);
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
     ERR(retval);
 
