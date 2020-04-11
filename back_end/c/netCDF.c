@@ -96,8 +96,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     for(int i = 0; i < meta_num; i++){
         insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,groups,grp_offset);
     }
-    printf("dump now: \n");
-    ht_dump(groups);
+    printf("%d %d\n",ht_get(groups,"ESDR"),ht_get(groups,"AcquisitionInformation"));
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
     ERR(retval);
 
