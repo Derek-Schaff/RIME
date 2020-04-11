@@ -29,6 +29,6 @@ void ht_del(ht_t *hashtable, const char *key);
 
 void ht_dump(ht_t *hashtable);
 
-
+int main(int argc, char **argv);
 
 #endif //RIME_HASH_TABLE_H

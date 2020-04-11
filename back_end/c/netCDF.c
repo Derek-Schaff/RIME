@@ -90,6 +90,8 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     if ((retval = nc_def_var(ncid, "data", NC_INT, 2, dimids, &varid)))
     ERR(retval);
 
+    ht_dump(groups);
+
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
         insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,groups,grp_offset);
@@ -104,13 +106,8 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     return 0;
 }
 
-//int main(int argc, char *argv[]){
-//    char *meta_data[] = {"groupA/groupB/GroupC|Var1","groupA|Var2","groupA/groupB/GroupD|Var1","No_Group"};
-//    char *meta_vals[] ={"Val1","Val2","Val1","NOPE9969420"};
-//    __uint8_t data[6] = {1,2,3,4,5,6};
-//
-//
-//    conv_netCDF(data,3,2,4,meta_data,meta_vals,"/home/turkishdisko/test.nc","home/turkishdisko/log.txt");
-//
-//    return 0;
-//}
+int main(int argc, char *argv[]){
+
+
+    return 0;
+}
