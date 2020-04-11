@@ -66,6 +66,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
             }
         }
         token = strtok(NULL, "/|\0");
+        ht_dump(groups);
     };
     free(dup);
     return 0;
