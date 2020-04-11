@@ -13,7 +13,7 @@
  */
 
 ht_t *groups;
-int grp_offset = 1;
+int grp_offset = 0;
 
 int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval){
     char *token;
