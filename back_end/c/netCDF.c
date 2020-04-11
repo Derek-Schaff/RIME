@@ -30,13 +30,13 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
             if(ht_get(groups,token) == NULL){ // group does not exist add it
                 if(prev_id == 0){ //first group in the group dir
                     printf("1 %d\n",prev_id);
-                    prev_id = ncid+(hash(token));
+                    prev_id = (hash(token)%100);
                     nc_def_grp(ncid,token,&prev_id);
                 }
                 else{
                     printf("2 %d\n",prev_id);
                     temp_id = prev_id;
-                    prev_id = ncid+(hash(token));
+                    prev_id = (hash(token)%100);
                     printf("2x %d\n",prev_id);
                     nc_def_grp(temp_id,token,&prev_id);
                 }
@@ -50,7 +50,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
                 else{
                     printf("4 %d\n",prev_id);
                     temp_id = prev_id;
-                    prev_id = ncid+(hash(token));
+                    prev_id = (hash(token)%100);
                     nc_def_grp(temp_id,token,&prev_id);
                 }
             }
