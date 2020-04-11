@@ -98,6 +98,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
         insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,grp_offset);
     }
     printf("ESDR: %d Acqui: %d\n",ht_get(groups,"ESDR"),ht_get(groups,"AcquisitionInformation"));
+    ht_dump(groups);
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
     ERR(retval);
 
