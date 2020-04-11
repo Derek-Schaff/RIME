@@ -30,14 +30,14 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
             if(ht_get(groups,token) == NULL){ // group does not exist add it
                 if(prev_id == 0){ //first group in the group dir
                     printf("1 %d\n",prev_id);
-                    prev_id = 99;
+                    prev_id = ncid + grp_offset++;
                     nc_def_grp(ncid,token,&prev_id);
                     printf("group: %s\n",token);
                 }
                 else{
                     printf("2 %d\n",prev_id);
                     temp_id = prev_id;
-                    prev_id = 13;
+                    prev_id = ncid + grp_offset++;
                     printf("2x %d\n",prev_id);
                     nc_def_grp(temp_id,token,&prev_id);
                     printf("group: %s\n",token);
@@ -53,7 +53,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
                 else{
                     printf("4 %d\n",prev_id);
                     temp_id = prev_id;
-                    prev_id = 17;
+                    prev_id = ncid + grp_offset++;
                     nc_def_grp(temp_id,token,&prev_id);
                     printf("group: %s\n",token);
                 }
@@ -108,10 +108,10 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     ERR(retval);
 
 
-
+    printf("befor insert var id: %d\n",varid);
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
-        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,i,groups);
+        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,*grp_offset,groups);
         printf("%d\n",ht_get(groups,"Metadata"));
     }
     printf("ESDR: %d Acqui: %d\n",ht_get(groups,"ESDR"),ht_get(groups,"AcquisitionInformation"));
