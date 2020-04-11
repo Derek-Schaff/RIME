@@ -44,6 +44,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval)
             else{ //group already exists
                 if(prev_id == 0){ //first group in the group dir
                     prev_id = *ht_get(groups,token);
+                    printf("prev: %d\n",prev_id);
                     nc_def_grp(ncid,token,&prev_id);
                     printf("third\n");
                 }
