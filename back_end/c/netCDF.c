@@ -28,7 +28,9 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval)
 
         delim = dup[token - string + strlen(token)];
         if(delim == '/' || delim == '|'){
+            printf("%d\n",ht_get(groups,token));
             if(ht_get(groups,token) == NULL){ // group does not exist add it
+                printf("1st value: %d token: %s\n",ht_get(groups,token),token);
                 if(prev_id == 0){ //first group in the group dir
                     prev_id = ncid+(grp_offset++);
                     nc_def_grp(ncid,token,&prev_id);
@@ -36,6 +38,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval)
                     printf("token: %s\n",token);
                 }
                 else{
+                    printf("2nd value: %d token: %s\n",ht_get(groups,token),token);
                     temp_id = prev_id;
                     prev_id = ncid+(grp_offset++);
                     nc_def_grp(temp_id,token,&prev_id);
@@ -44,11 +47,13 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval)
                 }
             }
             else{ //group already exists
+                printf("3st value: %d token: %s\n",ht_get(groups,token),token);
                 if(prev_id == 0){ //first group in the group dir
                     prev_id = *ht_get(groups,token);
                     nc_def_grp(ncid,token,&prev_id);
                 }
                 else{
+                    printf("4st value: %d token: %s\n",ht_get(groups,token),token);
                     temp_id = prev_id;
                     prev_id = ncid+(grp_offset++);
                     nc_def_grp(temp_id,token,&prev_id);
