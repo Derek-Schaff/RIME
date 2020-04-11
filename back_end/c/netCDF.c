@@ -32,13 +32,15 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
                     printf("1 %d\n",prev_id);
                     prev_id = 1;
                     nc_def_grp(ncid,token,&prev_id);
-                }//aaaaaaaaaaaaa
+                    printf("group: %s\n",token);
+                }
                 else{
                     printf("2 %d\n",prev_id);
                     temp_id = prev_id;
                     prev_id = 1;
                     printf("2x %d\n",prev_id);
                     nc_def_grp(temp_id,token,&prev_id);
+                    printf("group: %s\n",token);
                 }
             }
             else{ //group already exists
@@ -46,12 +48,14 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
                     printf("3 %d\n",prev_id);
                     prev_id = *ht_get(groups,token);
                     nc_def_grp(ncid,token,&prev_id);
+                    printf("group: %s\n",token);
                 }
                 else{
                     printf("4 %d\n",prev_id);
                     temp_id = prev_id;
                     prev_id = 1;
                     nc_def_grp(temp_id,token,&prev_id);
+                    printf("group: %s\n",token);
                 }
             }
         }
@@ -59,11 +63,13 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
             if(prev_id == 0){
                 printf("4 %d\n",prev_id);
                 if(( retval = nc_put_att_text(ncid,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
+                printf("var: %s value: %s\n",token,meta_vals);
             }
             else{
                 printf("5 %d\n",prev_id);
                 //insert attribute with prev_id as ncid
                 if(( retval = nc_put_att_text(prev_id,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
+                printf("var: %s value: %s\n",token,meta_vals);
             }
         }
         token = strtok(NULL, "/|\0");
