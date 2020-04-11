@@ -66,7 +66,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
             }
         }
         token = strtok(NULL, "/|\0");
-        ht_dump(groups);
+
     };
     free(dup);
     return 0;
@@ -104,6 +104,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
         insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,grp_offset,groups);
+        ht_dump(groups);
     }
     printf("ESDR: %d Acqui: %d\n",ht_get(groups,"ESDR"),ht_get(groups,"AcquisitionInformation"));
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
