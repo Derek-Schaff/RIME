@@ -12,9 +12,9 @@
  *
  */
 
-ht_t *groups;
 
-int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,int grp_offset){
+
+int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,int *grp_offset,ht_t *groups){
     char *token;
     char *string = strdup(meta_vars);
     char *dup = strdup(string);
@@ -29,12 +29,12 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
         if(delim == '/' || delim == '|'){
             if(ht_get(groups,token) == NULL){ // group does not exist add it
                 if(prev_id == 0){ //first group in the group dir
-                    prev_id = ncid+(grp_offset++);
+                    prev_id = ncid+(*grp_offset++);
                     nc_def_grp(ncid,token,&prev_id);
                 }
                 else{
                     temp_id = prev_id;
-                    prev_id = ncid+(grp_offset++);
+                    prev_id = ncid+(*grp_offset++);
                     nc_def_grp(temp_id,token,&prev_id);
                 }
             }
@@ -45,7 +45,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
                 }
                 else{
                     temp_id = prev_id;
-                    prev_id = ncid+(grp_offset++);
+                    prev_id = ncid+(*grp_offset++);
                     nc_def_grp(temp_id,token,&prev_id);
                 }
             }
@@ -62,7 +62,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
         token = strtok(NULL, "/|\0");
     };
     free(dup);
-    return grp_offset;
+    return 0;
 }
 
 int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_num, char *meta_vars[],char *meta_vals[], char *output_path, char *log_path){
@@ -71,8 +71,9 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     size_t chunks[2];
     int shuffle, deflate, deflate_level;
     int dimids[2];
-    int grp_offset = 1;
-    groups = ht_create();
+    int *grp_offset;
+    *grp_offset = 1;
+    ht_t *groups = ht_create();
 
 
     if ((retval = nc_create(output_path, NC_NETCDF4, &ncid)))
@@ -95,7 +96,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
 
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
-        grp_offset = insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,grp_offset);
+        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,grp_offset,groups);
     }
     printf("ESDR: %d Acqui: %d\n",ht_get(groups,"ESDR"),ht_get(groups,"AcquisitionInformation"));
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
