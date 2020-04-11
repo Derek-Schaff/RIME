@@ -32,7 +32,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
                     printf("1 %d\n",prev_id);
                     prev_id = ncid+(*grp_offset++);
                     nc_def_grp(ncid,token,&prev_id);
-                }
+                }//aaaaaaaaaaaaa
                 else{
                     printf("2 %d\n",prev_id);
                     temp_id = prev_id;
