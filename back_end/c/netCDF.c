@@ -24,7 +24,7 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
 
     token = strtok(string, "/|\0");
     while(token != NULL){
-
+        printf("is this working\n");
         delim = dup[token - string + strlen(token)];
         if(delim == '/' || delim == '|'){
             if(ht_get(groups,token) == NULL){ // group does not exist add it
