@@ -32,13 +32,15 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval)
                 if(prev_id == 0){ //first group in the group dir
                     prev_id = ncid+(grp_offset++);
                     nc_def_grp(ncid,token,&prev_id);
-                    printf("first\n");
+                    printf("First\n");
+                    printf("token: %s\n",token);
                 }
                 else{
                     temp_id = prev_id;
                     prev_id = ncid+(grp_offset++);
                     nc_def_grp(temp_id,token,&prev_id);
                     printf("second\n");
+                    printf("token: %s\n",token);
                 }
             }
             else{ //group already exists
@@ -56,11 +58,13 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval)
         else if(delim == '\0'){
             if(prev_id == 0){
                 printf("prev_id = 0\n");
+                printf("token: %s\n",token);
                 if(( retval = nc_put_att_text(ncid,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
             }
             else{
                 //insert attribute with prev_id as ncid
                 printf("prev_id != 0\n");
+                printf("token: %s\n",token);
                 if(( retval = nc_put_att_text(prev_id,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
             }
         }
