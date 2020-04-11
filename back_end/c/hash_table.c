@@ -205,13 +205,10 @@ void ht_dump(ht_t *hashtable) {
 //int main(int argc, char **argv) {
 //    ht_t *ht = ht_create();
 //
-//    ht_set(ht, "name1", "em");
-//    ht_set(ht, "name2", "russian");
-//    ht_set(ht, "name3", "pizza");
-//    ht_set(ht, "name4", "doge");
-//    ht_set(ht, "name5", "pyro");
-//    ht_set(ht, "name6", "joost");
-//    ht_set(ht, "name7", "kalix");
+//    ht_set(ht, "Metadata", "1");
+//    ht_set(ht, "AcquisitionInformation", "2");
+//    ht_set(ht, "ESDR", "3");
+//
 //
 //    ht_dump(ht);
 //
