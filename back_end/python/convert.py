@@ -66,7 +66,7 @@ def _create_netcdf4(filePath, binary, ripDic, metadataDict):
     vals_arr[:-1] = val_bytes
 
     #get logPath from ripDic
-    logPath = ripDic["FT_OUTPUT_LOGDIR"]
+    logPath = ripDic["FT_OUTPUT_LOG_DIR"]
     b_logPath = logPath.encode('utf-8')
     b_outputPath = filePath.encode('utf-8')
 

@@ -9,6 +9,7 @@ from rime_manager import Manager
 
 
 
+
 class InputPanelWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
@@ -128,7 +129,7 @@ class InputPanelWidget(QtWidgets.QWidget):
 
     def editMetadata(self):
         if Path(self.metaData.text()).is_file():
-            self.editMetaWindow = MetaDataEditWidget(self.metaData.text(), "Edit Meta Data File", "|")
+            self.editMetaWindow = MetaDataEditWidget(self.metaData.text(), "Edit Meta Data File", ",")
             self.editMetaWindow.show()
     '''
     self.ripPathTextBox actually works on the ripPathTextBox file input and edit button.
