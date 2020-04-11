@@ -12,7 +12,9 @@
  *
  */
 
-int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval, ht_t *groups, int grp_offset){
+ht_t *groups;
+
+int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval, int grp_offset){
     char *token;
     char *string = strdup(meta_vars);
     char *dup = strdup(string);
@@ -69,10 +71,9 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     size_t chunks[2];
     int shuffle, deflate, deflate_level;
     int dimids[2];
-    ht_t *groups = ht_create();
     int grp_offset = 1;
+    groups = ht_create();
 
-    printf("Yo bro we in that shared c library\n");
 
     if ((retval = nc_create(output_path, NC_NETCDF4, &ncid)))
         ERR(retval);
@@ -94,7 +95,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
 
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
-        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,groups,grp_offset);
+        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,grp_offset);
     }
     printf("ESDR: %d Acqui: %d\n",ht_get(groups,"ESDR"),ht_get(groups,"AcquisitionInformation"));
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
