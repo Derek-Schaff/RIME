@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <netcdf.h>
 #include "status_updater.h"
+#include "hash_table.h"
+
 #define ERRCODE 2
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e)); exit(ERRCODE);}
 
@@ -10,12 +12,67 @@
  *
  */
 
-int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_num, char *meta_fields[], char *meta_vals[], char *output_path, char *log_path){
-    int ncid, x_dimid, y_dimid, varid;
+int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval, ht_t *groups, int grp_offset){
+    char *token;
+    char *string = strdup(meta_vars);
+    char *dup = strdup(string);
+    char delim;
+    int prev_id = 0;
+    int temp_id;
+
+    token = strtok(string, "/|\0");
+    while(token != NULL){
+
+        delim = dup[token - string + strlen(token)];
+        if(delim == '/' || delim == '|'){
+            if(ht_get(groups,token) == NULL){ // group does not exist add it
+                if(prev_id == 0){ //first group in the group dir
+                    prev_id = ncid+(grp_offset++);
+                    nc_def_grp(ncid,token,&prev_id);
+                }
+                else{
+                    temp_id = prev_id;
+                    prev_id = ncid+(grp_offset++);
+                    nc_def_grp(temp_id,token,&prev_id);
+                }
+            }
+            else{ //group already exists
+                if(prev_id == 0){ //first group in the group dir
+                    prev_id = *ht_get(groups,token);
+                    nc_def_grp(ncid,token,&prev_id);
+                }
+                else{
+                    temp_id = prev_id;
+                    prev_id = ncid+(grp_offset++);
+                    nc_def_grp(temp_id,token,&prev_id);
+                }
+            }
+        }
+        else if(delim == '\0'){
+            if(prev_id == 0){
+                if(( retval = nc_put_att_text(ncid,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
+            }
+            else{
+                //insert attribute with prev_id as ncid
+                if(( retval = nc_put_att_text(prev_id,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
+            }
+        }
+        token = strtok(NULL, "/|\0");
+    }
+    free(dup);
+    return 0;
+}
+
+int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_num, char *meta_vars[],char *meta_vals[], char *output_path, char *log_path){
+    int ncid, x_dimid, y_dimid, varid, varid2;
     int retval;
     size_t chunks[2];
     int shuffle, deflate, deflate_level;
     int dimids[2];
+    ht_t *groups = ht_create();
+    int grp_offset = 1;
+
+    printf("Yo bro we in that shared c library\n");
 
     if ((retval = nc_create(output_path, NC_NETCDF4, &ncid)))
         ERR(retval);
@@ -29,14 +86,13 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     /* Set up variable data. */
     dimids[0] = x_dimid;
     dimids[1] = y_dimid;
-
     /* Define the variable. */
     if ((retval = nc_def_var(ncid, "data", NC_INT, 2, dimids, &varid)))
     ERR(retval);
 
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
-        if(( retval = nc_put_att_text(ncid,varid,meta_fields[i],sizeof(meta_fields[i]),meta_vals[i]))) ERR(retval);
+        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,groups,grp_offset);
     }
 
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
@@ -48,3 +104,13 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     return 0;
 }
 
+//int main(int argc, char *argv[]){
+//    char *meta_data[] = {"groupA/groupB/GroupC|Var1","groupA|Var2","groupA/groupB/GroupD|Var1","No_Group"};
+//    char *meta_vals[] ={"Val1","Val2","Val1","NOPE9969420"};
+//    __uint8_t data[6] = {1,2,3,4,5,6};
+//
+//
+//    conv_netCDF(data,3,2,4,meta_data,meta_vals,"/home/turkishdisko/test.nc","home/turkishdisko/log.txt");
+//
+//    return 0;
+//}

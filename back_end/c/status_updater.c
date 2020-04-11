@@ -37,3 +37,12 @@ int pushToWeb(){
 * in phase 4 */
     return 0;
 }
+
+int main(){
+	statusUpdate("1","/home/turkishdisko/CLionProjects/RIME/back_end/c/t.txt");
+//	sleep(2);
+	statusUpdate("2","/home/turkishdisko/CLionProjects/RIME/back_end/c/t.txt");
+//	sleep(2);
+	statusUpdate("3","/home/turkishdisko/CLionProjects/RIME/back_end/c/t.txt");
+
+}
