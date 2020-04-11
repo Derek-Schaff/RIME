@@ -7,6 +7,7 @@
 
 #define ERRCODE 2
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e)); exit(ERRCODE);}
+#define maxChars 100
 
 /* compile with gcc -lm -lnetcdf
  *
@@ -14,7 +15,7 @@
 
 
 
-int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,int grp_offset,ht_t *groups){
+int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,int *grp_offset,HashTable *groups){
     char *token;
     char *string = strdup(meta_vars);
     char *dup = strdup(string);
@@ -27,18 +28,21 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
         printf("is this working\n");
         delim = dup[token - string + strlen(token)];
         if(delim == '/' || delim == '|'){
-            if(ht_get(groups,token) == NULL){ // group does not exist add it
+            if(!ht_contains(groups,token)){ // group does not exist add it
+
                 if(prev_id == 0){ //first group in the group dir
                     printf("1 %d\n",prev_id);
-                    prev_id = ncid + grp_offset++;
+                    prev_id = ncid + *grp_offset++;
+                    ht_insert(groups,token,&prev_id);
                     nc_def_grp(ncid,token,&prev_id);
                     printf("group: %s\n",token);
                 }
                 else{
                     printf("2 %d\n",prev_id);
                     temp_id = prev_id;
-                    prev_id = ncid + grp_offset++;
+                    prev_id = ncid + *grp_offset++;
                     printf("2x %d\n",prev_id);
+                    ht_insert(groups,token,&prev_id);
                     nc_def_grp(temp_id,token,&prev_id);
                     printf("group: %s\n",token);
                 }
@@ -46,14 +50,14 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
             else{ //group already exists
                 if(prev_id == 0){ //first group in the group dir
                     printf("3 %d\n",prev_id);
-                    prev_id = *ht_get(groups,token);
+                    prev_id = HT_LOOKUP_AS(int,groups,token);
                     nc_def_grp(ncid,token,&prev_id);
                     printf("group: %s\n",token);
                 }
                 else{
                     printf("4 %d\n",prev_id);
                     temp_id = prev_id;
-                    prev_id = ncid + grp_offset++;
+                    prev_id = ncid + *grp_offset++;
                     nc_def_grp(temp_id,token,&prev_id);
                     printf("group: %s\n",token);
                 }
@@ -76,7 +80,6 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
         token = strtok(NULL, "/|\0");
 
     };
-    printf("ESDR: %d Acqui: %d\n",ht_get(groups,"ESDR"),ht_get(groups,"AcquisitionInformation"));
     free(dup);
     return 0;
 }
@@ -87,9 +90,11 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     size_t chunks[2];
     int shuffle, deflate, deflate_level;
     int dimids[2];
-    int *grp_offset;
-    *grp_offset = 1;
-    ht_t *groups = ht_create();
+    int grp_offset = 1;
+    HashTable groups;
+
+    ht_setup(&groups, sizeof(char)*maxChars, sizeof(int), sizeof(*meta_vars)/sizeof(char)*maxChars);
+    ht_reserve(&groups,maxChars);
 
 
     if ((retval = nc_create(output_path, NC_NETCDF4, &ncid)))
@@ -112,7 +117,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     varid = varid;
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
-        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,*grp_offset,groups);
+        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,&grp_offset,&groups);
     }
 
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
