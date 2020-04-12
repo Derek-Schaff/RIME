@@ -38,8 +38,6 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
                 else{ // not first group in dir/ set id to prev_id as set in previous loop
                     nc_def_grp(*prev_id,token,ret->grp_id); // define group with previous id as parent id
                     prev_id = ret->grp_id;
-
-
                 }
             }
             else{ //group already exists
@@ -49,18 +47,15 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
         else if(delim == '\0'){// token is now at the meta variable name
             if(prev_id == 0){ //Metadata variable is not part of any groups, set parent to ncid
                 if(( retval = nc_put_att_text(ncid,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
-
             }
             else{ // meta data part of group, use prev_id as parent id
                 if(( retval = nc_put_att_text(*prev_id,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
-
             }
         }
         token = strtok(NULL, "/|\0");
     }
     free(dup);
     return 0;
-
 }
 
 int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_num, char *meta_vars[],char *meta_vals[], char *output_path, char *log_path){
@@ -87,8 +82,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     /* Define the variable. */
     if ((retval = nc_def_var(ncid, "data", NC_INT, 2, dimids, &varid)))
     ERR(retval);
-
-
+    
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
         insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,&table);
@@ -104,7 +98,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     return 0;
 }
 
-int main(int argc, char *argv[]){
+//int main(int argc, char *argv[]){
 //    struct data *id;
 //    struct ht table;
 //    ht_setup(&table);
@@ -118,10 +112,10 @@ int main(int argc, char *argv[]){
 //    ht_showAll(&table);
 //
 //    return 0;
-
-    __uint8_t data[9] = {1,2,3,4,5,6,7,8,9};
-    char *metFields[] = {"GrpA/GrpB/GrpC|Var1","GrpA/GrpB/GrpD|Var2","GrpE|Var3"};
-    char *metaVals[] = {"Val1","Val2","Val3"};
-    conv_netCDF(data,3,3,3,metFields,metaVals,"/home/turkishdisko/test.nc","/home/turkishdisko/log.txt");
-    return 0;
-}
+//
+//    __uint8_t data[9] = {1,2,3,4,5,6,7,8,9};
+//    char *metFields[] = {"GrpA/GrpB/GrpC|Var1","GrpA/GrpB/GrpD|Var2","GrpE|Var3"};
+//    char *metaVals[] = {"Val1","Val2","Val3"};
+//    conv_netCDF(data,3,3,3,metFields,metaVals,"/home/turkishdisko/test.nc","/home/turkishdisko/log.txt");
+//    return 0;
+//}
