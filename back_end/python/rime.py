@@ -75,7 +75,7 @@ def create_output_dir(dirPath):
 
 def resolution_reshape(array, x, y):
     validate.validate_np_array(array)
-    array = np.reshape(array, (x,y))
+    # array = np.reshape(array, (x,y))
 
     return array
 

@@ -7,14 +7,14 @@
 
 #define ERRCODE 2
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e)); exit(ERRCODE);}
-#define maxChars 100
+#define maxChars 100000
 
 /* compile with gcc -lm -lnetcdf
  *
  */
 int counter = 1;
 int checkGroup(char *match, char *arr[]) {
-    for(int i = 0; i < 100; i++) {
+    for(int i = 0; i < maxChars; i++) {
         if(strcmp(match, arr[i]) == 0) {
             return i;
         }
@@ -22,7 +22,7 @@ int checkGroup(char *match, char *arr[]) {
     return 0;
 }
 
-int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,char *grp_names[100],int grp_ids[100]){
+int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,char *grp_names[maxChars],int grp_ids[maxChars]){
     char *token;
     char *string = strdup(meta_vars);
     char *dup = strdup(string);
@@ -88,10 +88,10 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     size_t chunks[2];
     int shuffle, deflate, deflate_level;
     int dimids[2];
-    char *groups[100];
-    int *grp_ids = malloc(sizeof(int)*100);
+    char *groups[maxChars];
+    int *grp_ids = malloc(sizeof(int)*maxChars);
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < maxChars; i++){
         groups[i] ="";
     }
 
@@ -124,6 +124,7 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     if ((retval = nc_close(ncid)))
     ERR(retval);
 
+    free(grp_ids);
     return 0;
 }
 
