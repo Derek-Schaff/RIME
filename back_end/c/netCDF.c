@@ -4,10 +4,12 @@
 #include <netcdf.h>
 #include <stdint.h>
 #include "status_updater.h"
+#include "hash_table.h"
 
 #define ERRCODE 2
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e)); exit(ERRCODE);}
 #define maxChars 100000
+
 
 /* compile with gcc -lm -lnetcdf
  *
@@ -128,10 +130,24 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     return 0;
 }
 
-//int main(int argc, char *argv[]){
+int main(int argc, char *argv[]){
+    struct data *id;
+    struct ht table;
+    ht_setup(&table);
+    ht_insert(&table,"GrpA");
+    ht_insert(&table,"GrpB");
+    id = ht_search(&table,"Grp");
+    if( id != NULL){
+        printf("in table id: %d\n",id->grp_id);
+    }
+    else{printf("Not in table\n");}
+    ht_showAll(&table);
+
+    return 0;
+
 //    __uint8_t data[9] = {1,2,3,4,5,6,7,8,9};
 //    char *metFields[] = {"GrpA/GrpB/GrpC|Var1","GrpA/GrpB/GrpD|Var2","GrpE|Var3"};
 //    char *metaVals[] = {"Val1","Val2","Val3"};
 //    conv_netCDF(data,3,3,3,metFields,metaVals,"/home/turkishdisko/test.nc","/home/turkishdisko/log.txt");
 //    return 0;
-//}
+}
