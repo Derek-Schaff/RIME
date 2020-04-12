@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netcdf.h>
+#include <stdint.h>
 #include "status_updater.h"
-#include "hash_table.h"
 
 #define ERRCODE 2
 #define ERR(e) {printf("Error: %s\n", nc_strerror(e)); exit(ERRCODE);}
@@ -12,76 +12,74 @@
 /* compile with gcc -lm -lnetcdf
  *
  */
+int counter = 1;
+int checkGroup(char *match, char *arr[]) {
+    for(int i = 0; i < 100; i++) {
+        if(strcmp(match, arr[i]) == 0) {
+            return i;
+        }
+    }
+    return 0;
+}
 
-
-
-int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,int *grp_offset,HashTable *groups){
+int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,char *grp_names[100],int grp_ids[100]){
     char *token;
     char *string = strdup(meta_vars);
     char *dup = strdup(string);
     char delim;
     int prev_id = 0;
     int temp_id;
+    int ret;
 
     token = strtok(string, "/|\0");
     while(token != NULL){
-        printf("is this working\n");
+        //printf("%s counter: %d\n",token, counter);
         delim = dup[token - string + strlen(token)];
         if(delim == '/' || delim == '|'){
-            if(!ht_contains(groups,token)){ // group does not exist add it
+            ret = checkGroup(token,grp_names);
+            //printf("ret: %d counter: %d\n", ret, counter);
 
-                if(prev_id == 0){ //first group in the group dir
-                    printf("1 %d\n",prev_id);
-                    prev_id = ncid + *grp_offset++;
-                    ht_insert(groups,token,&prev_id);
-                    nc_def_grp(ncid,token,&prev_id);
-                    printf("group: %s\n",token);
+            if(ret == 0){ //group does not exist
+                if(prev_id == 0){ // first group in dir, set parent id to ncid
+                    prev_id = counter; //set new id for newly created group
+                    nc_def_grp(ncid,token,&grp_ids[prev_id]); //ncid is file id, prev_id is groups id
+                    //printf("1 %d\n",grp_ids[prev_id]);
+                    grp_names[counter++] = token; // add token to array of groups
+
+
                 }
-                else{
-                    printf("2 %d\n",prev_id);
-                    temp_id = prev_id;
-                    prev_id = ncid + *grp_offset++;
-                    printf("2x %d\n",prev_id);
-                    ht_insert(groups,token,&prev_id);
-                    nc_def_grp(temp_id,token,&prev_id);
-                    printf("group: %s\n",token);
+                else{ // not first group in dir/ set id to prev_id as set in previous loop
+                    prev_id = counter;
+                    nc_def_grp(grp_ids[prev_id-1],token,&grp_ids[prev_id]); // define group with previous id as parent id
+                    //printf("2 %d\n",grp_ids[prev_id]);
+                    grp_names[counter++] = token;
+
+
                 }
             }
             else{ //group already exists
-                if(prev_id == 0){ //first group in the group dir
-                    printf("3 %d\n",prev_id);
-                    prev_id = HT_LOOKUP_AS(int,groups,token);
-                    nc_def_grp(ncid,token,&prev_id);
-                    printf("group: %s\n",token);
-                }
-                else{
-                    printf("4 %d\n",prev_id);
-                    temp_id = prev_id;
-                    prev_id = ncid + *grp_offset++;
-                    nc_def_grp(temp_id,token,&prev_id);
-                    printf("group: %s\n",token);
-                }
+                prev_id = ret; // set prev_id to existing groups id
             }
         }
-        else if(delim == '\0'){
-            if(prev_id == 0){
-                printf("4 %d\n",prev_id);
+        else if(delim == '\0'){// token is now at the meta variable name
+            if(prev_id == 0){ //Metadata variable is not part of any groups, set parent to ncid
+                //printf("1\n");
                 if(( retval = nc_put_att_text(ncid,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
-                printf("var: %s value: %s\n",token,meta_vals);
+
             }
-            else{
-                printf("5 %d\n",prev_id);
-                //insert attribute with prev_id as ncid
-                printf("var id: %d\n",varid);
-                if(( retval = nc_put_att_text(prev_id,varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
-                printf("var: %s value: %s\n",token,meta_vals);
+            else{ // meta data part of group, use prev_id as parent id
+                int x = (uintptr_t)&grp_ids[prev_id];
+                //printf("2\n");
+                if(( retval = nc_put_att_text(grp_ids[prev_id],varid,token,strlen(meta_vals),meta_vals))) ERR(retval);
+
             }
         }
         token = strtok(NULL, "/|\0");
-
-    };
+    }
     free(dup);
     return 0;
+
+
 }
 
 int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_num, char *meta_vars[],char *meta_vals[], char *output_path, char *log_path){
@@ -90,11 +88,12 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     size_t chunks[2];
     int shuffle, deflate, deflate_level;
     int dimids[2];
-    int grp_offset = 1;
-    HashTable groups;
+    char *groups[100];
+    int *grp_ids = malloc(sizeof(int)*100);
 
-    ht_setup(&groups, sizeof(char)*maxChars, sizeof(int), sizeof(*meta_vars)/sizeof(char)*maxChars);
-    ht_reserve(&groups,maxChars);
+    for(int i = 0; i < 100; i++){
+        groups[i] ="";
+    }
 
 
     if ((retval = nc_create(output_path, NC_NETCDF4, &ncid)))
@@ -114,10 +113,9 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     ERR(retval);
 
 
-    varid = varid;
     /*insert meta data*/
     for(int i = 0; i < meta_num; i++){
-        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,&grp_offset,&groups);
+        insert_meta(meta_vars[i],meta_vals[i],ncid,NC_GLOBAL,retval,groups,grp_ids);
     }
 
     if ((retval = nc_put_var_ubyte(ncid, varid, &data[0])))
@@ -130,7 +128,9 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
 }
 
 //int main(int argc, char *argv[]){
-//
-//
+//    __uint8_t data[9] = {1,2,3,4,5,6,7,8,9};
+//    char *metFields[] = {"GrpA/GrpB/GrpC|Var1","GrpA/GrpB/GrpD|Var2","GrpE|Var3"};
+//    char *metaVals[] = {"Val1","Val2","Val3"};
+//    conv_netCDF(data,3,3,3,metFields,metaVals,"/home/turkishdisko/test.nc","/home/turkishdisko/log.txt");
 //    return 0;
 //}
