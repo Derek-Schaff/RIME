@@ -41,7 +41,7 @@ struct data *ht_search(struct ht *table,const char *grp_name){
     return NULL;
 }
 
-void ht_insert(struct ht *table,char *grp_name){
+struct data *ht_insert(struct ht *table,char *grp_name){
     struct data *item = (struct data*) malloc(sizeof(struct data));
     item->grp_name = grp_name;
     item->grp_id = malloc(sizeof(int));
@@ -53,9 +53,17 @@ void ht_insert(struct ht *table,char *grp_name){
         hashIndex %= SIZE;
     }
     table->hashArr[hashIndex] = item;
+    return item;
 }
 
-
+void ht_clean_up(struct ht *table){
+    for(int i = 0; i < SIZE; i++){
+        if(table->hashArr[i] != NULL){
+            free(table->hashArr[i]->grp_id);
+        }
+        free(table->hashArr[i]);
+    }
+}
 
 void ht_showAll(struct ht *table){
     for(int i = 0; i < SIZE; i++){
