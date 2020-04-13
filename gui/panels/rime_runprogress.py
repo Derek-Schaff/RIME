@@ -46,7 +46,7 @@ class RunProgressWidget(QtWidgets.QWidget):
 
         self.cancelButton.clicked.connect(self.cancelButtonClick)
         # metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll
-        rime = self.manager.getInstance().rimeAccess
+        # rime = self.manager.getInstance().rimeAccess
         
         '''
         print(Manager.getInstance().run_params['binary_path'])
@@ -60,10 +60,10 @@ class RunProgressWidget(QtWidgets.QWidget):
           rime.convert_to_hdf5(bin, ripDic, metadataDic, Manager.getInstance().run_params['output_path'], "test_1")
         '''
         self.manager.getInstance().connectOutput(self.updateProgressBox)
-        args = self.manager.run_params
-        rime.run_rime(args['metadata_path'], args['rip_path'], args['output_path'], args['output_stopwarnings'], 
-                      args['output_netcdf4'], args['output_hdf5'], args['output_geotiff'], args['output_filehash'], 
-                      False, False, False, args['output_compress'], args['binary_path'])
+        # args = self.manager.run_params
+        # rime.run_rime(args['metadata_path'], args['rip_path'], args['output_path'], args['output_stopwarnings'],
+        #               args['output_netcdf4'], args['output_hdf5'], args['output_geotiff'], args['output_option_filehash'],
+        #               False, False, False, args['output_compress'], args['binary_path'])
         
         #self.fakeProgressTimer = QtCore.QTimer(self)
         #self.fakeProgressTimer.setSingleShot(False)
@@ -109,3 +109,11 @@ class RunProgressWidget(QtWidgets.QWidget):
         self.manager.getInstance().removeOutput(self.updateProgressBox)
         
         return super().closeEvent(event)
+
+    def startRime(self):
+        rime = self.manager.getInstance().rimeAccess
+        args = self.manager.run_params
+        rime.run_rime(args['metadata_path'], args['rip_path'], args['output_path'], args['output_stopwarnings'],
+                      args['output_netcdf4'], args['output_hdf5'], args['output_geotiff'],
+                      args['output_option_filehash'],
+                      False, False, False, args['output_compress'], args['binary_path'])

@@ -36,8 +36,8 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.outputPageOptionLabel = QtWidgets.QLabel("Output options:")
         self.outputPageOptionSpacer = QtWidgets.QSpacerItem(5, 30, QtWidgets.QSizePolicy.Expanding)
 
-        self.outputPageOptionCheckSHA = QtWidgets.QCheckBox("Generate SHA256 Checksum")
-        self.outputPageOptionCheckSHA.setObjectName("outputPageOptionCheckSHA")
+        self.outputPageOptionCheckMD5 = QtWidgets.QCheckBox("Generate MD5 Checksum")
+        self.outputPageOptionCheckMD5.setObjectName("outputPageOptionCheckMD5")
 
         self.outputPageOptionCompress = QtWidgets.QCheckBox("Compress output")
         self.outputPageOptionCompress.setObjectName("outputPageOptionCompress")
@@ -49,7 +49,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.outputOptionsLayout = QtWidgets.QVBoxLayout()
         self.outputOptionsLayout.addWidget(self.outputPageOptionLabel)
         self.outputOptionsLayout.addSpacerItem(self.outputPageOptionSpacer)
-        self.outputOptionsLayout.addWidget(self.outputPageOptionCheckSHA)
+        self.outputOptionsLayout.addWidget(self.outputPageOptionCheckMD5)
         self.outputOptionsLayout.addWidget(self.outputPageOptionCompress)
         self.outputOptionsLayout.addWidget(self.outputPageOptionStop)
         self.outputOptionsLayout.setAlignment(QtCore.Qt.AlignTop)
@@ -130,7 +130,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.outputPageOutputNetCDF.stateChanged.connect(self.outputGroupClick)
         self.outputPageOutputGeoTIFF.stateChanged.connect(self.outputGroupClick)
 
-        self.outputPageOptionCheckSHA.stateChanged.connect(self.optionGroupClick)
+        self.outputPageOptionCheckMD5.stateChanged.connect(self.optionGroupClick)
         self.outputPageOptionStop.stateChanged.connect(self.optionGroupClick)
         self.outputPageOptionCompress.stateChanged.connect(self.optionGroupClick)
 
@@ -161,8 +161,8 @@ class OutputPanelWidget(QtWidgets.QWidget):
     def optionGroupClick(self, box):
         boxChecked = self.sender().text()
 
-        if boxChecked == "Generate SHA256 Checksum":
-            Manager.getInstance().run_params['output_option_filehash'] = self.outputPageOptionCheckSHA.isChecked()
+        if boxChecked == "Generate MD5 Checksum":
+            Manager.getInstance().run_params['output_option_filehash'] = self.outputPageOptionCheckMD5.isChecked()
         elif boxChecked == "Compress output":
             Manager.getInstance().run_params['output_option_compress'] = self.outputPageOptionCompress.isChecked()
         elif boxChecked == "Stop on warnings":

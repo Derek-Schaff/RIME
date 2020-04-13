@@ -13,6 +13,7 @@ from os import path
 import subprocess
 import back_end.python.fWatch as fWatch
 import back_end.python.statusUpdate as statusUpdate
+from back_end.python.checkSum import generate_chk_sum
 
 
 # this class will store data in a struct
@@ -151,7 +152,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     catalogPath = ripDic["FT_INPUT_CATALOG_FT_PATH"]
     datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
     logPath = "%s/log.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
-
+    print(logPath)
     if not catalogPath:
         binDir = ripDic["FT_BINARY_ROOT_DIR"]
     else:
@@ -162,7 +163,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     numBins = len(binList)
 
     # open logfile
-    with open("/home/turkishdisko/RIME/back_end/python/test/log/log.txt", "w+") as logFile:
+    with open(os.getcwd() + "/back_end/python/test/log/log.txt", "w+") as logFile:
         for currentBinNum, binFile in enumerate(binList):
             validate.validate_binary_file(binFile)
             print("file: %s" % binFile)
@@ -177,7 +178,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 if not validate.validate_dir(hdfOutputDir):
                     create_output_dir(hdfOutputDir)
 
-                start = time.clock()
+                start = time.time()
                 hdfFile = convert.create(hdfOutputFile, binData, ripDic, metadataDic, "HDF5")
                 h5py.is_hdf5(hdfFile.filename) #TODO: Make this a validate method
                 hdfFile.close()
@@ -195,7 +196,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                     create_output_dir(gtifOutputDir)
 
                 GTIFFOutput = ("%s/GEOTIFF/%s.gtif" % (outputPath, binBaseName))
-                start = time.clock()
+                start = time.time()
                 GTIFF = convert.create(GTIFFOutput, binData, ripDic, metadataDic, "GEOTIFF")
                 end = time.time()
 
@@ -217,8 +218,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 end = time.time()
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
-                #update_status(updateString) # there is the statusUpdate.py method that works with the c code as well
-                                            # we should discuss using that
+                #update_status(updateString)
 
 
         if tarAll:
@@ -232,8 +232,29 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 None
 
         if checksum:
-            None
-            #checksum stuff
+            checkFile = open(outputPath+"/check_sums.txt", 'w+')
+
+            if geotiff:
+                checkFile.write("--geotiff checksums--\n\n")
+                for filename in os.listdir(gtifOutputDir):
+                    checkFile.write(filename + ": " + generate_chk_sum(gtifOutputDir + "/" + filename) + "\n")
+                checkFile.write("\n")
+
+            if hdf5:
+                checkFile.write("--hdf5 checksums--\n\n")
+                for filename in os.listdir(hdfOutputDir):
+                    checkFile.write(filename + ": " + generate_chk_sum(hdfOutputDir + "/" + filename) + "\n")
+                checkFile.write("\n")
+            if netcdf4:
+                checkFile.write("--netcdf4 checksums--\n\n")
+                for filename in os.listdir(ncdfOutputDir):
+                    checkFile.write(filename + ": " + generate_chk_sum(ncdfOutputDir + "/" + filename) + "\n")
+                checkFile.write("\n")
+
+                checkFile.close()
+
+
+
 
 
 def convert_to_hdf5(bin, ripDicPath, metaDicPath, outputPath, outputName):

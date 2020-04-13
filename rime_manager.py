@@ -31,7 +31,7 @@ class Manager:
     run_params['output_hdf5'] = False
     run_params['output_netcdf4'] = False
     run_params['output_geotiff'] = False
-    run_params['output_filehash'] = False
+    run_params['output_option_filehash'] = False
     run_params['output_compress'] = False
     run_params['output_stopwarnings'] = False
     run_params['output_option_filehash'] = False

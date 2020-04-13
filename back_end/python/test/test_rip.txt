@@ -61,7 +61,7 @@ FT_SESSION_CPU_REQUESTED    = 6
 FT_GEOTIFF_SEED_PATH = ./SEED_FT_V4.tif
 
 # Root path for task-level log files, REMEMBER: thisis distinct from the master session log
-FT_OUTPUT_LOG_DIR    = ./log
+FT_OUTPUT_LOG_DIR    = /home/turkishdisko/RIME/back_end/python/test/log
 
 FT_SESSION_COMPRESS_LEVEL = 4
 
