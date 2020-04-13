@@ -251,7 +251,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                     checkFile.write(filename + ": " + generate_chk_sum(ncdfOutputDir + "/" + filename) + "\n")
                 checkFile.write("\n")
 
-                checkFile.close()
+            checkFile.close()
 
 
 
