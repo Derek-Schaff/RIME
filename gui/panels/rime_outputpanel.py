@@ -162,11 +162,11 @@ class OutputPanelWidget(QtWidgets.QWidget):
         boxChecked = self.sender().text()
 
         if boxChecked == "Generate SHA256 Checksum":
-            Manager.getInstance().run_params['output_option_filehash'] = self.outputPageOptionCheckSHA.isChecked()
+            Manager.getInstance().run_params['output_filehash'] = self.outputPageOptionCheckSHA.isChecked()
         elif boxChecked == "Compress output":
-            Manager.getInstance().run_params['output_option_compress'] = self.outputPageOptionCompress.isChecked()
+            Manager.getInstance().run_params['output_compress'] = self.outputPageOptionCompress.isChecked()
         elif boxChecked == "Stop on warnings":
-            Manager.getInstance().run_params['output_option_stopwarn'] = self.outputPageOptionStop.isChecked()
+            Manager.getInstance().run_params['output_stopwarn'] = self.outputPageOptionStop.isChecked()
 
     def logFileChange(self):
         if self.outputLogFileButtonGroup.checkedId() == 2:
