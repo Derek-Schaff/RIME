@@ -3,18 +3,6 @@
 #include <stdlib.h>
 #include "hash_table.h"
 
-//#define SIZE  100
-//
-//typedef struct ht{
-//    struct data* hashArr[SIZE];
-//}ht;
-//
-//struct data{
-//    char *grp_name;
-//    int *grp_id;
-//};
-//
-//
 void ht_setup(struct ht *table){
     for(int i = 0; i < SIZE; i++){
         table->hashArr[i] = NULL;
@@ -22,11 +10,10 @@ void ht_setup(struct ht *table){
 }
 
 int ht_hash(struct ht *table, char const *input){
-    int result = 31;
+    unsigned int result = 31;
     for(int i = 0; i <strlen(input); i++){
         result = result*37 + input[i];
     }
-
     return result % SIZE;
 }
 

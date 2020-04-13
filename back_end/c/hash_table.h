@@ -5,7 +5,7 @@
 #ifndef RIME_HASH_TABLE_H
 #define RIME_HASH_TABLE_H
 
-#define SIZE  1000
+#define SIZE  269
 
 typedef struct ht{
     struct data* hashArr[SIZE];

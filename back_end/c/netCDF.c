@@ -20,15 +20,12 @@ int insert_meta(char *meta_vars,char *meta_vals, int ncid,int varid, int retval,
     int *prev_id = 0;
     int temp_id;
     struct data *ret;
-
     token = strtok(string, "/|\0");
     while(token != NULL){
-        //printf("%s counter: %d\n",token, counter);
         delim = dup[token - string + strlen(token)];
         if(delim == '/' || delim == '|'){
             ret = ht_search(table,token);
-
-            if(ret == 0){ //group does not exist
+            if(ret == NULL){ //group does not exist
                 ret = ht_insert(table,token); //create group
 
                 if(prev_id == 0){ // first group in dir, set parent id to ncid
@@ -66,7 +63,6 @@ int conv_netCDF(__uint8_t *data,int data_set_rows, int data_set_cols,int meta_nu
     int dimids[2];
     struct ht table;
     ht_setup(&table);
-
     if ((retval = nc_create(output_path, NC_NETCDF4, &ncid)))
         ERR(retval);
 
