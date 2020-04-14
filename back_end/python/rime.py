@@ -139,6 +139,7 @@ def build_bin_list(binDir):
     return binList
 
 
+
 def update_status(updateString, log, currentFileNum, totalFileNum):
     print(updateString);
     log.write(updateString)
