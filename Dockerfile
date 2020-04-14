@@ -6,7 +6,8 @@ FROM theshadowx/qt5:18.04
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     apt-utils gcc g++ openssh-server cmake build-essential gdb gdbserver rsync vim \
-    libglu1-mesa-dev python3-pip libfontconfig libxrender1 ca-certificates
+    libglu1-mesa-dev python3-pip libfontconfig libxrender1 ca-certificates  libudunits2-0 \
+    libnetcdf-dev libnetcdff-dev
 
 RUN add-apt-repository ppa:ubuntugis/ubuntugis-unstable && apt-get install -y \
     gdal-bin python3-gdal
@@ -44,6 +45,8 @@ RUN echo 'debugger:pwd' | chpasswd
 ########################################################
 
 RUN pip3 install PySide2 numpy h5py GDAL
+
+RUN cp /usr/lib/x86_64-linux-gnu/libnetcdf.so /lib/x86_64-linux-gnu/libnetcdf.so.15
 
 CMD ["/bin/bash"]
 #CMD ["/usr/sbin/sshd", "-D"]
