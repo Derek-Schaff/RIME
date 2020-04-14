@@ -92,6 +92,7 @@ def parse_rip(filePath):
                 line = line.strip()
                 # skip empty lines
                 if line:
+                    # line structure should be key = value, so we split on '=' and set dict[key] = value
                     splitLine = line.split('=')
                     ripDic[splitLine[0].strip()] = splitLine[1].strip()
 
@@ -169,6 +170,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
             print("file: %s" % binFile)
             binData = resolution_reshape(load_binary(binFile, datatype), x, y)
             binBaseName = path.basename(binFile)
+            validateCFInterval = 50
 
             if hdf5:
                 hdfOutputDir = "%s/HDF5" % outputPath
@@ -217,19 +219,64 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
 
+                validate.validate_cf_conventions(ncdfOutput)
+
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
                 #update_status(updateString)
 
+            # The CF metadata validation package we use only works on NetCDF4 files, so to check metadata validity in
+            # cases where we aren't creating
+            elif currentBinNum % validateCFInterval == 0:
+                tempDir = "%s/temp" % outputPath
+                if not validate.validate_dir(tempDir):
+                    create_output_dir(tempDir)
+
+                ncdfOutput = ("%s/temp/temp.nc")
+                start = time.time()
+                ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
+                end = time.time()
+
+                validate.validate_cf_conventions(ncdfOutput)
+
+        # remove temporary netCDF4 CF metadata validation dir
+        if not netcdf4:
+            command = "rm -rf $s/temp" % outputPath
+            subprocess.check_output(command.split())
 
         if tarAll:
-            None
+            try:
+                outputName = os.path.name(outputPath)
+                command = "tar -czf %s.archive %s" % (outputName, outputPath)
+                subprocess.check_output(command.split())
+            except subprocess.CalledProcessError as e:
+                print("Unable to tar $s: $s") % (outputPath, e.output)
+
         else:
             if tarNet:
-                None
+                try:
+                    dirPath = "%s/NETCDF4"
+                    dirName = os.path.name(dirPath)
+                    command = "tar -czf %s.archive %s" % (dirName, dirPath)
+                    subprocess.check_output(command.split())
+                except subprocess.CalledProcessError as e:
+                    print("Unable to tar $s: $s") % (dirPath, e.output)
+
             if tarGeo:
-                None
+                try:
+                    dirPath = "%s/GEOTIFF"
+                    dirName = os.path.name(dirPath)
+                    command = "tar -czf %s.archive %s" % (dirName, dirPath)
+                    subprocess.check_output(command.split())
+                except subprocess.CalledProcessError as e:
+                    print("Unable to tar $s: $s") % (dirPath, e.output)
             if tarHdf:
-                None
+                try:
+                    dirPath = "%s/HDF5"
+                    dirName = os.path.name(dirPath)
+                    command = "tar -czf %s.archive %s" % (dirName, dirPath)
+                    subprocess.check_output(command.split())
+                except subprocess.CalledProcessError as e:
+                    print("Unable to tar $s: $s") % (dirPath, e.output)
 
         if checksum:
             checkFile = open(outputPath+"/check_sums.txt", 'w+')
