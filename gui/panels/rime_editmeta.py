@@ -17,6 +17,7 @@ class MetaDataEditWidget(QtWidgets.QWidget):
         self.metaTable = QtWidgets.QTableWidget(0, 2)
         self.metaTable.setColumnWidth(0, 250)
         self.metaTable.setColumnWidth(1, 200)
+        self.metaTable.setItemDelegateForColumn(0, MyDelegate())
         self.metaTable.setHorizontalHeaderItem(0, QTableWidgetItem("Name"))
         self.metaTable.setHorizontalHeaderItem(1, QTableWidgetItem("Value"))
         self.layout.addWidget(self.metaTable)
@@ -41,3 +42,9 @@ class MetaDataEditWidget(QtWidgets.QWidget):
 
     def dataUpdate(self, item):
         updateMetaData.update(self.path, self.metaTable.item(item.row(), 0).text(), self.metaTable.item(item.row(), 1).text())
+
+
+class MyDelegate(QtWidgets.QItemDelegate):
+
+    def createEditor(self, *args):
+        return None

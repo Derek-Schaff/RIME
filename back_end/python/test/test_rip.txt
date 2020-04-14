@@ -61,7 +61,7 @@ FT_SESSION_CPU_REQUESTED    = 6
 FT_GEOTIFF_SEED_PATH = ./SEED_FT_V4.tif
 
 # Root path for task-level log files, REMEMBER: thisis distinct from the master session log
-FT_OUTPUT_LOG_DIR    = /home/turkishdisko/RIME/back_end/python/test/log
+FT_OUTPUT_LOG_DIR     = 
 
 FT_SESSION_COMPRESS_LEVEL = 4
 
@@ -71,7 +71,7 @@ FT_SESSION_ENABLE_ISO_METADATA = True
 # Remember: If FT_SESSION_RANDOM_SAMPLE is 0, then ALL catalog entries
 #   are processed. If >0, then a random sample of this many entries are
 #   randomly chosen from the full list. Useful for abbreviating the test cycles.
-FT_SESSION_RANDOM_SAMPLE  = 0
+FT_SESSION_RANDOM_SAMPLE   = 0
 
 # Define start and ending year for this ESDR (duration)
 FT_SESSION_ESDR_STARTYEAR = 2017
