@@ -37,7 +37,7 @@ class WriteStreamThread(QtCore.QThread):
             try:
                 msg = self.queue.get(block=False)
             except:
-                self.sleep(0.2)   # if commented out, app crashes            
+                self.sleep(1)   # if commented out, app crashes            
             if(msg):
                 self.queue_updated.emit(msg)
         self.finished.emit()
