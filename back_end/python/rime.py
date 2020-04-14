@@ -74,9 +74,13 @@ def create_output_dir(dirPath):
 
     validate.validate_dir(dirPath)
 
+
 def resolution_reshape(array, x, y):
     validate.validate_np_array(array)
-    #array = np.reshape(array, (x,y))
+    try:
+        array = np.reshape(array, (x,y))
+    except ValueError as e:
+        print("Warning: dimensions of binary data don't match dimensions specified in metadata: %s" % e.output)
 
     return array
 
@@ -139,7 +143,7 @@ def build_bin_list(binDir):
     return binList
 
 
-def update_status(updateString, log, currentFileNum, totalFileNum):
+def update_status(updateString, log):
     print(updateString);
     log.write(updateString)
 
@@ -150,11 +154,10 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     times = np.array([])
     x = int(ripDic["FT_DATASET_ROWS"])
     y = int(ripDic["FT_DATASET_COLUMNS"])
-    catalogPath = ripDic["FT_INPUT_CATALOG_FT_PATH"]
     datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
     logPath = "%s/log.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
     print(logPath)
-    if not catalogPath:
+    if ripDic["FT_BINARY_ROOT_DIR"]:
         binDir = ripDic["FT_BINARY_ROOT_DIR"]
     else:
         binDir = binRoot
@@ -164,7 +167,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     numBins = len(binList)
 
     # open logfile
-    with open(os.getcwd() + "/back_end/python/test/log/log.txt", "w+") as logFile:
+    with open(logPath, "w+") as logFile:
         for currentBinNum, binFile in enumerate(binList):
             validate.validate_binary_file(binFile)
             print("file: %s" % binFile)
@@ -219,10 +222,10 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
 
-                #validate.validate_cf_conventions(ncdfOutput)
+                validate.validate_cf_conventions(ncdfOutput)
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
-                #update_status(updateString)
+                update_status(updateString)
 
             # The CF metadata validation package we use only works on NetCDF4 files, so to check metadata validity in
             # cases where we aren't creating
@@ -236,11 +239,11 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
 
-                #validate.validate_cf_conventions(ncdfOutput)
+                validate.validate_cf_conventions(ncdfOutput)
 
         # remove temporary netCDF4 CF metadata validation dir
         if not netcdf4:
-            command = "rm -rf $s/temp" % outputPath
+            command = "rm -rf %s/temp" % outputPath
             subprocess.check_output(command.split())
 
         if tarAll:
@@ -299,34 +302,6 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 checkFile.write("\n")
 
             checkFile.close()
-
-
-
-
-
-def convert_to_hdf5(bin, ripDicPath, metaDicPath, outputPath, outputName):
-    testOutput = 'output/hdf5'
-    if not path.isdir(testOutput):
-        command = "mkdir -p %s" % testOutput
-        subprocess.run(command.split())
-
-    #spoofPath = '%s/output%d.h5' % (testOutput, i)
-    if(outputPath[-1] == '/'):
-        outputPath = outputPath[0:-1]
-    
-    fullPath = '%s/%s.h5' % (outputPath, outputName)
-    start = time.time()
-    i = 1
-    print("Beginning conversion of bin%d.bin" % i)
-    test_hdf5 = convert.create(fullPath, bin, ripDicPath, metaDicPath, "HDF5")
-    test_hdf5.close()
-    end = time.time()
-    elapsed_time = end - start
-    #times = np.append(times, elapsed_time)
-    #mean_time = times.mean()
-    #difference = 9 - i
-    #eta = mean_time * difference
-    print("bin%d.bin conversion to HDF5 complete. Total time elapsed: %f seconds.\nRemaining conversion ETA: %f\n" % (i, elapsed_time, 0.00))
 
 
 if __name__ == "__main__":

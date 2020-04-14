@@ -83,7 +83,6 @@ FT_SESSION_ESDR_ENDYEAR   = 2017
 FT_INPUT_ANCHOR_DIR       = /anx_v1/pr/yk/FT_status/v04
 # Note: for a GeoTIFF generation run, the catalog required is the one
 # that enumerates the raw binary files.
-FT_INPUT_CATALOG_FT_PATH  = ./test_catalog.txt
 
 # NEW form of sessionMode specific nvps. These may now be left in
 # a common RIP file template since they don't conflict with each
@@ -213,3 +212,5 @@ FT_DATASET_LEGEND_QC_BIT_2  = LEG    0: Large Elevation Gradient less than or eq
 FT_DATASET_LEGEND_QC_BIT_3    =  PRECIP 0: NO Large precip event occurred this pixel/day; and 1: Large precip event DID OCCUR this pixel/day.
 
 # complete
+
+FT_BINARY_ROOT_DIR = backend/python/test/test_bins
