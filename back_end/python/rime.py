@@ -74,9 +74,13 @@ def create_output_dir(dirPath):
 
     validate.validate_dir(dirPath)
 
+
 def resolution_reshape(array, x, y):
     validate.validate_np_array(array)
-    #array = np.reshape(array, (x,y))
+    try:
+        array = np.reshape(array, (x,y))
+    except ValueError as e:
+        print("Warning: dimensions of binary data don't match dimensions specified in metadata: %s" % e.output)
 
     return array
 
@@ -139,7 +143,7 @@ def build_bin_list(binDir):
     return binList
 
 
-def update_status(updateString, log, currentFileNum, totalFileNum):
+def update_status(updateString, log):
     print(updateString);
     log.write(updateString)
 
@@ -240,6 +244,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
 
         # remove temporary netCDF4 CF metadata validation dir
         if not netcdf4:
+            update_status("Deleting temporary netCDF4 files used to check complicance with CF metadata convention...", logFile)
             command = "rm -rf $s/temp" % outputPath
             subprocess.check_output(command.split())
 
