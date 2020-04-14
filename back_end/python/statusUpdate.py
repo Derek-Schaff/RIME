@@ -19,7 +19,7 @@ def update_status(progress_window,updateMessage, logPath):
     logFile.close()
 
     # push to GUI)
-    progress_window.updateProgressBox(message)
+    #progress_window.updateProgressBox(message)
 
     # status_update = CDLL(os.path.dirname(__file__) + "/../c/status_updater.so")
     # status_update.statusUpdate.argtypes = [c_char_p, c_char_p]
