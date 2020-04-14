@@ -44,6 +44,8 @@ class RunProgressWidget(QtWidgets.QWidget):
 
         self.runProgressBar.setValue(0)
 
+
+
         self.cancelButton.clicked.connect(self.cancelButtonClick)
         # metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll
         # rime = self.manager.getInstance().rimeAccess
@@ -117,3 +119,5 @@ class RunProgressWidget(QtWidgets.QWidget):
                       args['output_netcdf4'], args['output_hdf5'], args['output_geotiff'],
                       args['output_option_filehash'],
                       False, False, False, args['output_compress'], args['binary_path'])
+    def updateProgBar(self,completed,total):
+        self.runProgressBar.setValue(completed/total)

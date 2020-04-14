@@ -74,13 +74,9 @@ def create_output_dir(dirPath):
 
     validate.validate_dir(dirPath)
 
-
 def resolution_reshape(array, x, y):
     validate.validate_np_array(array)
-    try:
-        array = np.reshape(array, (x,y))
-    except ValueError as e:
-        print("Warning: dimensions of binary data don't match dimensions specified in metadata: %s" % e.output)
+    #array = np.reshape(array, (x,y))
 
     return array
 
@@ -143,7 +139,7 @@ def build_bin_list(binDir):
     return binList
 
 
-def update_status(updateString, log):
+def update_status(updateString, log, currentFileNum, totalFileNum):
     print(updateString);
     log.write(updateString)
 
@@ -223,7 +219,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
 
-                validate.validate_cf_conventions(ncdfOutput)
+                #validate.validate_cf_conventions(ncdfOutput)
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
                 #update_status(updateString)
@@ -240,11 +236,10 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
 
-                validate.validate_cf_conventions(ncdfOutput)
+                #validate.validate_cf_conventions(ncdfOutput)
 
         # remove temporary netCDF4 CF metadata validation dir
         if not netcdf4:
-            update_status("Deleting temporary netCDF4 files used to check complicance with CF metadata convention...", logFile)
             command = "rm -rf $s/temp" % outputPath
             subprocess.check_output(command.split())
 
