@@ -4,7 +4,7 @@ import time
 from gui.panels.rime_runprogress import RunProgressWidget
 
 
-def update_status(progress_window,updateMessage, logPath):
+def update_status(updateMessage, logPath):
     if (updateMessage == None):
         print("No message passed")
         return
