@@ -219,7 +219,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
 
-                validate.validate_cf_conventions(ncdfOutput)
+                #validate.validate_cf_conventions(ncdfOutput)
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
                 #update_status(updateString)
@@ -236,7 +236,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
 
-                validate.validate_cf_conventions(ncdfOutput)
+                #validate.validate_cf_conventions(ncdfOutput)
 
         # remove temporary netCDF4 CF metadata validation dir
         if not netcdf4:
