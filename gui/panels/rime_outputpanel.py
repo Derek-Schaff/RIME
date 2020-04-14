@@ -36,7 +36,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.outputPageOptionLabel = QtWidgets.QLabel("Output options:")
         self.outputPageOptionSpacer = QtWidgets.QSpacerItem(5, 30, QtWidgets.QSizePolicy.Expanding)
 
-        self.outputPageOptionCheckSHA = QtWidgets.QCheckBox("Generate SHA256 Checksum")
+        self.outputPageOptionCheckSHA = QtWidgets.QCheckBox("Generate MD5 Checksum")
         self.outputPageOptionCheckSHA.setObjectName("outputPageOptionCheckSHA")
 
         self.outputPageOptionCompress = QtWidgets.QCheckBox("Compress output")
