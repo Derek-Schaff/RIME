@@ -31,14 +31,14 @@ To allow us to run the script which will install all of the needed software (Doc
 
 Run the script which will build the Docker image, putting all of the needed dependencies inside of a container:
 
-`./docker-build.sh`
+`./docker-build-dev.sh`
 
 ### Step 5
 **Start RIME**
 
 Finally, start the command line interface of RIME by typing:
 
-`./rime-cli.sh`
+`./rime.sh`
 
 This will give you the usage parameters needed to run RIME.
 
