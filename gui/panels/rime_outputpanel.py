@@ -161,7 +161,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
     def optionGroupClick(self, box):
         boxChecked = self.sender().text()
 
-        if boxChecked == "Generate SHA256 Checksum":
+        if boxChecked == "Generate MD5 Checksum":
             Manager.getInstance().run_params['output_option_filehash'] = self.outputPageOptionCheckSHA.isChecked()
         elif boxChecked == "Compress output":
             Manager.getInstance().run_params['output_option_compress'] = self.outputPageOptionCompress.isChecked()

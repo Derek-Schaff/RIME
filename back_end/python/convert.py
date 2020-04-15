@@ -1,7 +1,7 @@
 import h5py
 from osgeo import gdal, osr, gdal_array
 import numpy as np
-import validate
+import back_end.python.validate
 from ctypes import *
 import os
 
@@ -25,7 +25,7 @@ def get_creator(format):
 
 def _create_hdf5(filePath, binary, ripDic, metadataDict):
     # check that binary is a np array
-    validate.validate_np_array(binary)
+    back_end.python.validate.validate_np_array(binary)
 
     # use mode 'w' for write access
     file = h5py.File(filePath, "w")
