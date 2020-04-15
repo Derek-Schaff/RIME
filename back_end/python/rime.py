@@ -247,7 +247,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
 
     if tarAll:
         try:
-            outputName = os.path.name(outputPath)
+            outputName = os.path.basename(outputPath)
             command = "tar -czf %s.archive %s" % (outputName, outputPath)
             subprocess.check_output(command.split())
             statusUpdate.update_status("compressing all files", temp_logPath)

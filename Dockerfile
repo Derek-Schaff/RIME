@@ -44,7 +44,7 @@ RUN echo 'debugger:pwd' | chpasswd
 # More C/Python Libraries go after here (eg. HDF5 libraries)
 ########################################################
 
-RUN pip3 install PySide2 numpy h5py GDAL
+RUN pip3 install PySide2 numpy==1.18 h5py GDAL cfchecker
 
 RUN cp /usr/lib/x86_64-linux-gnu/libnetcdf.so /lib/x86_64-linux-gnu/libnetcdf.so.15
 
