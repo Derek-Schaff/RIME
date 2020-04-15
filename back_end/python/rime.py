@@ -72,11 +72,11 @@ def create_output_dir(dirPath):
     command = "mkdir %s" % dirPath
     subprocess.run(command.split())
 
-    back_end.python.validate.validate_dir(dirPath)
+    validate.validate_dir(dirPath)
 
 
 def resolution_reshape(array, x, y):
-    back_end.python.validate.validate_np_array(array)
+    validate.validate_np_array(array)
     try:
         array = np.reshape(array, (x,y))
     except ValueError as e:
@@ -137,7 +137,7 @@ def build_bin_list(binDir):
         for file in files:
             if file.endswith(".bin"):
                 binPath = os.path.join(root, file)
-                back_end.python.validate.validate_binary_file(binPath)
+                validate.validate_binary_file(binPath)
                 binList.append(binPath)
 
     return binList
@@ -156,7 +156,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
     logPath = "%s/log.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
     if ripDic["FT_BINARY_ROOT_DIR"]:
-        binDir = binRoot #ripDic["FT_BINARY_ROOT_DIR"]
+        binDir = ripDic["FT_BINARY_ROOT_DIR"]
     else:
         binDir = binRoot
 
