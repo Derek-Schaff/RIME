@@ -61,7 +61,7 @@ FT_SESSION_CPU_REQUESTED    = 6
 FT_GEOTIFF_SEED_PATH = ./SEED_FT_V4.tif
 
 # Root path for task-level log files, REMEMBER: thisis distinct from the master session log
-FT_OUTPUT_LOG_DIR     = 
+FT_OUTPUT_LOG_DIR     = output/
 
 FT_SESSION_COMPRESS_LEVEL = 4
 
@@ -213,4 +213,4 @@ FT_DATASET_LEGEND_QC_BIT_3    =  PRECIP 0: NO Large precip event occurred this p
 
 # complete
 
-FT_BINARY_ROOT_DIR = backend/python/test/test_bins
+FT_BINARY_ROOT_DIR = test/test_bins

@@ -144,7 +144,7 @@ def build_bin_list(binDir):
 
 
 def update_status(updateString, log):
-    print(updateString);
+    print(updateString)
     log.write(updateString)
 
 
@@ -170,9 +170,10 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     with open(logPath, "w+") as logFile:
         for currentBinNum, binFile in enumerate(binList):
             validate.validate_binary_file(binFile)
-            print("file: %s" % binFile)
+            update_status("Current file: %s\nFile Number: %d / %d" % (binFile, currentBinNum, numBins), logFile)
+
             binData = resolution_reshape(load_binary(binFile, datatype), x, y)
-            binBaseName = path.basename(binFile)
+            binBaseName = path.basename(os.path.splitext(binFile)[0])
             validateCFInterval = 50
 
             if hdf5:
@@ -190,7 +191,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 end = time.time()
 
                 updateString = "%s HDF5 conversion time: %f" % (binFile, end - start)
-                update_status(updateString, logFile, currentBinNum, numBins)
+                update_status(updateString, logFile)
 
             if geotiff:
                 gtifOutputDir = "%s/GEOTIFF" % outputPath
@@ -206,7 +207,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 end = time.time()
 
                 updateString = "%s GEOTIFF conversion time: %f" % (binFile, end - start)
-                update_status(updateString)
+                update_status(updateString, logFile)
 
             if netcdf4:
 
@@ -225,7 +226,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 validate.validate_cf_conventions(ncdfOutput)
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
-                update_status(updateString)
+                update_status(updateString, logFile)
 
             # The CF metadata validation package we use only works on NetCDF4 files, so to check metadata validity in
             # cases where we aren't creating
@@ -234,7 +235,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 if not validate.validate_dir(tempDir):
                     create_output_dir(tempDir)
 
-                ncdfOutput = ("%s/temp/temp.nc")
+                ncdfOutput = "%s/temp/temp.nc" % outputPath
                 start = time.time()
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
@@ -249,7 +250,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
         if tarAll:
             try:
                 outputName = os.path.name(outputPath)
-                command = "tar -czf %s.archive %s" % (outputName, outputPath)
+                command = "tar -czf %s.tgz %s" % (outputName, outputPath)
                 subprocess.check_output(command.split())
             except subprocess.CalledProcessError as e:
                 print("Unable to tar $s: $s") % (outputPath, e.output)
@@ -259,7 +260,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 try:
                     dirPath = "%s/NETCDF4"
                     dirName = os.path.name(dirPath)
-                    command = "tar -czf %s.archive %s" % (dirName, dirPath)
+                    command = "tar -czf %s.tgz %s" % (dirName, dirPath)
                     subprocess.check_output(command.split())
                 except subprocess.CalledProcessError as e:
                     print("Unable to tar $s: $s") % (dirPath, e.output)
@@ -268,7 +269,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 try:
                     dirPath = "%s/GEOTIFF"
                     dirName = os.path.name(dirPath)
-                    command = "tar -czf %s.archive %s" % (dirName, dirPath)
+                    command = "tar -czf %s.tgz %s" % (dirName, dirPath)
                     subprocess.check_output(command.split())
                 except subprocess.CalledProcessError as e:
                     print("Unable to tar $s: $s") % (dirPath, e.output)
@@ -276,7 +277,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 try:
                     dirPath = "%s/HDF5"
                     dirName = os.path.name(dirPath)
-                    command = "tar -czf %s.archive %s" % (dirName, dirPath)
+                    command = "tar -czf %s.tgz %s" % (dirName, dirPath)
                     subprocess.check_output(command.split())
                 except subprocess.CalledProcessError as e:
                     print("Unable to tar $s: $s") % (dirPath, e.output)
