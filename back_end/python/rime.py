@@ -156,7 +156,7 @@ def gen_checksum(filePath, outputPath, logFile):
 def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, schecksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
     metadataDic = parse_metadata(metadataPath)
     ripDic = parse_rip(ripPath)
-    times = np.array([])
+    times = []
     x = int(ripDic["FT_DATASET_ROWS"])
     y = int(ripDic["FT_DATASET_COLUMNS"])
     datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
@@ -196,6 +196,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 end = time.time()
 
                 updateString = "%s HDF5 conversion time: %f" % (binFile, end - start)
+                times.append([end-start])
                 update_status(updateString, logFile)
 
             if geotiff:
@@ -212,6 +213,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 end = time.time()
 
                 updateString = "%s GEOTIFF conversion time: %f" % (binFile, end - start)
+                times.append([end-start])
                 update_status(updateString, logFile)
 
             if netcdf4:
@@ -226,9 +228,10 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdfOutput = ("%s/NETCDF4/%s.nc" % (outputPath, binBaseName))
                 start = time.time()
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
+                times.append([end-start])
                 end = time.time()
 
-                validate.validate_cf_conventions(ncdfOutput)
+                #validate.validate_cf_conventions(ncdfOutput, logFile)
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
                 update_status(updateString, logFile)
@@ -245,9 +248,10 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
 
-                validate.validate_cf_conventions(ncdfOutput)
+                #validate.validate_cf_conventions(ncdfOutput, logFile)
 
             update_status("Conversions on file %s complete" % binBaseName, logFile)
+            update_status("Remaining conversions ETA: %d minutes" % (np.average(times) * (numBins - currentBinNum) / 60.0), logFile)
 
         update_status("All conversions complete!", logFile)
 
@@ -256,38 +260,11 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
             command = "rm -rf %s/temp" % outputPath
             subprocess.check_output(command.split())
 
-    if tarAll:
-        try:
-            outputName = os.path.basename(outputPath)
-            command = "tar -czf %s.tgz %s" % (outputName, outputPath)
-            update_status("Compressing all output files...", logFile)
-            subprocess.check_output(command.split())
-
-            if checksum:
-                gen_checksum("%s.tgz" % outputName, outputPath, logFile)
-
-        except subprocess.CalledProcessError as e:
-            print("Unable to tar %s: %s") % (outputPath, e.output)
-
-    else:
-        if tarGeo:
+        if tarAll:
             try:
                 outputName = os.path.basename(outputPath)
-                command = "tar -czf %s.tgz %s" % outputName
-                subprocess.check_output(command.split())
-                statusUpdate.update_status("compressing all GEOTIFF files", logFile)
-
-                if checksum:
-                    gen_checksum("%s.tgz" % outputName, outputPath, logFile)
-
-            except subprocess.CalledProcessError as e:
-                print("Unable to tar %s: %s") % (outputPath, e.output)
-
-        if tarHdf:
-            try:
-                outputName = os.path.basename(outputPath)
-                statusUpdate.update_status("compressing all HDF5 files", logFile)
                 command = "tar -czf %s.tgz %s" % (outputName, outputPath)
+                update_status("Compressing all output files...", logFile)
                 subprocess.check_output(command.split())
 
                 if checksum:
@@ -296,18 +273,45 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
             except subprocess.CalledProcessError as e:
                 print("Unable to tar %s: %s") % (outputPath, e.output)
 
-            if tarNet:
+        else:
+            if tarGeo:
                 try:
                     outputName = os.path.basename(outputPath)
-                    statusUpdate.update_status("compressing all NETCDF4 files", logFile)
                     command = "tar -czf %s.tgz %s" % outputName
+                    subprocess.check_output(command.split())
+                    statusUpdate.update_status("compressing all GEOTIFF files", logFile)
+
+                    if checksum:
+                        gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
+                except subprocess.CalledProcessError as e:
+                    print("Unable to tar %s: %s") % (outputPath, e.output)
+
+            if tarHdf:
+                try:
+                    outputName = os.path.basename(outputPath)
+                    statusUpdate.update_status("compressing all HDF5 files", logFile)
+                    command = "tar -czf %s.tgz %s" % (outputName, outputPath)
                     subprocess.check_output(command.split())
 
                     if checksum:
                         gen_checksum("%s.tgz" % outputName, outputPath, logFile)
 
                 except subprocess.CalledProcessError as e:
-                    print("Unable to tar %s: %s") % (outputName, e.output)
+                    print("Unable to tar %s: %s") % (outputPath, e.output)
+
+                if tarNet:
+                    try:
+                        outputName = os.path.basename(outputPath)
+                        statusUpdate.update_status("compressing all NETCDF4 files", logFile)
+                        command = "tar -czf %s.tgz %s" % outputName
+                        subprocess.check_output(command.split())
+
+                        if checksum:
+                            gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
+                    except subprocess.CalledProcessError as e:
+                        print("Unable to tar %s: %s") % (outputName, e.output)
 
     # if checksum:
     #     checkFile = open(outputPath + "/check_sums.txt", 'w+')
