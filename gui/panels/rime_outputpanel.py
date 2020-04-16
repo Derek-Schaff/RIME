@@ -36,11 +36,11 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.outputPageOptionLabel = QtWidgets.QLabel("Output options:")
         self.outputPageOptionSpacer = QtWidgets.QSpacerItem(5, 30, QtWidgets.QSizePolicy.Expanding)
 
-        self.outputPageOptionCheckSHA = QtWidgets.QCheckBox("Generate MD5 Checksum")
+        self.outputPageOptionCheckSHA = QtWidgets.QCheckBox("Compress and Generate checksum")
         self.outputPageOptionCheckSHA.setObjectName("outputPageOptionCheckSHA")
 
-        self.outputPageOptionCompress = QtWidgets.QCheckBox("Compress output")
-        self.outputPageOptionCompress.setObjectName("outputPageOptionCompress")
+        # self.outputPageOptionCompress = QtWidgets.QCheckBox("Compress output")
+        # self.outputPageOptionCompress.setObjectName("outputPageOptionCompress")
 
         self.outputPageOptionStop = QtWidgets.QCheckBox("Stop on warnings")
         self.outputPageOptionStop.setObjectName("outputPageOptionStop")
@@ -50,7 +50,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.outputOptionsLayout.addWidget(self.outputPageOptionLabel)
         self.outputOptionsLayout.addSpacerItem(self.outputPageOptionSpacer)
         self.outputOptionsLayout.addWidget(self.outputPageOptionCheckSHA)
-        self.outputOptionsLayout.addWidget(self.outputPageOptionCompress)
+        # self.outputOptionsLayout.addWidget(self.outputPageOptionCompress)
         self.outputOptionsLayout.addWidget(self.outputPageOptionStop)
         self.outputOptionsLayout.setAlignment(QtCore.Qt.AlignTop)
         self.outputOptionsGroup = QtWidgets.QGroupBox()
@@ -132,7 +132,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
 
         self.outputPageOptionCheckSHA.stateChanged.connect(self.optionGroupClick)
         self.outputPageOptionStop.stateChanged.connect(self.optionGroupClick)
-        self.outputPageOptionCompress.stateChanged.connect(self.optionGroupClick)
+        # self.outputPageOptionCompress.stateChanged.connect(self.optionGroupClick)
 
         self.outputLogfileBox.setEnabled(False)
         self.outputLogfileBoxButton.setEnabled(False)
@@ -161,10 +161,10 @@ class OutputPanelWidget(QtWidgets.QWidget):
     def optionGroupClick(self, box):
         boxChecked = self.sender().text()
 
-        if boxChecked == "Generate MD5 Checksum":
+        if boxChecked == "Compress and Generate checksum":
             Manager.getInstance().run_params['output_option_filehash'] = self.outputPageOptionCheckSHA.isChecked()
-        elif boxChecked == "Compress output":
-            Manager.getInstance().run_params['output_option_compress'] = self.outputPageOptionCompress.isChecked()
+        # elif boxChecked == "Compress output":
+        #     Manager.getInstance().run_params['output_option_compress'] = self.outputPageOptionCompress.isChecked()
         elif boxChecked == "Stop on warnings":
             Manager.getInstance().run_params['output_option_stopwarn'] = self.outputPageOptionStop.isChecked()
 

@@ -147,7 +147,13 @@ def update_status(updateString, log):
     print(updateString)
     log.write(updateString)
 
-def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
+def gen_checksum(filePath, outputPath, logFile):
+    update_status("Generating checksum for %s..." % filePath, logFile)
+    checkFile = open(outputPath + "/../check_sums.txt", 'a+')
+    checkFile.write(outputPath + ": " + generate_chk_sum(filePath) + "\n")
+    checkFile.close()
+
+def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, schecksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
     metadataDic = parse_metadata(metadataPath)
     ripDic = parse_rip(ripPath)
     times = np.array([])
@@ -164,9 +170,9 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     binList = build_bin_list(binDir)
     numBins = len(binList)
 
-
     # open logfile
-    with open(logPath, "w+") as logFile:
+    with open(logPath, "a+") as logFile:
+        update_status("Loading binary files....", logFile)
         for currentBinNum, binFile in enumerate(binList):
             validate.validate_binary_file(binFile)
             update_status("Current file: %s\nFile Number: %d / %d" % (binFile, currentBinNum, numBins), logFile)
@@ -196,7 +202,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 gtifOutputDir = "%s/GEOTIFF" % outputPath
                 gtifOutputFile = ("%s/%s.h5" % (gtifOutputDir, binBaseName))
 
-                # if output HDF5 dir doesn't exist, try to make it
+                # if output Geotiff dir doesn't exist, try to make it
                 if not validate.validate_dir(gtifOutputDir):
                     create_output_dir(gtifOutputDir)
 
@@ -241,101 +247,90 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
 
                 validate.validate_cf_conventions(ncdfOutput)
 
+            update_status("Conversions on file %s complete" % binBaseName, logFile)
+
+        update_status("All conversions complete!", logFile)
+
         # remove temporary netCDF4 CF metadata validation dir
         if not netcdf4:
             command = "rm -rf %s/temp" % outputPath
+            subprocess.check_output(command.split())
 
     if tarAll:
         try:
             outputName = os.path.basename(outputPath)
-            command = "tar -czf %s.archive %s" % (outputName, outputPath)
+            command = "tar -czf %s.tgz %s" % (outputName, outputPath)
+            update_status("Compressing all output files...", logFile)
             subprocess.check_output(command.split())
-            statusUpdate.update_status("compressing all files", temp_logPath)
+
+            if checksum:
+                gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
         except subprocess.CalledProcessError as e:
-            print("Unable to tar $s: $s") % (outputPath, e.output)
+            print("Unable to tar %s: %s") % (outputPath, e.output)
 
     else:
-        if tarNet:
-            try:
-                dirPath = "%s/NETCDF4"
-                dirName = os.path.name(dirPath)
-                command = "tar -czf %s.archive %s" % (dirName, dirPath)
-                subprocess.check_output(command.split())
-                statusUpdate.update_status("compressing all NETCDF4 files", temp_logPath)
-            except subprocess.CalledProcessError as e:
-                print("Unable to tar $s: $s") % (dirPath, e.output)
-
         if tarGeo:
             try:
-                dirPath = "%s/GEOTIFF"
-                dirName = os.path.name(dirPath)
-                command = "tar -czf %s.archive %s" % (dirName, dirPath)
+                outputName = os.path.basename(outputPath)
+                command = "tar -czf %s.tgz %s" % outputName
                 subprocess.check_output(command.split())
-                statusUpdate.update_status("compressing all GEOTIFF files", temp_logPath)
+                statusUpdate.update_status("compressing all GEOTIFF files", logFile)
+
+                if checksum:
+                    gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
             except subprocess.CalledProcessError as e:
-                print("Unable to tar $s: $s") % (dirPath, e.output)
+                print("Unable to tar %s: %s") % (outputPath, e.output)
+
         if tarHdf:
             try:
-                outputName = os.path.name(outputPath)
+                outputName = os.path.basename(outputPath)
+                statusUpdate.update_status("compressing all HDF5 files", logFile)
                 command = "tar -czf %s.tgz %s" % (outputName, outputPath)
-                dirPath = "%s/HDF5"
-                dirName = os.path.name(dirPath)
-                command = "tar -czf %s.archive %s" % (dirName, dirPath)
                 subprocess.check_output(command.split())
-                statusUpdate.update_status("compressing all HDF5 files", temp_logPath)
-            except subprocess.CalledProcessError as e:
-                print("Unable to tar $s: $s") % (outputPath, e.output)
 
-        else:
+                if checksum:
+                    gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
+            except subprocess.CalledProcessError as e:
+                print("Unable to tar %s: %s") % (outputPath, e.output)
+
             if tarNet:
                 try:
-                    dirPath = "%s/NETCDF4"
-                    dirName = os.path.name(dirPath)
-                    command = "tar -czf %s.tgz %s" % (dirName, dirPath)
+                    outputName = os.path.basename(outputPath)
+                    statusUpdate.update_status("compressing all NETCDF4 files", logFile)
+                    command = "tar -czf %s.tgz %s" % outputName
                     subprocess.check_output(command.split())
+
+                    if checksum:
+                        gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
                 except subprocess.CalledProcessError as e:
-                    print("Unable to tar $s: $s") % (dirPath, e.output)
+                    print("Unable to tar %s: %s") % (outputName, e.output)
 
-            if tarGeo:
-                try:
-                    dirPath = "%s/GEOTIFF"
-                    dirName = os.path.name(dirPath)
-                    command = "tar -czf %s.tgz %s" % (dirName, dirPath)
-                    subprocess.check_output(command.split())
-                except subprocess.CalledProcessError as e:
-                    print("Unable to tar $s: $s") % (dirPath, e.output)
-            if tarHdf:
-                try:
-                    dirPath = "%s/HDF5"
-                    dirName = os.path.name(dirPath)
-                    command = "tar -czf %s.tgz %s" % (dirName, dirPath)
-                    subprocess.check_output(command.split())
-                except subprocess.CalledProcessError as e:
-                    print("Unable to tar $s: $s") % (dirPath, e.output)
-
-        if checksum:
-            checkFile = open(outputPath+"/check_sums.txt", 'w+')
-
-            if geotiff:
-                checkFile.write("--geotiff checksums--\n\n")
-                for filename in os.listdir(gtifOutputDir):
-                    checkFile.write(filename + ": " + generate_chk_sum(gtifOutputDir + "/" + filename) + "\n")
-                checkFile.write("\n")
-
-            if hdf5:
-                checkFile.write("--hdf5 checksums--\n\n")
-                for filename in os.listdir(hdfOutputDir):
-                    checkFile.write(filename + ": " + generate_chk_sum(hdfOutputDir + "/" + filename) + "\n")
-                checkFile.write("\n")
-            if netcdf4:
-                checkFile.write("--netcdf4 checksums--\n\n")
-                for filename in os.listdir(ncdfOutputDir):
-                    checkFile.write(filename + ": " + generate_chk_sum(ncdfOutputDir + "/" + filename) + "\n")
-                checkFile.write("\n")
-
-            checkFile.close()
-            statusUpdate.update_status("generating MD5 checksums", logFile)
-            checkFile.close()
+    # if checksum:
+    #     checkFile = open(outputPath + "/check_sums.txt", 'w+')
+    #
+    #     if geotiff:
+    #         checkFile.write("--geotiff checksums--\n\n")
+    #         for filename in os.listdir(gtifOutputDir):
+    #             checkFile.write(filename + ": " + generate_chk_sum(gtifOutputDir + "/" + filename) + "\n")
+    #         checkFile.write("\n")
+    #
+    #     if hdf5:
+    #         checkFile.write("--hdf5 checksums--\n\n")
+    #         for filename in os.listdir(hdfOutputDir):
+    #             checkFile.write(filename + ": " + generate_chk_sum(hdfOutputDir + "/" + filename) + "\n")
+    #         checkFile.write("\n")
+    #     if netcdf4:
+    #         checkFile.write("--netcdf4 checksums--\n\n")
+    #         for filename in os.listdir(ncdfOutputDir):
+    #             checkFile.write(filename + ": " + generate_chk_sum(ncdfOutputDir + "/" + filename) + "\n")
+    #         checkFile.write("\n")
+    #
+    #     statusUpdate.update_status("generating MD5 checksums", temp_logPath)
+    #     checkFile.close()
 
 
 if __name__ == "__main__":
