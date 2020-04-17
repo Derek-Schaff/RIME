@@ -3,15 +3,18 @@ import os.path as path
 import subprocess
 
 
-def validate_cf_conventions(netCDFPath):
+def validate_cf_conventions(netCDFPath, logFile):
     try:
         # runs cfchecks, a tool that checks if metadata in a NetCDF4 program meets CF conventions
         command = "cfchecks %s" % netCDFPath
         # will raise CalledProcessError if subprocess failed
         process = subprocess.check_output(command.split())
+        return
 
     except subprocess.CalledProcessError as e:
-        print(e.output)
+        errorStr = "Warning: CF Metadata Convention check raised error code %d:\n%s" % (e.returncode, e.output.decode('utf-8'))
+        print(errorStr)
+        logFile.write(errorStr)
         exit()
 
 

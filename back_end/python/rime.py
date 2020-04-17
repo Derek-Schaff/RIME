@@ -1,6 +1,6 @@
 import argparse
-import back_end.python.convert
-import back_end.python.validate
+import back_end.python.convert as convert
+import back_end.python.validate as validate
 import numpy as np
 import h5py
 import time
@@ -72,11 +72,11 @@ def create_output_dir(dirPath):
     command = "mkdir %s" % dirPath
     subprocess.run(command.split())
 
-    back_end.python.validate.validate_dir(dirPath)
+    validate.validate_dir(dirPath)
 
 
 def resolution_reshape(array, x, y):
-    back_end.python.validate.validate_np_array(array)
+    validate.validate_np_array(array)
     try:
         array = np.reshape(array, (x,y))
     except ValueError as e:
@@ -137,27 +137,32 @@ def build_bin_list(binDir):
         for file in files:
             if file.endswith(".bin"):
                 binPath = os.path.join(root, file)
-                back_end.python.validate.validate_binary_file(binPath)
+                validate.validate_binary_file(binPath)
                 binList.append(binPath)
 
     return binList
 
 
-# def update_status(updateString, log):
-#     print(updateString);
-#     log.write(updateString)
+def update_status(updateString, log):
+    print(updateString)
+    log.write(updateString)
 
+def gen_checksum(filePath, outputPath, logFile):
+    update_status("Generating checksum for %s..." % filePath, logFile)
+    checkFile = open(outputPath + "/../check_sums.txt", 'a+')
+    checkFile.write(outputPath + ": " + generate_chk_sum(filePath) + "\n")
+    checkFile.close()
 
-def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
+def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, schecksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
     metadataDic = parse_metadata(metadataPath)
     ripDic = parse_rip(ripPath)
-    times = np.array([])
+    times = []
     x = int(ripDic["FT_DATASET_ROWS"])
     y = int(ripDic["FT_DATASET_COLUMNS"])
     datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
     logPath = "%s/log.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
     if ripDic["FT_BINARY_ROOT_DIR"]:
-        binDir = binRoot #ripDic["FT_BINARY_ROOT_DIR"]
+        binDir = ripDic["FT_BINARY_ROOT_DIR"]
     else:
         binDir = binRoot
 
@@ -165,16 +170,15 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     binList = build_bin_list(binDir)
     numBins = len(binList)
 
-
-    temp_logPath = os.getcwd() + "/back_end/python/test" + logPath
-    with open(temp_logPath, "a+") as logFile:
-        statusUpdate.update_status("loading binaries", logFile)
+    # open logfile
+    with open(logPath, "a+") as logFile:
+        update_status("Loading binary files....", logFile)
         for currentBinNum, binFile in enumerate(binList):
-            back_end.python.validate.validate_binary_file(binFile)
-            temp_binName = os.path.basename(binFile)
-            statusUpdate.update_status("begining processing on file:\n%s" % temp_binName, logFile)
+            validate.validate_binary_file(binFile)
+            update_status("Current file: %s\nFile Number: %d / %d" % (binFile, currentBinNum, numBins), logFile)
+
             binData = resolution_reshape(load_binary(binFile, datatype), x, y)
-            binBaseName = path.basename(binFile)
+            binBaseName = path.basename(os.path.splitext(binFile)[0])
             validateCFInterval = 50
 
             if hdf5:
@@ -182,33 +186,35 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 hdfOutputFile = ("%s/%s.h5" % (hdfOutputDir, binBaseName))
 
                 # if output HDF5 dir doesn't exist, try to make it
-                if not back_end.python.validate.validate_dir(hdfOutputDir):
+                if not validate.validate_dir(hdfOutputDir):
                     create_output_dir(hdfOutputDir)
 
                 start = time.time()
-                hdfFile = back_end.python.convert.create(hdfOutputFile, binData, ripDic, metadataDic, "HDF5")
-                h5py.is_hdf5(hdfFile.filename)  # TODO: Make this a validate method
+                hdfFile = convert.create(hdfOutputFile, binData, ripDic, metadataDic, "HDF5")
+                h5py.is_hdf5(hdfFile.filename) #TODO: Make this a validate method
                 hdfFile.close()
                 end = time.time()
 
-                # updateString = "%s HDF5 conversion time: %f" % (binFile, end - start)
-                statusUpdate.update_status("converting %s to HDF5" % temp_binName, logFile)
+                updateString = "%s HDF5 conversion time: %f" % (binFile, end - start)
+                times.append([end-start])
+                update_status(updateString, logFile)
 
             if geotiff:
                 gtifOutputDir = "%s/GEOTIFF" % outputPath
                 gtifOutputFile = ("%s/%s.h5" % (gtifOutputDir, binBaseName))
 
-                # if output HDF5 dir doesn't exist, try to make it
-                if not back_end.python.validate.validate_dir(gtifOutputDir):
+                # if output Geotiff dir doesn't exist, try to make it
+                if not validate.validate_dir(gtifOutputDir):
                     create_output_dir(gtifOutputDir)
 
                 GTIFFOutput = ("%s/GEOTIFF/%s.gtif" % (outputPath, binBaseName))
                 start = time.time()
-                GTIFF = back_end.python.convert.create(GTIFFOutput, binData, ripDic, metadataDic, "GEOTIFF")
+                GTIFF = convert.create(GTIFFOutput, binData, ripDic, metadataDic, "GEOTIFF")
                 end = time.time()
 
-                # updateString = "%s GEOTIFF conversion time: %f" % (binFile, end - start)
-                statusUpdate.update_status("converting %s to GEOTIFF" % temp_binName, logFile)
+                updateString = "%s GEOTIFF conversion time: %f" % (binFile, end - start)
+                times.append([end-start])
+                update_status(updateString, logFile)
 
             if netcdf4:
 
@@ -216,86 +222,96 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdfOutputFile = ("%s/%s.nc" % (ncdfOutputDir, binBaseName))
 
                 # if output netCDF dir doesn't exist, try to make it
-                if not back_end.python.validate.validate_dir(ncdfOutputDir):
+                if not validate.validate_dir(ncdfOutputDir):
                     create_output_dir(ncdfOutputDir)
 
                 ncdfOutput = ("%s/NETCDF4/%s.nc" % (outputPath, binBaseName))
                 start = time.time()
-                ncdf = back_end.python.convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic,
-                                                      "NETCDF4")
+                ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
+                times.append([end-start])
                 end = time.time()
 
-                # back_end.python.validate.validate_cf_conventions(ncdfOutput)
+                #validate.validate_cf_conventions(ncdfOutput, logFile)
 
-                # updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
-                statusUpdate.update_status("converting %s to NETCDF4" % temp_binName, logFile)
+                updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
+                update_status(updateString, logFile)
 
-            statusUpdate.update_status("---completed conversions on file:\n%s" % temp_binName, logFile)
+            # The CF metadata validation package we use only works on NetCDF4 files, so to check metadata validity in
+            # cases where we aren't creating
+            elif currentBinNum % validateCFInterval == 0:
+                tempDir = "%s/temp" % outputPath
+                if not validate.validate_dir(tempDir):
+                    create_output_dir(tempDir)
 
-        #     # The CF metadata validation package we use only works on NetCDF4 files, so to check metadata validity in
-        #     # cases where we aren't creating
-        #     elif currentBinNum % validateCFInterval == 0:
-        #         tempDir = "%s/temp" % outputPath
-        #         if not back_end.python.validate.validate_dir(tempDir):
-        #             create_output_dir(tempDir)
-        #
-        #         ncdfOutput = ("%s/temp/temp.nc")
-        #         start = time.time()
-        #         ncdf = back_end.python.convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
-        #         end = time.time()
-        #
-        #         back_end.python.validate.validate_cf_conventions(ncdfOutput)
-        #
-        #
-        # # remove temporary netCDF4 CF metadata validation dir
-        # if not netcdf4:
-        #     command = "rm -rf %s/temp" % outputPath
-        #     subprocess.check_output(command.split())
+                ncdfOutput = "%s/temp/temp.nc" % outputPath
+                start = time.time()
+                ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
+                end = time.time()
 
-        if tarAll or checksum:
+                #validate.validate_cf_conventions(ncdfOutput, logFile)
+
+            update_status("Conversions on file %s complete" % binBaseName, logFile)
+            update_status("Remaining conversions ETA: %d minutes" % (np.average(times) * (numBins - currentBinNum) / 60.0), logFile)
+
+        update_status("All conversions complete!", logFile)
+
+        # remove temporary netCDF4 CF metadata validation dir
+        if not netcdf4:
+            command = "rm -rf %s/temp" % outputPath
+            subprocess.check_output(command.split())
+
+        if tarAll:
             try:
-                print("checksum: ")
-                # outputName = os.path.name(outputPath)
-                print(outputPath)
-                command = "tar -czf %s.archive %s" % (outputPath, outputPath)
+                outputName = os.path.basename(outputPath)
+                command = "tar -czf %s.tgz %s" % (outputName, outputPath)
+                update_status("Compressing all output files...", logFile)
                 subprocess.check_output(command.split())
-                statusUpdate.update_status("compressing all files", logFile)
-                checkFile = open(outputPath + "/../check_sums.txt", 'a+')
-                checkFile.write(outputPath + ": " + generate_chk_sum("%s.archive" % outputPath) + "\n")
-                checkFile.close()
+
+                if checksum:
+                    gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
             except subprocess.CalledProcessError as e:
-                print("Unable to tar $s: $s") % (outputPath, e.output)
+                print("Unable to tar %s: %s") % (outputPath, e.output)
 
         else:
-            if tarNet:
-                try:
-                    dirPath = "%s/NETCDF4"
-                    dirName = os.path.name(dirPath)
-                    command = "tar -czf %s.archive %s" % (dirName, dirPath)
-                    subprocess.check_output(command.split())
-                    statusUpdate.update_status("compressing all NETCDF4 files", logFile)
-                except subprocess.CalledProcessError as e:
-                    print("Unable to tar $s: $s") % (dirPath, e.output)
-
             if tarGeo:
                 try:
-                    dirPath = "%s/GEOTIFF"
-                    dirName = os.path.name(dirPath)
-                    command = "tar -czf %s.archive %s" % (dirName, dirPath)
+                    outputName = os.path.basename(outputPath)
+                    command = "tar -czf %s.tgz %s" % outputName
                     subprocess.check_output(command.split())
                     statusUpdate.update_status("compressing all GEOTIFF files", logFile)
+
+                    if checksum:
+                        gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
                 except subprocess.CalledProcessError as e:
-                    print("Unable to tar $s: $s") % (dirPath, e.output)
+                    print("Unable to tar %s: %s") % (outputPath, e.output)
+
             if tarHdf:
                 try:
-                    dirPath = "%s/HDF5"
-                    dirName = os.path.name(dirPath)
-                    command = "tar -czf %s.archive %s" % (dirName, dirPath)
-                    subprocess.check_output(command.split())
+                    outputName = os.path.basename(outputPath)
                     statusUpdate.update_status("compressing all HDF5 files", logFile)
-                except subprocess.CalledProcessError as e:
-                    print("Unable to tar $s: $s") % (dirPath, e.output)
+                    command = "tar -czf %s.tgz %s" % (outputName, outputPath)
+                    subprocess.check_output(command.split())
 
+                    if checksum:
+                        gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
+                except subprocess.CalledProcessError as e:
+                    print("Unable to tar %s: %s") % (outputPath, e.output)
+
+                if tarNet:
+                    try:
+                        outputName = os.path.basename(outputPath)
+                        statusUpdate.update_status("compressing all NETCDF4 files", logFile)
+                        command = "tar -czf %s.tgz %s" % outputName
+                        subprocess.check_output(command.split())
+
+                        if checksum:
+                            gen_checksum("%s.tgz" % outputName, outputPath, logFile)
+
+                    except subprocess.CalledProcessError as e:
+                        print("Unable to tar %s: %s") % (outputName, e.output)
 
     # if checksum:
     #     checkFile = open(outputPath + "/check_sums.txt", 'w+')
