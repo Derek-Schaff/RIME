@@ -14,6 +14,7 @@ import subprocess
 import back_end.python.fWatch as fWatch
 import back_end.python.statusUpdate as statusUpdate
 from back_end.python.checkSum import generate_chk_sum
+import unittest
 
 
 # this class will store data in a struct
@@ -160,7 +161,7 @@ def gen_checksum(filePath, outputPath, logFile):
     checkFile.write(outputPath + ": " + generate_chk_sum(filePath) + "\n")
     checkFile.close()
 
-def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, schecksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
+def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
     metadataDic = parse_metadata(metadataPath)
     ripDic = parse_rip(ripPath)
     times = []
