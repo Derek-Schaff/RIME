@@ -49,7 +49,7 @@ class RunProgressWidget(QtWidgets.QWidget):
         self.cancelButton.clicked.connect(self.cancelButtonClick)
         # metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll
         # rime = self.manager.getInstance().rimeAccess
-        
+
         '''
         print(Manager.getInstance().run_params['binary_path'])
         x = int(ripDic["FT_DATASET_ROWS"])
@@ -66,7 +66,7 @@ class RunProgressWidget(QtWidgets.QWidget):
         # rime.run_rime(args['metadata_path'], args['rip_path'], args['output_path'], args['output_stopwarnings'],
         #               args['output_netcdf4'], args['output_hdf5'], args['output_geotiff'], args['output_option_filehash'],
         #               False, False, False, args['output_compress'], args['binary_path'])
-        
+
         #self.fakeProgressTimer = QtCore.QTimer(self)
         #self.fakeProgressTimer.setSingleShot(False)
         #self.fakeProgressTimer.timeout.connect(self.fakeProgressUpdate)
@@ -109,7 +109,7 @@ class RunProgressWidget(QtWidgets.QWidget):
 
     def closeEvent(self, event):
         self.manager.getInstance().removeOutput(self.updateProgressBox)
-        
+
         return super().closeEvent(event)
 
     def startRime(self):
