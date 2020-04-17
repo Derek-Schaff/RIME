@@ -112,7 +112,6 @@ def _create_geotiff(filePath, binary, ripDic, metadataDic):
     return
 
 
-
 def load_metadata_hdf5(file, metadataDic):
     for key in metadataDic.keys():
         # all keys in metaDataDic will be composed of a group path and an attribute name; attr is separated with |
