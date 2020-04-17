@@ -237,7 +237,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 times.append([end-start])
 
 
-                validate.validate_cf_conventions(ncdfOutput, logFile)
+                # validate.validate_cf_conventions(ncdfOutput, logFile)
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
                 update_status(updateString, logFile)
