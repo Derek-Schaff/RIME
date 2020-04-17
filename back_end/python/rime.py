@@ -11,9 +11,10 @@ from ctypes.util import find_library
 import os
 from os import path
 import subprocess
-import back_end.python.fWatch as fWatch
 import back_end.python.statusUpdate as statusUpdate
 from back_end.python.checkSum import generate_chk_sum
+import unittest
+
 
 
 # this class will store data in a struct
@@ -44,6 +45,17 @@ def parse_args(sysArgs):
     # example of specifying type and default value: parser.add_argument("--", type=float, default=1e-5, help="")
 
     return parser.parse_args()
+
+def parse_utest():
+    meta_dic = {"Metadata/Extent/geographic|sw_lon_lat_deg": "-179.999994,-86.716744", "Metadata/ESDR|ESDR_START_YEAR":
+                "1979", "Metadata/DatasetIdentification|VersionID": "v4", "Metadata/Extent/easegrid|grid_units": "meters"}
+    rip_dic = {"FT_SESSION_COMPRESS_LEVEL": "4", "FT_SESSION_ENABLE_ISO_METADATA": "True", "FT_SESSION_ESDR_STARTYEAR":
+                "2017", "FT_INPUT_ANC_LAT_PATH": "cell_lat_586x1383_flt32.binIt"}
+
+    print("metadata dicts equal: " + str(parse_metadata("/home/turkishdisko/RIME/back_end/python/test/utest_meta") == meta_dic))
+    print("ripdic dicts equal: " + str(parse_rip("/home/turkishdisko/RIME/back_end/python/test/utest_rip") == rip_dic))
+
+    return
 
 
 # reads lines from catalog file, which contains paths to input binaries
@@ -97,7 +109,7 @@ def parse_rip(filePath):
                 # skip empty lines
                 if line:
                     # line structure should be key = value, so we split on '=' and set dict[key] = value
-                    splitLine = line.split('=')
+                    splitLine = line.split('=', 1)
                     ripDic[splitLine[0].strip()] = splitLine[1].strip()
 
     return ripDic
@@ -114,7 +126,7 @@ def parse_metadata(filePath):
             line = line.strip()
             # skip comments and empty strings
             if line and line[0] != '#':
-                splitLine = line.split(',')
+                splitLine = line.split(',', 1)
                 key = splitLine[0].strip()
                 value = splitLine[1].strip()
 
@@ -153,14 +165,14 @@ def gen_checksum(filePath, outputPath, logFile):
     checkFile.write(outputPath + ": " + generate_chk_sum(filePath) + "\n")
     checkFile.close()
 
-def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, schecksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
+def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll, binRoot=None):
     metadataDic = parse_metadata(metadataPath)
     ripDic = parse_rip(ripPath)
     times = []
     x = int(ripDic["FT_DATASET_ROWS"])
     y = int(ripDic["FT_DATASET_COLUMNS"])
     datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
-    logPath = "%s/log.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
+    logPath = os.getcwd() + "/log.txt" #%slog.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
     if ripDic["FT_BINARY_ROOT_DIR"]:
         binDir = ripDic["FT_BINARY_ROOT_DIR"]
     else:
@@ -228,8 +240,9 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 ncdfOutput = ("%s/NETCDF4/%s.nc" % (outputPath, binBaseName))
                 start = time.time()
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
-                times.append([end-start])
                 end = time.time()
+                times.append([end-start])
+
 
                 #validate.validate_cf_conventions(ncdfOutput, logFile)
 
@@ -338,7 +351,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
 
 
 if __name__ == "__main__":
-    # get commandline args
+    #get commandline args
     args = parse_args(sys.argv[1:])
     metadataPath = args.metadata
     ripPath = args.rip
@@ -355,3 +368,5 @@ if __name__ == "__main__":
     tarAll = args.tar_all
 
     run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll)
+
+    #parse_utest()
