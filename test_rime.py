@@ -1,4 +1,5 @@
 import back_end.python.rime as rime
+import back_end.python.validate as validate
 import os.path as path
 import unittest
 import subprocess
@@ -56,9 +57,24 @@ class TestMethods(unittest.TestCase):
             rime.resolution_reshape(inputArr, 2, 2)
 
     def test_validate_bin_file_exists(self):
-        testPath = "test/test.bin"
+        testPath = "test/test_bin.bin"
 
-        self.assertTrue()
+        self.assertTrue(validate.validate_binary_file(testPath))
+
+    def test_validate_bin_file_doesnt_exist(self):
+        testPath = "test/i_dont_exist.bin"
+
+        self.assertFalse(validate.validate_binary_file(testPath))
+
+    def test_validate_np_array_true(self):
+        testArr = np.array([1])
+
+        self.assertTrue(validate.validate_np_array(testArr))
+
+    def test_validate_np_array_false(self):
+        testArr = [1]
+
+        self.assertFalse(validate.validate_np_array(testArr))
 
 
 if __name__ == '__main__':
