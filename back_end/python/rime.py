@@ -80,18 +80,13 @@ def create_output_dir(dirPath):
 
 
 def resolution_reshape(array, x, y):
-    try:
-        if validate.validate_np_array(array):
-            try:
-                array = np.reshape(array, (x,y))
-            except ValueError as e:
-                print("Warning: dimensions of binary data don't match dimensions specified in metadata: %s" % e.output)
-                exit()
-        else:
-            raise TypeError("Input array is not a Numpy arrray")
-    except TypeError as e:
-        print(e.output)
-        exit()
+    if validate.validate_np_array(array):
+        try:
+            array = np.reshape(array, (x,y))
+        except ValueError as e:
+            raise ValueError("Array cannot be reshaped to %d x %d" % (x, y))
+    else:
+        raise TypeError("Input array is not a Numpy array")
 
     return array
 
