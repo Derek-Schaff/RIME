@@ -9,7 +9,7 @@ def validate_cf_conventions(netCDFPath, logFile):
         command = "cfchecks %s" % netCDFPath
         # will raise CalledProcessError if subprocess failed
         process = subprocess.check_output(command.split())
-        return
+        return process
 
     except subprocess.CalledProcessError as e:
         errorStr = "Warning: CF Metadata Convention check raised error code %d:\n%s" % (e.returncode, e.output.decode('utf-8'))

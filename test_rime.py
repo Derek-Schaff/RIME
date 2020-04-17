@@ -4,6 +4,7 @@ import os.path as path
 import unittest
 import subprocess
 import numpy as np
+from io import StringIO
 
 
 def write_uint8_to_file(path, arr):
@@ -92,6 +93,29 @@ class TestMethods(unittest.TestCase):
 
         self.assertFalse(validate.validate_np_array(testArr))
 
+    def test_cf_validation(self):
+        # For a erroneous test file, use this one:
+        # testFilePath = "test/example_5.10.nc"
+        testFilePath = "test/example_6.2.nc"
+
+        out = StringIO()
+        result = validate.validate_cf_conventions(testFilePath, out)
+
+        if not self.assertTrue(result, "Error in NetCDF4 CF Validation"):
+            print(out.getvalue())
+
+    def test_build_bin_list(self):
+        testPath = "test/test_bin_dirs"
+        
+        testList = [
+            'test/test_bin_dirs/1/test.bin',
+            'test/test_bin_dirs/2/test.bin',
+            'test/test_bin_dirs/3/test.bin'
+        ]
+
+        bin_list = rime.build_bin_list(testPath)
+
+        self.assertTrue(set(testList).issuperset(bin_list))
 
 if __name__ == '__main__':
     unittest.main()
