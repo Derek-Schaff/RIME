@@ -28,6 +28,17 @@ struct data *ht_search(struct ht *table,const char *grp_name){
     return NULL;
 }
 
+//int ht_search_utest(struct ht *table,const char *grp_name){
+//    int hashIndex = ht_hash(table,grp_name);
+//    while(table->hashArr[hashIndex] != NULL){
+//        if(strcmp(table->hashArr[hashIndex]->grp_name, grp_name ) == 0){return hashIndex;}
+//
+//        ++hashIndex;
+//        hashIndex %= SIZE;
+//    }
+//    return 0;
+//}
+
 struct data *ht_insert(struct ht *table,char *grp_name){
     struct data *item = (struct data*) malloc(sizeof(struct data));
     item->grp_name = grp_name;
@@ -55,20 +66,30 @@ void ht_clean_up(struct ht *table){
 void ht_showAll(struct ht *table){
     for(int i = 0; i < SIZE; i++){
         if(table->hashArr[i] != NULL){
-            printf("group name: %s, group id: %d\n", table->hashArr[i]->grp_name,table->hashArr[i]->grp_id );
+            //printf("group name: %s, group id: %d\n", table->hashArr[i]->grp_name,table->hashArr[i]->grp_id );
+            printf("group name: %s, group id: %d\n", table->hashArr[i]->grp_name, i );
         }
 
     }
 }
 //
 //int main(){
-//    insert("group 1");
-//    insert("group 2");
-//    insert("group 3");
-//    insert("group 5");
-//    insert("group 9");
+//    struct ht table;
+//    ht_setup(&table);
+//    ht_insert(&table,"Metadata");
+//    ht_insert(&table,"DatasetIdentification");
+//    ht_insert(&table,"Extent");
+//    ht_insert(&table,"geographic");
+//    ht_insert(&table,"easegrid");
 //
-//    showAll();
+//    ht_showAll(&table);
+//    printf("\n\n\n");
+//
+//    printf("Metadata index = 66: %d\n", ht_search_utest(&table,"Metadata") == 66);
+//    printf("DatasetIdentification index = 3: %d\n", ht_search_utest(&table,"DatasetIdentification") == 3);
+//    printf("Extent index = 237: %d\n", ht_search_utest(&table,"Extent") == 237);
+//    printf("geographic index = 171: %d\n", ht_search_utest(&table,"geographic") == 171);
+//    printf("easegrid index = 82: %d\n", ht_search_utest(&table,"easegrid") == 82);
 //
 //    return 0;
 //}

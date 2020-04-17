@@ -24,6 +24,7 @@ struct data *ht_search(struct ht *table,const char *grp_name);
 struct data *ht_insert(struct ht *table,char *grp_name);
 void ht_showAll(struct ht *table);
 void ht_clean_up(struct ht *table);
+//int ht_search_utest(struct ht *table,const char *grp_name);
 
 
 #endif //RIME_HASH_TABLE_H
