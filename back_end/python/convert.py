@@ -28,10 +28,11 @@ def _create_hdf5(filePath, binary, ripDic, metadataDict):
     back_end.python.validate.validate_np_array(binary)
 
     # use mode 'w' for write access
-    file = h5py.File(filePath, "w")
-    file.create_dataset("data", data=binary)
+    with h5py.File(filePath, "w") as file:
+        file.create_dataset("data", binary.shape, data=binary)
 
-    load_metadata_hdf5(file, metadataDict)
+        load_metadata_hdf5(file, metadataDict)
+        file.close()
 
     return file
 
@@ -110,7 +111,6 @@ def _create_geotiff(filePath, binary, ripDic, metadataDic):
     geoTiff.GetRasterBand(1).WriteArray(binary)
     geoTiff.FlushCache()
     return
-
 
 
 def load_metadata_hdf5(file, metadataDic):

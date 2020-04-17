@@ -166,7 +166,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     x = int(ripDic["FT_DATASET_ROWS"])
     y = int(ripDic["FT_DATASET_COLUMNS"])
     datatype = ripDic["FT_DATASET_DATATYPE_FOR_STATUS"]
-    logPath = os.getcwd() + "/log.txt" #%slog.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
+    logPath = "%slog.txt" % ripDic["FT_OUTPUT_LOG_DIR"]
     if ripDic["FT_BINARY_ROOT_DIR"]:
         binDir = ripDic["FT_BINARY_ROOT_DIR"]
     else:
@@ -197,8 +197,6 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
 
                 start = time.time()
                 hdfFile = convert.create(hdfOutputFile, binData, ripDic, metadataDic, "HDF5")
-                h5py.is_hdf5(hdfFile.filename) #TODO: Make this a validate method
-                hdfFile.close()
                 end = time.time()
 
                 updateString = "%s HDF5 conversion time: %f" % (binFile, end - start)
