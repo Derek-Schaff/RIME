@@ -14,7 +14,6 @@ import subprocess
 import back_end.python.statusUpdate as statusUpdate
 from back_end.python.checkSum import generate_chk_sum
 import unittest
-import unittest
 
 
 
@@ -103,7 +102,7 @@ def parse_rip(filePath):
                 # skip empty lines
                 if line:
                     # line structure should be key = value, so we split on '=' and set dict[key] = value
-                    splitLine = line.split('=', 1)
+                    splitLine = line.split('=', 1) #split at only the first instance of the delimiter
                     ripDic[splitLine[0].strip()] = splitLine[1].strip()
 
     return ripDic
@@ -120,7 +119,7 @@ def parse_metadata(filePath):
             line = line.strip()
             # skip comments and empty strings
             if line and line[0] != '#':
-                splitLine = line.split(',', 1)
+                splitLine = line.split(',', 1) #split at only the first instance of the delimiter
                 key = splitLine[0].strip()
                 value = splitLine[1].strip()
 
@@ -238,7 +237,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 times.append([end-start])
 
 
-                #validate.validate_cf_conventions(ncdfOutput, logFile)
+                validate.validate_cf_conventions(ncdfOutput, logFile)
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
                 update_status(updateString, logFile)
