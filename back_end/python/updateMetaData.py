@@ -4,10 +4,12 @@ import sys
 
 class updateMetaData():
 
-    def update(file, field, newVal):
+    def update(file, field, newVal, delim):
         for line in fileinput.input(file, inplace=1):
             if line.startswith(field):
-                sys.stdout.write(field + " = " + newVal + "\n")
+                if delim == '=':
+                    delim = "= "
+                sys.stdout.write(field + delim + newVal + "\n")
             else:
                 sys.stdout.write(line)
 

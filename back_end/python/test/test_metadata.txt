@@ -38,12 +38,12 @@ Metadata/AcquisitionInformation/platform|identifier,NASA_Measures_Freeze_Thaw
 Metadata/AcquisitionInformation/platformDocument|publicationDate,2016-11-07
 Metadata/AcquisitionInformation/platformDocument|edition,F/T edition 4
 # <JMG> 2017-04-21, as per NSIDC request
-Metadata/AcquisitionInformation/platformDocument|title,Kim, Y., J. S. Kimball, and J. Glassy. 2016. MEaSUREs Global Record of Daily Landscape Freeze/Thaw Status, Version 04 [1979 to 2014]. Boulder Colorado USA: National Snow and Ice Data Center. Digital media (http://dx.doi.org/10.5067/MEASURES/CRYOSPHERE/nsidc-0477.004).
+Metadata/AcquisitionInformation/platformDocument|title,Joe
 # Note: this ESDR element has been custom adapted for the F/T product(s)
 Metadata/ESDR|ESDR_SUMMARY,NASA Measures Freeze Thaw global daily dataset
 Metadata/ESDR|ESDR_VERSION,4.0
 Metadata/ESDR|ESDR_START_YEAR,1979
-Metadata/ESDR|ESDR_ENDING_YEAR,2014
+Metadata/ESDR|ESDR_ENDING_YEAR,30XX
 Metadata/ESDR|ESDR_SPATIAL_EXTENT,global
 Metadata/ESDR|ESDR_SPATIAL_RESOLUTION,25km
 Metadata/ESDR|ESDR_TEMPORAL_RESOLUTION,daily

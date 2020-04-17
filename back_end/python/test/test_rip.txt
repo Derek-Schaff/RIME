@@ -55,7 +55,7 @@ FT_SESSION_OVERWRITE_PRIOR     = True
 # Explicitly set HDF5 files to have MD5 performed on them NOT .bin files!
 FT_SESSION_HASH_TARGET      = hdf5
 
-FT_SESSION_CPU_REQUESTED    = 6
+FT_SESSION_CPU_REQUESTED     = cake
 
 # <JMG> modified 2017-05-08 for NSIDC corrections
 FT_GEOTIFF_SEED_PATH = ./SEED_FT_V4.tif

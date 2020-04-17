@@ -10,6 +10,7 @@ class MetaDataEditWidget(QtWidgets.QWidget):
     def __init__(self, path, windowTitle, delimiter):
         super().__init__()
 
+        self.delimiter = delimiter
         self.layout = QtWidgets.QGridLayout()
         self.layout.setObjectName("editMetaDataPanel")
         self.resize(525, 300)
@@ -41,7 +42,7 @@ class MetaDataEditWidget(QtWidgets.QWidget):
         self.metaTable.itemChanged.connect(self.dataUpdate)
 
     def dataUpdate(self, item):
-        updateMetaData.update(self.path, self.metaTable.item(item.row(), 0).text(), self.metaTable.item(item.row(), 1).text())
+        updateMetaData.update(self.path, self.metaTable.item(item.row(), 0).text(), self.metaTable.item(item.row(), 1).text(), self.delimiter)
 
 
 class MyDelegate(QtWidgets.QItemDelegate):

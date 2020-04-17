@@ -47,16 +47,7 @@ def parse_args(sysArgs):
 
     return parser.parse_args()
 
-def parse_utest():
-    meta_dic = {"Metadata/Extent/geographic|sw_lon_lat_deg": "-179.999994,-86.716744", "Metadata/ESDR|ESDR_START_YEAR":
-                "1979", "Metadata/DatasetIdentification|VersionID": "v4", "Metadata/Extent/easegrid|grid_units": "meters"}
-    rip_dic = {"FT_SESSION_COMPRESS_LEVEL": "4", "FT_SESSION_ENABLE_ISO_METADATA": "True", "FT_SESSION_ESDR_STARTYEAR":
-                "2017", "FT_INPUT_ANC_LAT_PATH": "cell_lat_586x1383_flt32.binIt"}
 
-    print("metadata dicts equal: " + str(parse_metadata("/home/turkishdisko/RIME/back_end/python/test/utest_meta") == meta_dic))
-    print("ripdic dicts equal: " + str(parse_rip("/home/turkishdisko/RIME/back_end/python/test/utest_rip") == rip_dic))
-
-    return
 
 
 # reads lines from catalog file, which contains paths to input binaries
@@ -281,7 +272,7 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
             command = "rm -rf %s/temp" % outputPath
             subprocess.check_output(command.split())
 
-        if tarAll:
+        if tarAll or checksum:
             try:
                 outputName = os.path.basename(outputPath)
                 command = "tar -czf %s.tgz %s" % (outputName, outputPath)
