@@ -19,10 +19,11 @@ def validate_cf_conventions(netCDFPath, logFile):
 
 
 def validate_np_array(array):
+    valid = False
     if isinstance(array, np.ndarray):
-        return
-    else:
-        raise TypeError
+        valid = True
+
+    return valid
 
 
 def validate_binary_file(filePath):

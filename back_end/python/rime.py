@@ -14,6 +14,7 @@ import subprocess
 import back_end.python.statusUpdate as statusUpdate
 from back_end.python.checkSum import generate_chk_sum
 import unittest
+import unittest
 
 
 
@@ -88,11 +89,18 @@ def create_output_dir(dirPath):
 
 
 def resolution_reshape(array, x, y):
-    validate.validate_np_array(array)
     try:
-        array = np.reshape(array, (x,y))
-    except ValueError as e:
-        print("Warning: dimensions of binary data don't match dimensions specified in metadata: %s" % e.output)
+        if validate.validate_np_array(array):
+            try:
+                array = np.reshape(array, (x,y))
+            except ValueError as e:
+                print("Warning: dimensions of binary data don't match dimensions specified in metadata: %s" % e.output)
+                exit()
+        else:
+            raise TypeError("Input array is not a Numpy arrray")
+    except TypeError as e:
+        print(e.output)
+        exit()
 
     return array
 
@@ -368,5 +376,3 @@ if __name__ == "__main__":
     tarAll = args.tar_all
 
     run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, geotiff, checksum, tarNet, tarHdf, tarGeo, tarAll)
-
-    #parse_utest()
