@@ -31,7 +31,7 @@ def parse_args(sysArgs):
     parser.add_argument("rip", help="Read Input Parameter file containing necessary information for file conversion")
     parser.add_argument("output", help="Desired output directory")
     # options with -- are optional and can occur in any order. If a type isn't explicitly defined, they are assumed to be booleans that are set to true when enabled
-    parser.add_argument("--ignore_warnings", "-i", action="store_true", help="Instead of stopping on warnings, ignore and continue")
+    parser.add_argument("--ignore_warnings", "-i", action="store_true", help="Instead of stopping on metadata CF convention warnings, ignore and continue")
     parser.add_argument("--gui", "-gu", action="store_true", help="Launch RIME GUI. GUI currently inoperable")
     parser.add_argument("--netcdf4", "-n", action="store_true", help="Store output in NetCDF4 file format. Any combination of output format options can be specified simultaneously")
     parser.add_argument("--hdf5", "-hd", action="store_true", help="Store output in HDF5 file format. Any combination of output format options can be specified simultaneously")
@@ -44,8 +44,6 @@ def parse_args(sysArgs):
     # example of specifying type and default value: parser.add_argument("--", type=float, default=1e-5, help="")
 
     return parser.parse_args()
-
-
 
 
 # reads lines from catalog file, which contains paths to input binaries
@@ -178,12 +176,13 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
     with open(logPath, "a+") as logFile:
         update_status("Loading binary files....", logFile)
         for currentBinNum, binFile in enumerate(binList):
+            convTimeSt = time.time()
             validate.validate_binary_file(binFile)
             update_status("Current file: %s\nFile Number: %d / %d" % (binFile, currentBinNum, numBins), logFile)
 
             binData = resolution_reshape(load_binary(binFile, datatype), x, y)
             binBaseName = path.basename(os.path.splitext(binFile)[0])
-            validateCFInterval = 50
+            validateCFInterval = 100
 
             if hdf5:
                 hdfOutputDir = "%s/HDF5" % outputPath
@@ -198,7 +197,6 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 end = time.time()
 
                 updateString = "%s HDF5 conversion time: %f" % (binFile, end - start)
-                times.append([end-start])
                 update_status(updateString, logFile)
 
             if geotiff:
@@ -215,7 +213,6 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 end = time.time()
 
                 updateString = "%s GEOTIFF conversion time: %f" % (binFile, end - start)
-                times.append([end-start])
                 update_status(updateString, logFile)
 
             if netcdf4:
@@ -231,10 +228,8 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                 start = time.time()
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
                 end = time.time()
-                times.append([end-start])
-
-
-                # validate.validate_cf_conventions(ncdfOutput, logFile)
+                if currentBinNum % validateCFInterval == 0:
+                    validate.validate_cf_conventions(ncdfOutput, logFile, ignoreWarnings)
 
                 updateString = "%s NETCDF4 conversion time: %f" % (binFile, end - start)
                 update_status(updateString, logFile)
@@ -247,14 +242,14 @@ def run_rime(metadataPath, ripPath, outputPath, ignoreWarnings, netcdf4, hdf5, g
                     create_output_dir(tempDir)
 
                 ncdfOutput = "%s/temp/temp.nc" % outputPath
-                start = time.time()
                 ncdf = convert.create(ncdfOutput, load_binary(binFile, datatype), ripDic, metadataDic, "NETCDF4")
-                end = time.time()
 
-                #validate.validate_cf_conventions(ncdfOutput, logFile)
+                validate.validate_cf_conventions(ncdfOutput, logFile, ignoreWarnings)
 
             update_status("Conversions on file %s complete" % binBaseName, logFile)
-            update_status("Remaining conversions ETA: %d minutes" % (np.average(times) * (numBins - currentBinNum) / 60.0), logFile)
+            convTimeEn = time.time()
+            times.append([convTimeEn - convTimeSt])
+            update_status("Remaining conversions ETA: %lf minutes\n" % (np.average(times) * (numBins - currentBinNum) / 60.0), logFile)
 
         update_status("All conversions complete!", logFile)
 

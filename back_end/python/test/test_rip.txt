@@ -213,4 +213,4 @@ FT_DATASET_LEGEND_QC_BIT_3    =  PRECIP 0: NO Large precip event occurred this p
 
 # complete
 
-FT_BINARY_ROOT_DIR = back_end/python/test/test_bins
+FT_BINARY_ROOT_DIR = back_end/python/test/test_bins_utest/
