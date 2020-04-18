@@ -13,7 +13,6 @@ from os import path
 import subprocess
 import back_end.python.statusUpdate as statusUpdate
 from back_end.python.checkSum import generate_chk_sum
-import unittest
 
 
 
