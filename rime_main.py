@@ -16,7 +16,7 @@ def run():
 
     MainWindow.setCentralWidget(widget)
     MainWindow.setWindowTitle("Rime")
-    MainWindow.resize(850, 375)
+    MainWindow.resize(850, 500)
     MainWindow.show()
     
     sys.exit(app.exec_())

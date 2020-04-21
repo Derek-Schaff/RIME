@@ -19,13 +19,13 @@ class MainPanelWidget(QtWidgets.QWidget):
         self.panels.setObjectName("MainPanel")
 
         '''Create different 'pages' for dropdown panels'''
-        self.inputPage = InputPanelWidget()
+        self.inputPage = InputPanelWidget(self.manager, self)
         self.inputPage.setObjectName("inputPage")
 
-        self.outputPage = OutputPanelWidget(self.manager)
+        self.outputPage = OutputPanelWidget(self.manager, self)
         self.outputPage.setObjectName("outputPage")
 
-        self.runPage = RunPanelWidget(self.manager)
+        self.runPage = RunPanelWidget(self.manager, self)
         self.runPage.setObjectName("runPage")
 
         self.panels.addItem(self.inputPage, "Input")
@@ -34,6 +34,7 @@ class MainPanelWidget(QtWidgets.QWidget):
 
         self.warningIcon = QtGui.QIcon()
         self.warningIcon.addPixmap(QtGui.QPixmap("gui/img/warning.png"), QtGui.QIcon.Normal)
+        self.panels.setItemIcon(0, self.warningIcon)
         self.panels.setItemIcon(1, self.warningIcon)
         self.panels.setItemIcon(2, self.warningIcon)
 
@@ -68,3 +69,6 @@ class MainPanelWidget(QtWidgets.QWidget):
             self.runPage.update_statistics()
             self.runPage.validate_forms()
             self.manager.getInstance().connectOutput(self.runPage.appendToStats)
+
+    def setWarningIcon(self, panelID, on):
+        self.panels.setItemIcon(panelID, self.warningIcon if on else QtGui.QIcon(None))

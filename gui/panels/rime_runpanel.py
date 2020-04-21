@@ -6,7 +6,7 @@ from gui.panels.rime_runprogress import RunProgressWidget
 import time
 
 class RunPanelWidget(QtWidgets.QWidget):
-    def __init__(self, manager):
+    def __init__(self, manager, main_window):
         super().__init__()
 
         self.manager = manager

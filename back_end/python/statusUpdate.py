@@ -1,8 +1,6 @@
 from ctypes import *
 import os
 import time
-from gui.panels.rime_runprogress import RunProgressWidget
-
 
 def update_status(updateMessage, logFile):
     if (updateMessage == None):

@@ -4,19 +4,17 @@ from pathlib import Path
 
 from gui.panels.rime_editmeta import MetaDataEditWidget
 from gui.rime_variables import LABEL_WIDTH
-from rime_manager import Manager
-
-
-
-
+import os
 
 class InputPanelWidget(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, manager, main_window):
         super().__init__()
         '''----------'''
         '''INPUT PAGE'''
         '''----------'''
 
+        self.manager = manager
+        self.main_window = main_window
         '''---Left part - binary input selection---'''
         '''Components of binary selection group'''
         self.binaryFoldersLabel = QtWidgets.QLabel("Binary root directory location:")
@@ -107,6 +105,7 @@ class InputPanelWidget(QtWidgets.QWidget):
         self.metaDataEditButton.clicked.connect(self.editMetadata)
         self.metaData.textChanged.connect(self.metaDataTextChanged)
         self.ripPathTextBox.textChanged.connect(self.ripTextChanged)
+        self.binaryFolders.textChanged.connect(self.binaryChanged)
         self.ripButton.clicked.connect(self.chooseripFile)
         self.ripEditButton.clicked.connect(self.editRipData)
 
@@ -114,18 +113,18 @@ class InputPanelWidget(QtWidgets.QWidget):
     def chooseBinaryPath(self):
         file_path = QFileDialog.getExistingDirectory()
         self.binaryFolders.setText(file_path)
-        Manager.getInstance().run_params['binary_path'] = file_path
+        self.manager.getInstance().run_params['binary_path'] = file_path
 
 
     def chooseMetadataFile(self):
         file_path = QFileDialog.getOpenFileName()
         self.metaData.setText(file_path[0])
-        Manager.getInstance().run_params['metadata_path'] = file_path[0]
+        self.manager.getInstance().run_params['metadata_path'] = file_path[0]
 
     def chooseripFile(self):
         file_path = QFileDialog.getOpenFileName()
         self.ripPathTextBox.setText(file_path[0])
-        Manager.getInstance().run_params['rip_path'] = file_path[0]
+        self.manager.getInstance().run_params['rip_path'] = file_path[0]
 
     def editMetadata(self):
         if Path(self.metaData.text()).is_file():
@@ -141,16 +140,33 @@ class InputPanelWidget(QtWidgets.QWidget):
             self.editMetaWindow.show()
 
     def metaDataTextChanged(self):
-        # print(self.metaData.text())
         if self.metaData.text() != "":
             self.metaDataEditButton.setEnabled(True)
+
         else:
             self.metaDataEditButton.setEnabled(False)
+
+        self.checkInputs()
 
     def ripTextChanged(self):
         if self.ripPathTextBox.text() != "":
             self.ripEditButton.setEnabled(True)
         else:
             self.ripEditButton.setEnabled(False)
+        
+        self.checkInputs()
 
+    def binaryChanged(self):
+        if os.path.isdir(self.binaryFolders.text()):
+            binList = self.manager.getInstance().rimeAccess.build_bin_list(self.binaryFolders.text())
+            self.sideLayout.clear()
+            for bin in binList:
+                self.sideLayout.append(bin)
+        self.checkInputs()
+
+    def checkInputs(self):
+        if self.ripPathTextBox.text() != "" and self.metaData.text() != "" and self.binaryFolders.text() != "":
+            self.main_window.setWarningIcon(0, 0)
+        else:
+            self.main_window.setWarningIcon(0, 1)
 
