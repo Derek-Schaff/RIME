@@ -1,16 +1,16 @@
 from PySide2 import QtWidgets
-from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QFileDialog
+from PySide2.QtGui import QColor, QTextCursor
+from PySide2.QtCore import Slot, Qt
 
 from gui.panels.rime_runprogress import RunProgressWidget
-from rime_manager import Manager
-
+import time
 
 class RunPanelWidget(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, manager, main_window):
         super().__init__()
 
-        #self.runPageProcessBar = QtWidgets.QProgressBar()
+        self.manager = manager
+        self.runPageProcessBar = QtWidgets.QProgressBar()
         self.runPageStatistics = QtWidgets.QTextEdit()
         self.runPageStatistics.setReadOnly(True)
 
@@ -30,26 +30,38 @@ class RunPanelWidget(QtWidgets.QWidget):
     def update_statistics(self):
         self.runPageStatistics.clear()
 
-        for p in Manager.getInstance().run_params:
-            if ((p == 'binary_path' and Manager.getInstance().run_params[p] == '') or
-                (p == 'metadata_path' and Manager.getInstance().run_params[p] == '') or
-                (p == 'catalog_path' and Manager.getInstance().run_params[p] == '') or
-                (p == 'output_path' and Manager.getInstance().run_params[p] == '')):
+        for p in self.manager.getInstance().run_params:
+            if ((p == 'binary_path' and self.manager.getInstance().run_params[p] == '') or
+                (p == 'metadata_path' and self.manager.getInstance().run_params[p] == '') or
+                (p == 'rip_path' and self.manager.getInstance().run_params[p] == '') or
+                (p == 'output_path' and self.manager.getInstance().run_params[p] == '')):
                 self.runPageStatistics.setTextBackgroundColor(QColor(251,115,115))
             else:
                 self.runPageStatistics.setTextBackgroundColor(QColor(255, 255, 255))
 
-            self.runPageStatistics.append(p + ": " + str(Manager.getInstance().run_params[p]) + "\n")
+            self.runPageStatistics.append(p + ": " + str(self.manager.getInstance().run_params[p]) + "\n")
 
     def validate_forms(self):
-        if(Manager.checkNecessaryInput(Manager)):
+        if(self.manager.checkNecessaryInput(self.manager)):
             self.runPageRunButton.setEnabled(True)
             self.runPageRunButton.setToolTip("Start execution")
         else:
-            self.runPageRunButton.setEnabled(False)
+            self.runPageRunButton.setEnabled(True)
             self.runPageRunButton.setToolTip("Please set the required input/output parameters!")
 
-
+    @Slot()
     def runRime(self):
-        self.runProgressWindow = RunProgressWidget()
+        self.runProgressWindow = RunProgressWidget(self.manager)
         self.runProgressWindow.show()
+        # progress = QtWidgets.QProgressDialog("Updates","Some Words",0 , 100,self)
+        # progress.setModal(True)
+        # progress.show()
+        # for i in range(1000):
+        #     progress.setLabelText("number: " + str(i))
+        #     time.sleep(.01)
+        self.runProgressWindow.startRime()
+
+
+    @Slot(str)
+    def appendToStats(self, msg):
+        self.runPageStatistics.append(msg)

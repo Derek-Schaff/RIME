@@ -1,0 +1,215 @@
+# file   : FT_V4_GeoTIFF_Only-2017-07-19.rip
+# revised: 2017-07-19T10;13, Re-do run with corrected GeoTIFF projection info
+#          to use FT_ISO_METADATA_v1.6.txt metadata definitions.
+# version : 1.7.8
+# purpose: define runtime input parameters for FT 2016 post-processing
+# author : Joe Glassy
+# dependencies: external catalog file listing all F/T raw binary paths to process
+# context: Production post-process run for FT_2016 v4 instance.
+# project: NASA Measures Freeze Thaw ESDR version 4 for 2016
+# notes  : When GeoTIFFs are produced, these are stored in interleaved fashion in
+#          the same ./hdf5 directory
+#          tree as the .h5 HDF5 files are stored. 
+#          and comment lines introduced via '#' are ignored.
+# notes  : Supported @MACRO.{keyword} elements are shown below. When
+#          these appear in the FT_ISO_METADATA_INPUTPATH text file, 
+#          they indicate that a given ISO metadata element's value
+#          is not fixed, but is resolved only at runtime, using a 
+#          production rule communicatec by the {keyword}.  For example
+#          when @MACRO.FT_OUTPUT_FILENAME appears as the value of an
+#          ISO metadata element, it means "substitute the value of the
+#          current HDF5 OUTPUT PATHNAME" as the value.
+# notes  : I/O: for improved I/O: create and run job on a capped-size tmpfs style (ram) disk:
+#        :   mount -t tmpfs -o size=4096m tmpfs /mnt/hpc  ; mkdir /mnt/hpc/OUTPUT
+#        :   then after complete, copy ./OUTPUT/* elsewhere, then delete its contents and
+#        :   unmount -v /mnt/hpc or "LAZY-UMOUNT" ,e.g umount -l /mnt/hpc
+# notes  : A quick "find" syntax to display filenames and their size in KB is:
+#        :   find ./OUTPUT -type f -name "*.h5" -printf "%p %k\n"   
+#        :   find ./OUTPUT -type f -name "*.h5" -printf "%p %s\n" ...same, but size in bytes
+# Notes: the following rsync syntax was used to copy just the annual accuracy bin
+# files to a local directory to backup
+# find FT_V4_ReDo_GeoTIFF-2017-07-19.rip
+# rsync -avz --files-from=ALL_accuracy_bin.ctg  .  /anx_v4/TRANS/adm_jg/FT_2016/accuracy_bin
+
+# Supported Mode choices: (ft_status|annual_qa|annual_acc|image|geotiff|image_parallel|hash)
+# Note that sessionMode "image" causes the named type of visualization image to be generate
+
+# <JMG> 2017-03-23, tested and works, produced full set of 2015 GeoTIFFs
+FT_SESSION_MODE    = geotiff
+
+# v1.7.3+ experimental: Define a serial LIST of one or MORE modes to perform
+# FT_SESSION_ACTIONS = ft_status image annual_qa annual_acc hash
+# FT_SESSION_ACTIONS = ft_status image annual_qa annual_acc hash
+
+# if "image" opMode, can now supply an image type {png,jpg,gif} via extension
+# NOTE: jpg, png, and gif tested as all working here
+FT_SESSION_IMAGE_EXT           = gif
+FT_SESSION_IMAGE_COLORIZE      = True
+FT_SESSION_IMAGE_PRODUCE_ALL   = True
+FT_SESSION_VERBOSE             = True
+FT_SESSION_ENABLE_STAT_METRICS = True
+# if OVERWRITE_PRIOR, we overwrite any prior output files of same name as new
+# if False, we use (skip over) any prior output files
+FT_SESSION_OVERWRITE_PRIOR     = True
+
+# Explicitly set HDF5 files to have MD5 performed on them NOT .bin files!
+FT_SESSION_HASH_TARGET      = hdf5
+
+FT_SESSION_CPU_REQUESTED    = 6
+
+# <JMG> modified 2017-05-08 for NSIDC corrections
+FT_GEOTIFF_SEED_PATH = ./SEED_FT_V4.tif
+
+# Root path for task-level log files, REMEMBER: thisis distinct from the master session log
+FT_OUTPUT_LOG_DIR    = ./log
+
+FT_SESSION_COMPRESS_LEVEL = 4
+
+# set True when ISO implementation complete and tested
+FT_SESSION_ENABLE_ISO_METADATA = True
+
+# Remember: If FT_SESSION_RANDOM_SAMPLE is 0, then ALL catalog entries
+#   are processed. If >0, then a random sample of this many entries are
+#   randomly chosen from the full list. Useful for abbreviating the test cycles.
+FT_SESSION_RANDOM_SAMPLE  = 0
+
+# Define start and ending year for this ESDR (duration)
+FT_SESSION_ESDR_STARTYEAR = 2017
+FT_SESSION_ESDR_ENDYEAR   = 2017
+
+# Rule {FT_OUTPUT_LOCATION_POLICY} dictates where HDF5 outputs are written
+#  as either "IN_PLACE" vs. "AT_ANCHOR_ROOTPATH"
+
+FT_INPUT_ANCHOR_DIR       = /anx_v1/pr/yk/FT_status/v04
+# Note: for a GeoTIFF generation run, the catalog required is the one
+# that enumerates the raw binary files.
+FT_INPUT_CATALOG_FT_PATH  = ../catalogs/FT_V4_BIN_2017.ctg
+
+# NEW form of sessionMode specific nvps. These may now be left in
+# a common RIP file template since they don't conflict with each
+# other, or with legacy NVPs. 
+# Remember: these may be present but are NOT used unless the equivalent sessionMode is used
+FT_INPUT_CATALOG_QA_PATH   = ../catalogs/FT_V4_GlobalQA.ctg
+FT_INPUT_CATALOG_ACC_PATH  = ../catalogs/FT_V4_annual_acc_2017.ctg
+
+# Ancillary "package" file contains all binary ancillary images, so use it
+#   if it is available 
+# FT_INPUT_ANC_HDF5_PATH = ../anc/ft_ancillary_2016.h5
+# Ancillary root path where cell_lat,cell_lon, GLOBE Terrain, ASC300m resides
+FT_INPUT_ANC_DIR          = ../anc/
+FT_INPUT_ANC_LAT_PATH     = cell_lat_586x1383_flt32.bin
+FT_INPUT_ANC_LON_PATH     = cell_lon_586x1383_flt32.bin
+# Units: elevationGradient-as-standard-deviation of 1km elevation distribution in ea 25km gridcell
+FT_INPUT_ANC_GLOBETERRRAIN_PATH = GLOBE_Terrain_flt32.bin
+# Units: fractional water coverage, scaled (0..100) per 25km gridcell
+FT_INPUT_ANC_ESA_MAP300M_PATH   = ESACCI_LC_300m_flt32.bin
+
+# Modified 2017-05-08 to use NSIDC corrections
+FT_OUTPUT_LOCATION_POLICY     = AT_ANCHOR_ROOTPATH
+FT_INPUT_METADATA_PATH        = ../metadata/FT_ISO_METADATA_v1.6.txt
+FT_INPUT_CATALOG_GAP_PATH     = ../catalogs/FT_V4_GAPS.ctg
+FT_INPUT_CATALOG_PRECIP_PATH  = ../catalogs/FT_V4_Precp_2017.ctg
+
+FT_OUTPUT_ANCHOR_DIR   = ../OUTPUT_REPROC
+
+# NEW form of sessionMode specific "ANCHOR_ROOT" to name OUTPUT prefixes are:
+FT_OUTPUT_FT_DIR       = ../OUTPUT_REPROC
+FT_OUTPUT_ACC_DIR      = ../OUTPUT_REPROC/OUTPUT_ACC
+FT_OUTPUT_QA_DIR       = ../OUTPUT_REPROC/OUTPUT_QA
+# These next, mode specific anchor roots may be named
+FT_OUTPUT_HASH_DIR   = ../OUTPUT_REPROC/HASH
+FT_OUTPUT_IMAGE_DIR  = ../OUTPUT_REPROC/IMAGE
+
+# When supplied, do not affix an extension to a hash repository,
+# it will be added later depending on which type of HASH was generated
+FT_OUTPUT_HASH_PATH = ./FT_HashRepository.md5
+
+# DATASET PROPERTIES defined. These are generic, applying to whole collection
+FT_DATASET_UUID          = 1356af32-0dc8-11e7-8ef0-2fc36935f400
+FT_DATASET_ROWS          = 586
+FT_DATASET_COLUMNS       = 1383
+# note: dataset properties with no "Input"|"Output" qualifier apply to BOTH input and output
+FT_DATASET_GRIDNAME      = EASEGRID v1.0
+FT_DATASET_GRID_UNITS    = meters
+FT_DATASET_GRID_LOWER_LEFT_XY  = -1.7334193538E7,-7344784.825
+FT_DATASET_GRID_LOWER_RIGHT_XY =  1.7334193537E7,-7344784.825
+FT_DATASET_GRID_UPPER_LEFT_XY  = -1.7334193538E7,7344784.825
+FT_DATASET_GRID_UPPER_RIGHT_XY = 1.7334193537E7,7344784.825
+
+# Geographic (geodetic) bounds and extents
+FT_DATASET_GEOG_UNITS     = decimal degrees
+FT_DATASET_GEOG_NORTH_BOUND_LATITUDE = 86.716744
+FT_DATASET_GEOG_SOUTH_BOUND_LATITUDE = -86.716744
+FT_DATASET_GEOG_WEST_BOUND_LONGITUDE = -179.999994
+FT_DATASET_GEOG_EAST_BOUND_LONGITUDE = 179.999994
+FT_DATASET_GEOG_EXTENT_LOWER_CENTER_LON_LAT_DEG = 0.0,0.0
+FT_DATASET_GEOG_EXTENT_NE_LON_LAT_DEG = 179.999994,86.716744
+FT_DATASET_GEOG_EXTENT_NW_LON_LAT_DEG = -179.999994,86.716744
+FT_DATASET_GEOG_EXTENT_SE_LON_LAT_DEG = 179.999994,-86.716744
+FT_DATASET_GEOG_EXTENT_SW_LON_LAT_DEG = -179.999994,-86.716744
+
+FT_DATASET_NAME_FOR_STATUS      = ft_status
+FT_DATASET_UNITS_FOR_STATUS     = dimensionless
+FT_DATASET_DATATYPE_FOR_STATUS  = uint8
+# Fill=255, 254=perm open water
+FT_DATASET_FILLVALUE_FOR_STATUS = 255
+FT_DATASET_VALID_MIN_FOR_STATUS = 0
+FT_DATASET_VALID_MAX_FOR_STATUS = 4
+
+# <JMG> changed "QA" to "QC" here, and changed ft_qa to ft_qc
+FT_DATASET_NAME_FOR_QC          = ft_qc
+FT_DATASET_UNITS_FOR_QC         = dimensionless
+FT_DATASET_DATATYPE_FOR_QC      = uint8
+FT_DATASET_FILLVALUE_FOR_QC     = 0
+FT_DATASET_VALID_MIN_FOR_QC     = 0
+FT_DATASET_VALID_MAX_FOR_QC     = 2
+
+FT_DATASET_NAME_FOR_CELL_LAT    = cell_lat
+FT_DATASET_UNITS_FOR_CELL_LAT     = decimal degrees
+FT_DATASET_DATATYPE_FOR_CELL_LAT  = float32
+FT_DATASET_FILLVALUE_FOR_CELL_LAT = -9999
+FT_DATASET_VALID_MIN_FOR_CELL_LAT = -90.0
+FT_DATASET_VALID_MAX_FOR_CELL_LAT = 90.0
+
+FT_DATASET_NAME_FOR_CELL_LON    = cell_lon
+FT_DATASET_UNITS_FOR_CELL_LON     = decimal degrees
+FT_DATASET_DATATYPE_FOR_CELL_LON  = float32
+FT_DATASET_FILLVALUE_FOR_CELL_LON = -9999
+FT_DATASET_VALID_MIN_FOR_CELL_LON = -90.0
+FT_DATASET_VALID_MAX_FOR_CELL_LON = 90.0
+
+FT_DATASET_NAME_FOR_ANNUAL_QA      = ft_annual_qa
+FT_DATASET_UNITS_FOR_ANNUAL_QA     = dimensionless
+FT_DATASET_DATATYPE_FOR_ANNUAL_QA  = float32
+FT_DATASET_FILLVALUE_FOR_ANNUAL_QA = -9999
+FT_DATASET_VALID_MIN_FOR_ANNUAL_QA = 0
+FT_DATASET_VALID_MAX_FOR_ANNUAL_QA = 100
+
+FT_DATASET_NAME_FOR_ANNUAL_ACC      = ft_annual_accuracy
+FT_DATASET_UNITS_FOR_ANNUAL_ACC     = dimensionless
+FT_DATASET_DATATYPE_FOR_ANNUAL_ACC  = float32
+FT_DATASET_FILLVALUE_FOR_ANNUAL_ACC = -9999
+FT_DATASET_VALID_MIN_FOR_ANNUAL_ACC = 0
+FT_DATASET_VALID_MAX_FOR_ANNUAL_ACC = 100
+
+# <JMG> updated 2016-11-04T16:21, define LEGEND: ft-status (primary) classification legend, 
+FT_DATASET_LEGEND_FT_STATUS_DESCRIPTION = Definition of the Freeze Thaw Vers 4 pixel classification by instr-year-Overpass-DayOfYear combination.
+FT_DATASET_LEGEND_FT_STATUS_DOMAIN = F/T codes for ESDR domain extent are (0,1,2,3) with all other pixels outside F/T domain
+FT_DATASET_LEGEND_FT_STATUS_000 = 0 is Frozen (AM/PM frozen) RGB{0,0,255) in color images
+FT_DATASET_LEGEND_FT_STATUS_001 = 1 is Thawed (AM/PM thawed) RGB{255,0,0) in color images
+FT_DATASET_LEGEND_FT_STATUS_002 = 2 is Transitional (AM frozen and PM thawed) RGB{168,168,0) in color images
+FT_DATASET_LEGEND_FT_STATUS_003 = 3 is Inverse Transitional  (PM frozen and AM thawed) RGB{76,230,0) in color images
+FT_DATASET_LEGEND_FT_STATUS_252 = 252 no data RGB{255,255,255} in color images in color images
+FT_DATASET_LEGEND_FT_STATUS_253 = 253 non-cold constraint area RGB{200,200,200} in color images
+FT_DATASET_LEGEND_FT_STATUS_254 = 254 is 100 Percent open water RGB{255,255,255} in color images
+FT_DATASET_LEGEND_FT_STATUS_255 = 255 is Fillvalue RGB{255,255,255} in color images
+
+# Supply info for pixel-wise QC bitmap legend (0|1) bitvalue definitions, by bit), 
+# noting only 4 of 8 bits are used in QC byte, so bits 4-7 are not defined (should be zeroed out)
+FT_DATASET_LEGEND_QC_BIT_DESCRIPTION =  Definition of how the daily, pixel-wise Freeze Thaw QC (0|1) bit values, for bits (0-3), are defined in an 8-bit QC word.
+FT_DATASET_LEGEND_QC_BIT_0  = INTERP 0: Brightness temperatures (Tb) WERE NOT interpolated, and 1: Tb WERE INTERPOLATED for this pixel.
+FT_DATASET_LEGEND_QC_BIT_1  = OWF    0: Open water fraction of pixel is less than or equal to 20%; and 1: Open water fraction is >20% for this pixel/day.
+FT_DATASET_LEGEND_QC_BIT_2  = LEG    0: Large Elevation Gradient less than or equal to 300m this pixel; and 1: Large elevation gradient >300m this pixel/day.
+FT_DATASET_LEGEND_QC_BIT_3  = PRECIP 0: NO Large precip event occurred this pixel/day; and 1: Large precip event DID OCCUR this pixel/day.
+
+# complete

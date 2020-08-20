@@ -36,7 +36,7 @@
 # Note that sessionMode "image" causes the named type of visualization image to be generate
 
 # <JMG> 2017-03-23, tested and works, produced full set of 2015 GeoTIFFs
-FT_SESSION_MODE = geotiff
+FT_SESSION_MODE     = geotiff
 
 # v1.7.3+ experimental: Define a serial LIST of one or MORE modes to perform
 # FT_SESSION_ACTIONS = ft_status image annual_qa annual_acc hash
@@ -44,9 +44,9 @@ FT_SESSION_MODE = geotiff
 
 # if "image" opMode, can now supply an image type {png,jpg,gif} via extension
 # NOTE: jpg, png, and gif tested as all working here
-FT_SESSION_IMAGE_EXT           = gif
-FT_SESSION_IMAGE_COLORIZE      = True
-FT_SESSION_IMAGE_PRODUCE_ALL   = True
+FT_SESSION_IMAGE_EXT             = gif
+FT_SESSION_IMAGE_COLORIZE       = true
+FT_SESSION_IMAGE_PRODUCE_ALL    = false
 FT_SESSION_VERBOSE             = True
 FT_SESSION_ENABLE_STAT_METRICS = True
 # if OVERWRITE_PRIOR, we overwrite any prior output files of same name as new
@@ -56,7 +56,7 @@ FT_SESSION_OVERWRITE_PRIOR     = True
 # Explicitly set HDF5 files to have MD5 performed on them NOT .bin files!
 FT_SESSION_HASH_TARGET      = hdf5
 
-FT_SESSION_CPU_REQUESTED    = 6
+FT_SESSION_CPU_REQUESTED     = 6
 
 # <JMG> modified 2017-05-08 for NSIDC corrections
 FT_GEOTIFF_SEED_PATH = ./SEED_FT_V4.tif

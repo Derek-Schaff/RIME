@@ -1,16 +1,15 @@
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtWidgets import QFileDialog
 
-from rime_manager import Manager
-
-
 class OutputPanelWidget(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, manager, main_window):
         super().__init__()
         '''----------'''
         '''INPUT PAGE'''
         '''----------'''
 
+        self.manager = manager
+        self.main_window = main_window
         self.outputLocationBox = QtWidgets.QLineEdit()
         self.outputLocationBox.setObjectName("outputLocationBox")
         self.outputLocationButton = QtWidgets.QPushButton("...")
@@ -35,11 +34,11 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.outputPageOptionLabel = QtWidgets.QLabel("Output options:")
         self.outputPageOptionSpacer = QtWidgets.QSpacerItem(5, 30, QtWidgets.QSizePolicy.Expanding)
 
-        self.outputPageOptionCheckSHA = QtWidgets.QCheckBox("Generate SHA256 Checksum")
+        self.outputPageOptionCheckSHA = QtWidgets.QCheckBox("Compress and Generate checksum")
         self.outputPageOptionCheckSHA.setObjectName("outputPageOptionCheckSHA")
 
-        self.outputPageOptionCompress = QtWidgets.QCheckBox("Compress output")
-        self.outputPageOptionCompress.setObjectName("outputPageOptionCompress")
+        # self.outputPageOptionCompress = QtWidgets.QCheckBox("Compress output")
+        # self.outputPageOptionCompress.setObjectName("outputPageOptionCompress")
 
         self.outputPageOptionStop = QtWidgets.QCheckBox("Stop on warnings")
         self.outputPageOptionStop.setObjectName("outputPageOptionStop")
@@ -49,7 +48,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
         self.outputOptionsLayout.addWidget(self.outputPageOptionLabel)
         self.outputOptionsLayout.addSpacerItem(self.outputPageOptionSpacer)
         self.outputOptionsLayout.addWidget(self.outputPageOptionCheckSHA)
-        self.outputOptionsLayout.addWidget(self.outputPageOptionCompress)
+        # self.outputOptionsLayout.addWidget(self.outputPageOptionCompress)
         self.outputOptionsLayout.addWidget(self.outputPageOptionStop)
         self.outputOptionsLayout.setAlignment(QtCore.Qt.AlignTop)
         self.outputOptionsGroup = QtWidgets.QGroupBox()
@@ -131,7 +130,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
 
         self.outputPageOptionCheckSHA.stateChanged.connect(self.optionGroupClick)
         self.outputPageOptionStop.stateChanged.connect(self.optionGroupClick)
-        self.outputPageOptionCompress.stateChanged.connect(self.optionGroupClick)
+        # self.outputPageOptionCompress.stateChanged.connect(self.optionGroupClick)
 
         self.outputLogfileBox.setEnabled(False)
         self.outputLogfileBoxButton.setEnabled(False)
@@ -140,32 +139,32 @@ class OutputPanelWidget(QtWidgets.QWidget):
         if self.outputLogFileButtonGroup.checkedId() == 2:
             file_path = QFileDialog.getExistingDirectory()
             self.outputLogfileBox.setText(file_path)
-            Manager.getInstance().run_params['log_path'] = file_path
+            self.manager.getInstance().run_params['log_path'] = file_path
 
     def chooseOutputPath(self):
         file_path = QFileDialog.getExistingDirectory()
         self.outputLocationBox.setText(file_path)
-        Manager.getInstance().run_params['output_path'] = file_path
+        self.manager.getInstance().run_params['output_path'] = file_path
 
     def outputGroupClick(self, box):
         boxChecked = self.sender().text()
 
         if boxChecked == "HDF5":
-            Manager.getInstance().run_params['output_hdf5'] = self.outputPageOutputHDF5.isChecked()
+            self.manager.getInstance().run_params['output_hdf5'] = self.outputPageOutputHDF5.isChecked()
         elif boxChecked == "NetCDF4":
-            Manager.getInstance().run_params['output_netcdf4'] = self.outputPageOutputNetCDF.isChecked()
+            self.manager.getInstance().run_params['output_netcdf4'] = self.outputPageOutputNetCDF.isChecked()
         elif boxChecked == "GeoTIFF":
-            Manager.getInstance().run_params['output_geotiff'] = self.outputPageOutputGeoTIFF.isChecked()
+            self.manager.getInstance().run_params['output_geotiff'] = self.outputPageOutputGeoTIFF.isChecked()
 
     def optionGroupClick(self, box):
         boxChecked = self.sender().text()
 
-        if boxChecked == "Generate SHA256 Checksum":
-            Manager.getInstance().run_params['output_option_filehash'] = self.outputPageOptionCheckSHA.isChecked()
-        elif boxChecked == "Compress output":
-            Manager.getInstance().run_params['output_option_compress'] = self.outputPageOptionCompress.isChecked()
+        if boxChecked == "Compress and Generate checksum":
+            self.manager.getInstance().run_params['output_option_filehash'] = self.outputPageOptionCheckSHA.isChecked()
+        # elif boxChecked == "Compress output":
+        #     self.manager.getInstance().run_params['output_option_compress'] = self.outputPageOptionCompress.isChecked()
         elif boxChecked == "Stop on warnings":
-            Manager.getInstance().run_params['output_option_stopwarn'] = self.outputPageOptionStop.isChecked()
+            self.manager.getInstance().run_params['output_option_stopwarn'] = self.outputPageOptionStop.isChecked()
 
     def logFileChange(self):
         if self.outputLogFileButtonGroup.checkedId() == 2:
@@ -174,5 +173,7 @@ class OutputPanelWidget(QtWidgets.QWidget):
         else:
             self.outputLogfileBox.setEnabled(False)
             self.outputLogfileBoxButton.setEnabled(False)
-            Manager.getInstance().run_params['log_path'] = "DEFAULT"
-
+            self.manager.getInstance().run_params['log_path'] = "DEFAULT"
+            
+    def checkOutputs(self):
+        pass

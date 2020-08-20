@@ -4,22 +4,23 @@ from pathlib import Path
 
 from gui.panels.rime_editmeta import MetaDataEditWidget
 from gui.rime_variables import LABEL_WIDTH
-from rime_manager import Manager
-
+import os
 
 class InputPanelWidget(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, manager, main_window):
         super().__init__()
         '''----------'''
         '''INPUT PAGE'''
         '''----------'''
 
+        self.manager = manager
+        self.main_window = main_window
         '''---Left part - binary input selection---'''
         '''Components of binary selection group'''
-        self.binaryFoldersLabel = QtWidgets.QLabel("Binaries location:")
+        self.binaryFoldersLabel = QtWidgets.QLabel("Binary root directory location:")
         self.binaryFoldersLabel.setMinimumWidth(LABEL_WIDTH)
         self.binaryFoldersButton = QtWidgets.QPushButton("...")
-        self.binaryFoldersButton.setObjectName("binaryFoldersButton")
+        self.binaryFoldersButton.setObjectName("binaryFolderButton")
         self.binaryFoldersButton.setMinimumWidth(23)
         self.binaryFolders = QtWidgets.QLineEdit()
         self.binaryFolders.setObjectName("binaryFolders")
@@ -60,31 +61,31 @@ class InputPanelWidget(QtWidgets.QWidget):
         self.metaDataGroup = QtWidgets.QGroupBox()
         self.metaDataGroup.setLayout(self.metaDataLayout)
 
-        '''---Left part - catalog input selection---'''
-        '''Components of catalog selection group'''
-        self.catalogLabel = QtWidgets.QLabel("Catalog file location:")
-        self.catalogLabel.setMinimumWidth(LABEL_WIDTH)
-        self.catalogButton = QtWidgets.QPushButton("...")
-        self.catalogButton.setObjectName("CatalogButton")
-        self.catalogButton.setMaximumWidth(30)
+        '''---Left part - rip input selection---'''
+        '''Components of rip selection group'''
+        self.ripLabel = QtWidgets.QLabel("RIP file location:")
+        self.ripLabel.setMinimumWidth(LABEL_WIDTH)
+        self.ripButton = QtWidgets.QPushButton("...")
+        self.ripButton.setObjectName("ripButton")
+        self.ripButton.setMaximumWidth(30)
 
-        self.catalogEditButton = QtWidgets.QPushButton("Edit")
-        self.catalogEditButton.setObjectName("catalogEditButton")
-        self.catalogEditButton.setMaximumWidth(30)
-        self.catalogEditButton.setEnabled(False)
+        self.ripEditButton = QtWidgets.QPushButton("Edit")
+        self.ripEditButton.setObjectName("ripEditButton")
+        self.ripEditButton.setMaximumWidth(30)
+        self.ripEditButton.setEnabled(False)
 
-        self.catalog = QtWidgets.QLineEdit()
-        self.catalog.setObjectName("Catalog")
+        self.ripPathTextBox = QtWidgets.QLineEdit()
+        self.ripPathTextBox.setObjectName("rip")
 
-        '''Grid layout for catalog selection group'''
-        self.catalogLayout = QtWidgets.QGridLayout()
-        self.catalogLayout.addWidget(self.catalogLabel, 0, 0)
-        self.catalogLayout.addWidget(self.catalog, 0, 1)
-        self.catalogLayout.addWidget(self.catalogButton, 0, 2)
-        self.catalogLayout.addWidget(self.catalogEditButton, 1, 2)
+        '''Grid layout for rip selection group'''
+        self.ripLayout = QtWidgets.QGridLayout()
+        self.ripLayout.addWidget(self.ripLabel, 0, 0)
+        self.ripLayout.addWidget(self.ripPathTextBox, 0, 1)
+        self.ripLayout.addWidget(self.ripButton, 0, 2)
+        self.ripLayout.addWidget(self.ripEditButton, 1, 2)
         '''Need to set the layout into a GroupBox so it can be added'''
-        self.catalogGroup = QtWidgets.QGroupBox()
-        self.catalogGroup.setLayout(self.catalogLayout)
+        self.ripGroup = QtWidgets.QGroupBox()
+        self.ripGroup.setLayout(self.ripLayout)
 
         '''---Right part - input statistics---'''
         self.sideLayout = QtWidgets.QTextEdit("Statistics...")
@@ -92,9 +93,9 @@ class InputPanelWidget(QtWidgets.QWidget):
         '''---Setup Grid layout of input page---'''
         self.inputPageGrid = QtWidgets.QGridLayout()
         self.inputPageGrid.setObjectName("inputPageLayout")
-        self.inputPageGrid.addWidget(self.inputBinariesGroup, 0, 0)
+        self.inputPageGrid.addWidget(self.ripGroup, 0, 0)
         self.inputPageGrid.addWidget(self.metaDataGroup, 1, 0)
-        self.inputPageGrid.addWidget(self.catalogGroup, 2, 0)
+        self.inputPageGrid.addWidget(self.inputBinariesGroup, 2, 0)
         self.inputPageGrid.addWidget(self.sideLayout, 0, 1, 3, 1)
 
         self.setLayout(self.inputPageGrid)
@@ -103,42 +104,69 @@ class InputPanelWidget(QtWidgets.QWidget):
         self.metaDataButton.clicked.connect(self.chooseMetadataFile)
         self.metaDataEditButton.clicked.connect(self.editMetadata)
         self.metaData.textChanged.connect(self.metaDataTextChanged)
-        self.catalog.textChanged.connect(self.catalogTextChanged)
-        self.catalogButton.clicked.connect(self.chooseCatalogFile)
+        self.ripPathTextBox.textChanged.connect(self.ripTextChanged)
+        self.binaryFolders.textChanged.connect(self.binaryChanged)
+        self.ripButton.clicked.connect(self.chooseripFile)
+        self.ripEditButton.clicked.connect(self.editRipData)
 
 
     def chooseBinaryPath(self):
         file_path = QFileDialog.getExistingDirectory()
         self.binaryFolders.setText(file_path)
-        Manager.getInstance().run_params['binary_path'] = file_path
+        self.manager.getInstance().run_params['binary_path'] = file_path
 
 
     def chooseMetadataFile(self):
         file_path = QFileDialog.getOpenFileName()
         self.metaData.setText(file_path[0])
-        Manager.getInstance().run_params['metadata_path'] = file_path[0]
+        self.manager.getInstance().run_params['metadata_path'] = file_path[0]
 
-    def chooseCatalogFile(self):
+    def chooseripFile(self):
         file_path = QFileDialog.getOpenFileName()
-        self.catalog.setText(file_path[0])
-        Manager.getInstance().run_params['catalog_path'] = file_path[0]
+        self.ripPathTextBox.setText(file_path[0])
+        self.manager.getInstance().run_params['rip_path'] = file_path[0]
 
     def editMetadata(self):
         if Path(self.metaData.text()).is_file():
-            self.editMetaWindow = MetaDataEditWidget(self.metaData.text())
+            self.editMetaWindow = MetaDataEditWidget(self.metaData.text(), "Edit Meta Data File", ",")
+            self.editMetaWindow.show()
+    '''
+    self.ripPathTextBox actually works on the ripPathTextBox file input and edit button.
+    We'll need to rework this to make sense at some point
+    '''
+    def editRipData(self):
+        if Path(self.ripPathTextBox.text()).is_file():
+            self.editMetaWindow = MetaDataEditWidget(self.ripPathTextBox.text(), "Edit Rip File", "=")
             self.editMetaWindow.show()
 
     def metaDataTextChanged(self):
-        # print(self.metaData.text())
         if self.metaData.text() != "":
             self.metaDataEditButton.setEnabled(True)
+
         else:
             self.metaDataEditButton.setEnabled(False)
 
-    def catalogTextChanged(self):
-        if self.catalog.text() != "":
-            self.catalogEditButton.setEnabled(True)
-        else:
-            self.catalogEditButton.setEnabled(False)
+        self.checkInputs()
 
+    def ripTextChanged(self):
+        if self.ripPathTextBox.text() != "":
+            self.ripEditButton.setEnabled(True)
+        else:
+            self.ripEditButton.setEnabled(False)
+        
+        self.checkInputs()
+
+    def binaryChanged(self):
+        if os.path.isdir(self.binaryFolders.text()):
+            binList = self.manager.getInstance().rimeAccess.build_bin_list(self.binaryFolders.text())
+            self.sideLayout.clear()
+            for bin in binList:
+                self.sideLayout.append(bin)
+        self.checkInputs()
+
+    def checkInputs(self):
+        if self.ripPathTextBox.text() != "" and self.metaData.text() != "" and self.binaryFolders.text() != "":
+            self.main_window.setWarningIcon(0, 0)
+        else:
+            self.main_window.setWarningIcon(0, 1)
 
